@@ -1,0 +1,53 @@
+<!-- Django template (embedded Python in HTML), to display data from the database on a web page for testing -->
+<!-- http://127.0.0.1:8000/ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthyGatorSportsFan</title>
+</head>
+<body>
+    <header>
+        <h1>Welcome to HealthyGatorSportsFan!</h1>
+    </header>
+
+    <h2>Users</h2>
+    {% for x in user_objs %}
+    <p>User ID: {{ x.user_id }}</p>
+    <p>Email: {{ x.email }}</p>
+    <p>First Name: {{ x.first_name }}</p>
+    <p>Last Name: {{ x.last_name }}</p>
+    <p>Birthdate: {{ x.birthdate }}</p>
+    <p>Gender: {{ x.gender }}</p>
+    <p>Height (Feet): {{ x.height_feet }}</p>
+    <p>Height (Inches): {{ x.height_inches }}</p>
+    <p>Goal Weight: {{ x.goal_weight }}</p>
+    <p>Goal to Lose Weight: {{ x.goal_to_lose_weight }}</p>
+    <p>Goal to Feel Better: {{ x.goal_to_feel_better }}</p>
+    <p>Password: {{ x.password }}</p>
+    <hr>
+    {% endfor %}
+
+    <h2>User Data</h2>
+    {% for data in user_data_objs %}
+    <p>User Email: {{ data.user.email }}</p>
+    <p>Timestamp: {{ data.timestamp }}</p>
+    <p>Goal Type: {{ data.goal_type }}</p>
+    <p>Weight Value: {{ data.weight_value }}</p>
+    <p>Feel Better Value: {{ data.feel_better_value }}</p>
+    <hr>
+    {% endfor %}
+
+    <h2>Notifications</h2>
+    {% for notification in notification_objs %}
+    <p>User Email: {{ notification.user.email }}</p>
+    <p>Notification Title: {{ notification.notification_title }}</p>
+    <p>Notification Message: {{ notification.notification_message }}</p>
+    <p>Timestamp: {{ notification.timestamp }}</p>
+    <p>Read Status: {{ notification.read_status }}</p>
+    <hr>
+    {% endfor %}
+</body>
+</html>

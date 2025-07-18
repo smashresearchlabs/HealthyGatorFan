@@ -1,0 +1,34 @@
+# macOS
+.DS_Store
+
+# Expo
+.expo/
+
+# Node modules
+node_modules/
+
+# Build directories
+.expo-shared/
+dist/
+build/
+
+# Ignore Python bytecode files
+*.pyc
+__pycache__/
+
+# Ignore environment variables
+.env
+
+# Ignore staticfiles directory
+/staticfiles
+
+# Ignore auto generated celery files
+HealthyGatorSportsFanDjango/celerybeat-schedule.bak
+HealthyGatorSportsFanDjango/celerybeat-schedule.dat
+HealthyGatorSportsFanDjango/celerybeat-schedule.dir
+
+# Ignore AppUrls.ts file so Host URL changes can be made locally without disrupting default Heroku URL for app in production
+HealthyGatorSportsFanRN\constants\AppUrls.ts
+
+# Ignore FCM file
+HealthyGatorSportsFanRN\google-services.json

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "510865383660",
+    "project_id": "healthygatorsportsfan-22157",
+    "storage_bucket": "healthygatorsportsfan-22157.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:510865383660:android:11e152f6cf31a6d011c5c9",
+        "android_client_info": {
+          "package_name": "com.lisareichelson.healthygatorsportsfanrn"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2ErvdqEsrygyI3RHPiB2h-F8s6OcG4jw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

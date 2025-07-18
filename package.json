@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "react-native-element-dropdown": "^2.12.2",
+    "react-native-modal-datetime-picker": "^18.0.0",
+    "expo-notifications": "~0.29.8",
+    "expo-device": "~7.0.1",
+    "expo-constants": "~17.0.3"
+  }
+}
