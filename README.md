@@ -136,26 +136,28 @@ Open a new terminal and navigate to the **HealthyGatorSportsFanDjango** director
 Now the backend should be up and running locally!
 
 ### Frontend
-This section is still under construction.
 
 #### Option 1: Run using TestFlight
 (TODO: Complete this section)
 
-#### Option 2: Run locally using Expo Go
+#### Option 2: Run locally using Expo CLI
 
 ##### Step 0: Prerequisite downloads and installations
-
-In the **HealthyGatorSportsFanRN** run:
-- `npx expo start`
-
-##### Step 1: Prerequisite downloads and installations
 
 Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
 - `npm install`
 - `npx expo install react-native-web`
 - `npx expo install expo-web-browser`
 
-#### Option 3: Run locally using Expo Development Build
+> [!WARNING]
+> Running `npm audit fix` will cause errors.
+
+##### Step 1: Prerequisite downloads and installations
+
+In the **HealthyGatorSportsFanRN** run:
+- `npx expo start`
+
+#### Option 3: Run locally using Expo Go and Android emulator
 (TODO: Complete this section)
 
 ##### Step 0: Prerequisite downloads and installations
