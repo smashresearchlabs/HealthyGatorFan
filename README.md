@@ -152,13 +152,38 @@ Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
 > [!WARNING]
 > Running `npm audit fix` will cause errors.
 
+#### Option 2.1: Using Expo CLI
+
 ##### Step 1: Start the app
 
 In the **HealthyGatorSportsFanRN** directory run:
 - `npx expo start`
 
-#### Option 3: Run locally using Expo Go and Android emulator
-(TODO: Complete this section)
+#### Option 2.2: Using Expo Go with Android emulator
+
+##### Step 1: Install emulator dependencies
+
+1. Install Watchman and JDK
+    - Install [Java SE Development Kit (JDK)](https://openjdk.org/)
+    - `choco install -y microsoft-openjdk17`
+
+1. Install Django
+   - You can install Django by running the command `python -m pip install Django` in the terminal. Instructions can be found here: https://docs.djangoproject.com/en/5.1/topics/install/#installing-official-release or here: https://docs.djangoproject.com/en/5.1/intro/install/#install-django.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 HealthyGatorSportsFan is organized into two primary directories: **HealthyGatorSportsFanDjango** for the Django-powered backend code, and **HealthyGatorSportsFanRN** for the React Native frontend code.
 
