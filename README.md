@@ -186,11 +186,16 @@ Set up an emulator
       - **Step 1: Create a device** - On the Android Studio main screen, click More Actions, then Virtual Device Manager in the dropdown, then click the Create device button.
       - **Step 2: Select Hardware** - Under Select Hardware, choose the hardware you want to emulate, click next, then select an OS version, click finish.
 
-4.  Download Expo Go on the emulator
+##### Step 3: Download Expo Go
+
+Download Expo Go on the emulator
    - Install Expo Go through [Expo Go](https://expo.dev/go)
 
-4.  Download Expo Go on the emulator
-   - Install Expo Go through [Expo Go](https://expo.dev/go)
+##### Step 3: Start the app
+
+To run the app on the Android emulator:
+   - Open Expo Go in the Android emulator
+   - In the Expo Go CLI press `a`
 
 
 
