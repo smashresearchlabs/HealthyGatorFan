@@ -152,7 +152,7 @@ Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
 > [!WARNING]
 > Running `npm audit fix` will cause errors.
 
-##### Step 1: Prerequisite downloads and installations
+##### Step 1: Start the app
 
 In the **HealthyGatorSportsFanRN** run:
 - `npx expo start`
