@@ -155,15 +155,15 @@ Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
 Within the **HealthyGatorSportsFanRN** directory run:
 - `npx expo start`
 
-#### Option 2.1: Using Expo Go CLI
+   - #### Option 2.1: Using Expo Go CLI
 
-##### Step 1: Start the app
+   - ##### Step 1: Start the app
 
-In the Expo Go CLI press `w`
+   - In the Expo Go CLI press `w`
 
-#### Option 2.2: Using Expo Go with Android emulator
+   - #### Option 2.2: Using Expo Go with Android emulator
 
-##### Step 1: Install Android Studio
+   - ##### Step 1: Install Android Studio
 
 1. Install Watchman and JDK
     - Install [Java SE Development Kit (JDK)](https://openjdk.org/) using the command: `choco install -y microsoft-openjdk17`.
