@@ -150,40 +150,7 @@ This section is still under construction.
 ##### Step 0: Prerequisite downloads and installations
 
 Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
-- `npm init`
 - `npm install`
-- `npm install react-native@0.74.5` 
-- `npm install expo@latest`
-- `npx expo install expo-build-properties`
-- `npx install expo --fix`
-- `npm install @react-navigation/native@^7.0.1 @react-navigation/native-stack@^7.0.1`
-- `npm install @react-native-community/cli` 
-- `npm install react-native-element-dropdown`
-- `npx expo install expo-checkbox` 
-- `npm install react-native-modal-datetime-picker` 
-- `npm install -s @react-navigation/bottom-tabs` 
-- `npx expo install react-native-reanimated` 
-- `npx expo install expo-notifications`
-- `npx expo install expo-device` 
-- `npx expo install expo-router` 
-- `npm i --save-dev @types/react`
-- `npx expo install expo-splash-screen`
-- `npm install react-native-star-rating-widget --save`
-- `npm install react react-dom @react-navigation/native @react-navigation/native-stack`
-
-If you come across warnings like this, you may need to update package versions as-needed:
-<img width="834" alt="image" src="https://github.com/user-attachments/assets/51dc6d62-0b09-4c0c-98ce-e1b46198780e">
-- `npm install expo@52.0.11`
-- `npm install expo-linking@7.0.3`
-- `npm install  expo-router@4.0.9`
-- `npm install expo-splash-screen@0.29.13`
-- `npm install react-native@0.76.3`
-
-If you come across any build errors, you may need further package updates or installations. Follow the messages accordingly.
-
-## Code Organization
-This section is still under construction.
-(TODO: Complete this section) 
 
 HealthyGatorSportsFan is organized into two primary directories: **HealthyGatorSportsFanDjango** for the Django-powered backend code, and **HealthyGatorSportsFanRN** for the React Native frontend code.
 
