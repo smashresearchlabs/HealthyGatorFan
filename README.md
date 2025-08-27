@@ -140,7 +140,7 @@ Now the backend should be up and running locally!
 #### Option 1: Run using TestFlight
 (TODO: Complete this section)
 
-#### Option 2: Run locally using Expo 
+#### Option 2: Run locally using Expo Go
 
 ##### Step 0: Prerequisite downloads and installations
 
@@ -152,20 +152,21 @@ Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
 > [!WARNING]
 > Running `npm audit fix` will cause errors.
 
-#### Option 2.1: Using Expo CLI
+> In the **HealthyGatorSportsFanRN** directory run:
+- `npx expo start`
+
+#### Option 2.1: Using Expo Go CLI
 
 ##### Step 1: Start the app
 
-In the **HealthyGatorSportsFanRN** directory run:
-- `npx expo start`
+In the Expo Go CLI press `w`
 
 #### Option 2.2: Using Expo Go with Android emulator
 
 ##### Step 1: Install emulator dependencies
 
 1. Install Watchman and JDK
-    - Install [Java SE Development Kit (JDK)](https://openjdk.org/)
-    - `choco install -y microsoft-openjdk17`
+    - Install [Java SE Development Kit (JDK)](https://openjdk.org/) using the command `choco install -y microsoft-openjdk17`.
 
 1. Install Django
    - You can install Django by running the command `python -m pip install Django` in the terminal. Instructions can be found here: https://docs.djangoproject.com/en/5.1/topics/install/#installing-official-release or here: https://docs.djangoproject.com/en/5.1/intro/install/#install-django.
