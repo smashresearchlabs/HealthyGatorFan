@@ -148,7 +148,7 @@ This section is still under construction.
 In the **HealthyGatorSportsFanRN** run:
 - `npx expo start`
 
-- ##### Step 1: Prerequisite downloads and installations
+##### Step 1: Prerequisite downloads and installations
 
 Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
 - `npm install`
