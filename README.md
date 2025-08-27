@@ -152,7 +152,7 @@ Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
 > [!WARNING]
 > Running `npm audit fix` will cause errors.
 
-ethIn the **HealthyGatorSportsFanRN** directory run:
+Within the **HealthyGatorSportsFanRN** directory run:
 - `npx expo start`
 
 #### Option 2.1: Using Expo Go CLI
