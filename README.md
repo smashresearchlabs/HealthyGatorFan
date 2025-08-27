@@ -138,19 +138,27 @@ Now the backend should be up and running locally!
 ### Frontend
 This section is still under construction.
 
-#### Option 2: Run using TestFlight
+#### Option 1: Run using TestFlight
 (TODO: Complete this section)
 
 #### Option 2: Run locally using Expo Go
-(TODO: Complete this section)
-
-#### Option 2: Run locally using Expo Development Build
-(TODO: Complete this section)
 
 ##### Step 0: Prerequisite downloads and installations
 
+In the **HealthyGatorSportsFanRN** run:
+- `npx expo start`
+
+- ##### Step 1: Prerequisite downloads and installations
+
 Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
 - `npm install`
+- `npx expo install react-native-web`
+- `npx expo install expo-web-browser`
+
+#### Option 3: Run locally using Expo Development Build
+(TODO: Complete this section)
+
+##### Step 0: Prerequisite downloads and installations
 
 HealthyGatorSportsFan is organized into two primary directories: **HealthyGatorSportsFanDjango** for the Django-powered backend code, and **HealthyGatorSportsFanRN** for the React Native frontend code.
 
