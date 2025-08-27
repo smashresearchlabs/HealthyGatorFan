@@ -163,14 +163,14 @@ In the Expo Go CLI press `w`
 
 #### Option 2.2: Using Expo Go with Android emulator
 
-##### Step 1: Install emulator dependencies
+##### Step 1: Install emulator
 
 1. Install Watchman and JDK
     - Install [Java SE Development Kit (JDK)](https://openjdk.org/) using the command `choco install -y microsoft-openjdk17`.
 
 1.  Set up Android Studio
-   - Follow Steps 1-9 in these instructions: [Expo Go | Set up Android Studio]([https://ngrok.com/docs/getting-started/?os=windows](https://docs.expo.dev/workflow/android-studio-emulator/)).
-      - **Step 1: Downloiad** - Download [Android Studio](https://developer.android.com/studio)
+   - Follow Steps 1-9 in these instructions: [Expo Go | Set up Android Studio](https://docs.expo.dev/workflow/android-studio-emulator/#set-up-an-emulator).
+      - **Step 1: Download** - Download [Android Studio](https://developer.android.com/studio)
       - **Step 2: Install** - Go through the Android Studio wizard, accept the licensing agreement, and click finish.
       - **Step 3: Create Windows environment variables** - After the tools installation is complete, configure the `ANDROID_HOME` environment variable.
          - Go to Windows Control Panel > User Accounts > User Accounts (again) > Change my environment variables and click New to create a new `ANDROID_HOME` user variable. The value of this variable will point to the path to your Android SDK:
@@ -178,6 +178,14 @@ In the Expo Go CLI press `w`
       - **Step 4: Add platform-tools to PATH** - Go to Windows Control Panel > User Accounts > User Accounts (again) > Change my environment variables > Path > Edit > New and add the path to the platform-tools
          - By default, the paltform-tools folder is installed at the following location: `C:\Users\username\AppData\Local\Android\SDK\platform-tools`
       - **Step 5: Vertification** - You can vertify that `adb` can be located by running `adb` from a terminal.
+
+1.  Set up an emulator
+   - Follow Steps 1-5 in these instructions: [Expo Go | Set up an emulator](https://docs.expo.dev/workflow/android-studio-emulator/#set-up-an-emulator).
+      - **Step 1: Create a device** - On the Android Studio main screen, click More Actions, then Virtual Device Manager in the dropdown, then click the Create device button.
+      - **Step 2: Select Hardware** - Under Select Hardware, choose the hardware you want to emulate, click next, then select an OS version, click finish.
+
+1.  Download Expo Go on the emulator
+   - Install Expo Go through [Expo Go](https://expo.dev/go)
 
 
 
