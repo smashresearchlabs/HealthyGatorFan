@@ -166,7 +166,7 @@ In the Expo Go CLI press `w`
 ##### Step 1: Install Android Studio
 
 1. Install Watchman and JDK
-    - Install [Java SE Development Kit (JDK)](https://openjdk.org/) using the command `choco install -y microsoft-openjdk17`.
+    - Install [Java SE Development Kit (JDK)](https://openjdk.org/) using the command: `choco install -y microsoft-openjdk17`.
 
 2.  Set up Android Studio
    - Follow Steps 1-9 in these instructions: [Expo Go | Set up Android Studio](https://docs.expo.dev/workflow/android-studio-emulator/#set-up-an-emulator).
@@ -196,19 +196,6 @@ Download Expo Go on the emulator
 To run the app on the Android emulator:
    - Open Expo Go in the Android emulator
    - In the Expo Go CLI press `a`
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 HealthyGatorSportsFan is organized into two primary directories: **HealthyGatorSportsFanDjango** for the Django-powered backend code, and **HealthyGatorSportsFanRN** for the React Native frontend code.
 
