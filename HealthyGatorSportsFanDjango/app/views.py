@@ -406,3 +406,25 @@ def home_tile_view(request):
         message = response["message"]
     
     return JsonResponse(response)
+
+
+@csrf_exempt
+def schedule_view(request):
+    configuration = cfbd.Configuration(
+        host="https://apinext.collegefootballdata.com",
+        access_token=os.getenv('COLLEGE_FOOTBALL_API_KEY')
+    )
+    apiInstance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    current_year = date.today().year
+    try:
+        games = apiInstance.get_games(year=current_year, team='Florida', conference='SEC')
+        games_list = [game.to_dict() for game in games]
+        return JsonResponse({"data": games_list})
+    except Exception as e:
+        print(e)
+        return JsonResponse(
+            {"error": f"Could not retrieve UF games for {current_year}"},
+            status=500
+        )
+    
+    
