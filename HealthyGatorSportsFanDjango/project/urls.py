@@ -20,7 +20,7 @@ from django.urls import path
 #from HealthyGatorSportsFanDjango.app.views import index, CreateUserView, poll_cfbd_view, CreateUserDataView, NotificationListView, CreateNotificationView, DeleteNotificationView, BulkDeleteNotificationsView, UserLoginView, LatestUserDataView, UserUpdateView, CheckEmailView
 # for running locally
 #from app.views import index, CreateUserView, poll_cfbd_view, BasicInfoView, GoalCollectionView, CreateUserDataView (before merge)
-from app.views import index, CreateUserView, poll_cfbd_view, home_tile_view, CreateUserDataView, NotificationListView, CreateNotificationView, DeleteNotificationView, BulkDeleteNotificationsView, UserLoginView, LatestUserDataView, UserUpdateView, CheckEmailView
+from app.views import index, CreateUserView, poll_cfbd_view, home_tile_view, schedule_view, CreateUserDataView, NotificationListView, CreateNotificationView, DeleteNotificationView, BulkDeleteNotificationsView, UserLoginView, LatestUserDataView, UserUpdateView, CheckEmailView
 
 # Import drf-yasg components
 from drf_yasg.views import get_schema_view 
@@ -57,6 +57,7 @@ urlpatterns = [
     path('notificationdata/deleteall/<int:user_id>/', BulkDeleteNotificationsView.as_view(), name='notifications-delete-all'),
     path('poll-cfbd/', poll_cfbd_view, name='poll_cfbd'),
     path('home-tile/', home_tile_view, name='home_tile_view'),
+    path('schedule-tile/', schedule_view, name='schedule_tile'),
     
     # API endpoint for Swagger
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
