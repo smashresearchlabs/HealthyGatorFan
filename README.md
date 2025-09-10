@@ -136,54 +136,66 @@ Open a new terminal and navigate to the **HealthyGatorSportsFanDjango** director
 Now the backend should be up and running locally!
 
 ### Frontend
-This section is still under construction.
 
-#### Option 2: Run using TestFlight
+#### Option 1: Run using TestFlight
 (TODO: Complete this section)
 
 #### Option 2: Run locally using Expo Go
-(TODO: Complete this section)
-
-#### Option 2: Run locally using Expo Development Build
-(TODO: Complete this section)
 
 ##### Step 0: Prerequisite downloads and installations
 
 Navigate to the **HealthyGatorSportsFanRN** directory and run the following:
-- `npm init`
 - `npm install`
-- `npm install react-native@0.74.5` 
-- `npm install expo@latest`
-- `npx expo install expo-build-properties`
-- `npx install expo --fix`
-- `npm install @react-navigation/native@^7.0.1 @react-navigation/native-stack@^7.0.1`
-- `npm install @react-native-community/cli` 
-- `npm install react-native-element-dropdown`
-- `npx expo install expo-checkbox` 
-- `npm install react-native-modal-datetime-picker` 
-- `npm install -s @react-navigation/bottom-tabs` 
-- `npx expo install react-native-reanimated` 
-- `npx expo install expo-notifications`
-- `npx expo install expo-device` 
-- `npx expo install expo-router` 
-- `npm i --save-dev @types/react`
-- `npx expo install expo-splash-screen`
-- `npm install react-native-star-rating-widget --save`
-- `npm install react react-dom @react-navigation/native @react-navigation/native-stack`
+- `npx expo install react-native-web`
+- `npx expo install expo-web-browser`
 
-If you come across warnings like this, you may need to update package versions as-needed:
-<img width="834" alt="image" src="https://github.com/user-attachments/assets/51dc6d62-0b09-4c0c-98ce-e1b46198780e">
-- `npm install expo@52.0.11`
-- `npm install expo-linking@7.0.3`
-- `npm install  expo-router@4.0.9`
-- `npm install expo-splash-screen@0.29.13`
-- `npm install react-native@0.76.3`
+> [!WARNING]
+> Running `npm audit fix` will cause errors.
 
-If you come across any build errors, you may need further package updates or installations. Follow the messages accordingly.
+Within the **HealthyGatorSportsFanRN** directory run:
+- `npx expo start`
 
-## Code Organization
-This section is still under construction.
-(TODO: Complete this section) 
+#### Option 2.1: Using Expo Go CLI
+
+##### Step 1: Start the app
+
+In the Expo Go CLI press `w`
+
+#### Option 2.2: Using Expo Go with Android emulator
+
+##### Step 1: Install Android Studio
+
+1. Install Watchman and JDK
+    - Install [Java SE Development Kit (JDK)](https://openjdk.org/) using the command: `choco install -y microsoft-openjdk17`.
+
+2.  Set up Android Studio
+   - Follow Steps 1-9 in these instructions: [Expo Go | Set up Android Studio](https://docs.expo.dev/workflow/android-studio-emulator/#set-up-an-emulator).
+      - **Step 1: Download** - Download [Android Studio](https://developer.android.com/studio)
+      - **Step 2: Install** - Go through the Android Studio wizard, accept the licensing agreement, and click finish.
+      - **Step 3: Create Windows environment variables** - After the tools installation is complete, configure the `ANDROID_HOME` environment variable.
+         - Go to Windows Control Panel > User Accounts > User Accounts (again) > Change my environment variables and click New to create a new `ANDROID_HOME` user variable. The value of this variable will point to the path to your Android SDK:
+         - By default, the Android SDK is installed at the following location: `C:\Users\username\AppData\Local\Android\SDK`
+      - **Step 4: Add platform-tools to PATH** - Go to Windows Control Panel > User Accounts > User Accounts (again) > Change my environment variables > Path > Edit > New and add the path to the platform-tools
+         - By default, the paltform-tools folder is installed at the following location: `C:\Users\username\AppData\Local\Android\SDK\platform-tools`
+      - **Step 5: Vertification** - You can vertify that `adb` can be located by running `adb` from a terminal.
+
+##### Step 2: Install emulator
+
+Set up an emulator
+   - Follow Steps 1-5 in these instructions: [Expo Go | Set up an emulator](https://docs.expo.dev/workflow/android-studio-emulator/#set-up-an-emulator).
+      - **Step 1: Create a device** - On the Android Studio main screen, click More Actions, then Virtual Device Manager in the dropdown, then click the Create device button.
+      - **Step 2: Select Hardware** - Under Select Hardware, choose the hardware you want to emulate, click next, then select an OS version, click finish.
+
+##### Step 3: Download Expo Go
+
+Download Expo Go on the emulator
+   - Install Expo Go through [Expo Go](https://expo.dev/go)
+
+##### Step 3: Start the app
+
+To run the app on the Android emulator:
+   - Open Expo Go in the Android emulator
+   - In the Expo Go CLI press `a`
 
 HealthyGatorSportsFan is organized into two primary directories: **HealthyGatorSportsFanDjango** for the Django-powered backend code, and **HealthyGatorSportsFanRN** for the React Native frontend code.
 
