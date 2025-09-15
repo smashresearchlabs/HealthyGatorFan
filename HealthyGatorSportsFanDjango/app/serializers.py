@@ -8,12 +8,6 @@ import logging
 
 # Best practice is one serializer per model
 
-# this is for the initial test with Postman
-#class UserDataSerializer(serializers.ModelSerializer):
-    #class Meta:
-        #model = UserData # Use 'UserData' model
-        #fields = ['user', 'goal_type', 'weight_value', 'feel_better_value', 'timestamp'] 
-
 # Serializer for User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,12 +39,6 @@ class UserSerializer(serializers.ModelSerializer):
             goal_weight=validated_data['goal_weight'],
             goal_to_lose_weight=validated_data['goal_to_lose_weight'],
             goal_to_feel_better=validated_data['goal_to_feel_better']
-            # These used to be set to default for this screen
-            # birthdate="2000-01-01",
-            # gender=validated_data.get('gender', "Other"),
-            # height_feet=validated_data.get('height_feet', 0),
-            # height_inches=validated_data.get('height_inches', 0),
-            # goal_weight=validated_data.get('goal_weight', 0.0)
         )
     
     def update(self, instance, validated_data):
@@ -85,9 +73,6 @@ class UserDataSerializer(serializers.ModelSerializer):
             weight_value=validated_data['weight_value'],
             feel_better_value=validated_data['feel_better_value'],
         )
-        # goal_type = validated_data.get('goal_type', None)
-        # weight_value = validated_data.get('weight_value', 0.0)
-        # feel_better_value = validated_data.get('feel_better_value', 0.0)
 
     def update(self, instance, validated_data):
         # Update fields when new data comes from the basicinfo.tsx screen
