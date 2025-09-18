@@ -53,6 +53,34 @@ export class TeamLogo {
             name: 'ta&m', //texas A & M
             image: require('../assets/images/teamLogos/a&m.png'),
         },
+        {
+            name: 'liu', //long island university
+            image: require('../assets/images/teamLogos/liu.png'),
+        },
+        {
+            name: 'usf', //university of south florida
+            image: require('../assets/images/teamLogos/usf.png'),
+        },
+        {
+            name: 'mia', //university of miami
+            image: require('../assets/images/teamLogos/mia.png'),
+        },
+        {
+            name: 'tex', //university of texas
+            image: require('../assets/images/teamLogos/tex.png'),
+        },
+        {
+            name: 'msst', //mississippi state university
+            image: require('../assets/images/teamLogos/msst.png'),
+        },
+        {
+            name: 'miss', //university of mississippi
+            image: require('../assets/images/teamLogos/miss.png'),
+        },
+        {
+            name: 'tenn', //university of tennessee
+            image: require('../assets/images/teamLogos/tenn.png'),
+        },
     ];
 
     static GetImage = (name: string) => {
