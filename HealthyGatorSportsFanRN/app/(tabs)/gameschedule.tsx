@@ -1,8 +1,10 @@
-import {StyleSheet, View, Text, TouchableOpacity, TextInput, Image, Alert} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, TextInput, Image, Alert, ScrollView} from 'react-native';
 import {useNavigation, useRoute} from "@react-navigation/native";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {TeamLogo} from "@/components/getTeamImages";
 import User from "@/components/user";
+import { AppUrls } from '@/constants/AppUrls';
+import { Abbreviations } from '@/constants/Abbreviations';
 
 
 export default function GameSchedule() {
@@ -10,6 +12,26 @@ export default function GameSchedule() {
     const route = useRoute();
     const user: any = route.params;
     const currentUser: User = user.currentUser.cloneUser(); //This fixes the nesting issue
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+        const fetchGameData = async () => {
+            try {
+                const response = await getSchedule();
+                if(response && response.data) {
+                    setData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching game data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchGameData();
+    }, []); 
+    
 
     return (
         <View style={styles.container}>
@@ -29,12 +51,57 @@ export default function GameSchedule() {
                     />
                 </TouchableOpacity>
             </View>
-            <View style={styles.middleContent}>
-                <Image
-                    source={require('../../assets/images/2024GameSchedule.png')}
-                    style={{width:'90%', height:'90%', alignSelf: 'center', objectFit: 'contain'}}
-                />
-            </View>
+
+            <ScrollView
+                style={{ flex: 1, maxHeight: '78%'}}
+                contentContainerStyle={{ justifyContent: "center", alignItems: "center"}}
+            >
+                    {data.map(game => {
+                        let borderColor = 'red';
+                        if(game.homePoints === game.awayPoints) {
+                            borderColor = 'rgba(255,255,255,0.3)';
+                        } else if(game.homeTeam === 'Florida' && game.homePoints > game.awayPoints) {
+                            borderColor = 'green';
+                        } else if(game.awayTeam === 'Florida' && game.awayPoints > game.homePoints) {
+                            borderColor = 'green';
+                        }
+                        
+
+                    return (
+                        <View style={{
+                            height: 80,
+                            width: '90%',
+                            backgroundColor: 'rgba(255,255,255,1)',
+                            marginBottom: 10,
+                            borderRadius: 20,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderWidth: 1,
+                            borderColor,
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 5,
+                            elevation: 5,
+                        }}>
+                            <Text style={{fontWeight: 'bold'}}>{new Date(game.startDate).toLocaleString()}</Text>
+                            <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '90%'}}>
+                                <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                    <Image source={TeamLogo.GetImage(getAbbreviation(game.homeTeam)?.toLowerCase() || "")} style={{ width: 50, height: 50 }} resizeMode="contain"/>
+                                    <Text style={{fontWeight: 'bold'}}> {getAbbreviation(game.homeTeam)} </Text>
+                                    <Text style={{fontWeight: 'bold', fontSize: 20, marginLeft: 10}}> {game.homePoints} </Text>
+                                </View>
+                                <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                    <Text style={{fontWeight: 'bold', fontSize: 20, marginRight: 10}}> {game.awayPoints} </Text>
+                                    <Text style={{fontWeight: 'bold'}}> {getAbbreviation(game.awayTeam)} </Text>
+                                    <Image source={TeamLogo.GetImage(getAbbreviation(game.awayTeam)?.toLowerCase() || "")} style={{ width: 50, height: 50 }} resizeMode="contain"/>
+                                </View>
+                            </View>
+                        </View>
+                    );
+                })}
+            </ScrollView>
+
             <View style={styles.bottomMenu}>
                 <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToHomePage(currentUser, navigation)}>
@@ -106,6 +173,31 @@ function NavigateToNotifications(currentUser:any, navigation:any){
 function NavigateToProfileManagement(currentUser:any, navigation:any){
     navigation.navigate('ProfileManagement', {currentUser} as never)
 }
+
+export const getSchedule = async() => {
+    try {
+        const response = await fetch(`${AppUrls.url}/schedule-tile/`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+        const data = await response.json();
+        if (response.ok) {
+            return data;
+        }
+    } 
+    catch (error) {
+        console.log("Encountered error while retrieving game schedule: ", error);
+        return {error: error};
+    }
+}
+
+const getAbbreviation = (teamName: string): string | null => {
+    return Abbreviations[teamName] || null;
+};
+
 
 const styles = StyleSheet.create({
     container: {
