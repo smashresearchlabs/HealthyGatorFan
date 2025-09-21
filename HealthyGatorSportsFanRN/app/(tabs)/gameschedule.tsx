@@ -26,7 +26,7 @@ export default function GameSchedule() {
             'Atlantic Coast Conference': 'ACC',
             'Big Ten': 'B10',
             'Big Ten Conference': 'B10',
-            'Big 12': 'B10',
+            'Big 12': 'B12',
             'Big 12 Conference': 'B12',
             'Conference USA': 'CUSA',
             'Division I FBS independents': 'IND.',
