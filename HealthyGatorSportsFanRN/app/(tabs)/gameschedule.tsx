@@ -5,7 +5,7 @@ import {TeamLogo} from "@/components/getTeamImages";
 import User from "@/components/user";
 import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
-
+import { GlobalStyles } from '../styles/GlobalStyles';
 
 export default function GameSchedule() {
     interface Game {
@@ -18,6 +18,7 @@ export default function GameSchedule() {
         awayTeam: string;
         awayConference: string;
         awayPoints: number;
+        index: number;
     }
 
     const getConferenceAbbreviation = (conferenceName: string): string => {
@@ -26,7 +27,7 @@ export default function GameSchedule() {
             'Atlantic Coast Conference': 'ACC',
             'Big Ten': 'B10',
             'Big Ten Conference': 'B10',
-            'Big 12': 'B12',
+            'Big 12': 'B10',
             'Big 12 Conference': 'B12',
             'Conference USA': 'CUSA',
             'Division I FBS independents': 'IND.',
@@ -81,7 +82,7 @@ export default function GameSchedule() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.topMenu}>
+            <View style={GlobalStyles.topMenu}>
                 <Image
                     source={require('./../../assets/images/clipboardgator.jpg')}
                     style={{width:55, height:55}}
@@ -89,7 +90,7 @@ export default function GameSchedule() {
                 <Text style={{fontSize: 25, fontFamily: 'System'}}>
                     Game Schedule
                 </Text>
-                <TouchableOpacity style = {styles.topIcons} activeOpacity={0.5}
+                <TouchableOpacity style = {GlobalStyles.topIcons} activeOpacity={0.5}
                     onPress={() => NavigateToNotifications(currentUser, navigation)}>
                     <Image
                         source={require('./../../assets/images/bell.png')}
@@ -102,7 +103,7 @@ export default function GameSchedule() {
                 style={{ flex: 1, maxHeight: '78%'}}
                 contentContainerStyle={{ justifyContent: "center", alignItems: "center"}}
             >
-                    {data.map(game => {
+                    {data.map((game, index) => {
                         let borderColor = 'red';
                         if(game.homePoints === game.awayPoints) {
                             borderColor = 'rgba(255,255,255,0.3)';
@@ -113,7 +114,7 @@ export default function GameSchedule() {
                         }
 
                     return (
-                        <View key={game.startDate}>
+                        <View key={index}>
                             <View style={{
                                 alignItems: 'center',
                                 marginBottom: 5
@@ -211,35 +212,35 @@ export default function GameSchedule() {
                 })}
             </ScrollView>
 
-            <View style={styles.bottomMenu}>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
+            <View style={GlobalStyles.bottomMenu}>
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToHomePage(currentUser, navigation)}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
                         style={{width:30, height:30, alignSelf: 'center', objectFit: 'contain'}}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}>
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
                         style={{width:30, height:30, alignSelf: 'center', objectFit: 'contain'}}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToHomePage(currentUser, navigation) }>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/plus.png')}
                         style={{width:45, height:45, alignSelf: 'center', objectFit: 'contain'}}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToProfileManagement(currentUser, navigation) }>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
                         style={{width:30, height:30, alignSelf: 'center', objectFit: 'contain'}}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => LogoutPopup(navigation) }>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
         display: 'flex', 
         flexDirection: 'row', 
         justifyContent: 'center',
-         alignItems: 'center'
+        alignItems: 'center'
     },
     teamLogoSize: {
         width: 50,
@@ -322,38 +323,4 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
-    topMenu:{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-around',
-        marginTop: '15%',
-    },
-    bottomMenu:{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-around',
-        position: 'absolute',
-        bottom: '5%',
-        width: '100%',
-    },
-    topIcons:{
-        justifyContent: 'center',
-        borderColor: 'grey',
-        borderWidth: 1,
-        backgroundColor:'#fae7d7',
-        borderRadius: 40,
-        height: 50,
-        width: 50,
-    },
-    bottomIcons:{
-        justifyContent: 'center',
-        borderRadius: 40,
-        height: 0,
-        width: 40,
-    },
-    middleContent:{
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        marginBottom: '30%'
-    }
 });
