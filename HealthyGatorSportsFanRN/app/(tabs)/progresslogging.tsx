@@ -5,6 +5,7 @@ import StarRating from 'react-native-star-rating-widget';
 import User from "@/components/user";
 import { AppUrls } from '@/constants/AppUrls';
 import { getUseOfValueInStyleWarning } from 'react-native-reanimated';
+import { GlobalStyles } from '../styles/GlobalStyles';
 
 export default function ProgressLogging() {
     const navigation = useNavigation();
@@ -29,8 +30,8 @@ export default function ProgressLogging() {
     });
 
     return (
-        <View style={styles.container}>
-            <View style={styles.topMenu}>
+        <View style={GlobalStyles.container}>
+            <View style={GlobalStyles.topMenu}>
                 <Image
                     source={require('./../../assets/images/clipboardgator.jpg')}
                     style={{width:55, height:55}}
@@ -38,7 +39,7 @@ export default function ProgressLogging() {
                 <Text style={{fontSize: 25, fontFamily: 'System'}}>
                     Enter Progress
                 </Text>
-                <TouchableOpacity style = {styles.topIcons} activeOpacity={0.5}
+                <TouchableOpacity style = {GlobalStyles.topIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToNotifications(currentUser, navigation) }>
                     <Image
                         source={require('./../../assets/images/bell.png')}
@@ -94,42 +95,42 @@ export default function ProgressLogging() {
             </View>
             )}
 
-            <TouchableOpacity style = {[styles.confirmButton, {alignSelf: 'center'} ]} activeOpacity={0.5}
+            <TouchableOpacity style = {[GlobalStyles.confirmButton, {alignSelf: 'center'} ]} activeOpacity={0.5}
                               onPress={() => ConfirmChanges(navigation, rating, newWeight, currentUser) }>
                 <Text style={{fontSize: 15, fontFamily: 'System'}}>
                     Submit Assessment
                 </Text>
             </TouchableOpacity>
 
-            <View style={styles.bottomMenu}>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
+            <View style={GlobalStyles.bottomMenu}>
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToHomePage(currentUser, navigation)}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
                         style={{width:30, height:30, alignSelf: 'center', objectFit: 'contain'}}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToGameSchedule(currentUser, navigation)}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
                         style={{width:30, height:30, alignSelf: 'center', objectFit: 'contain'}}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}>
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/plus.png')}
                         style={{width:45, height:45, alignSelf: 'center', objectFit: 'contain'}}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToProfileManagement(currentUser, navigation) }>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
                         style={{width:30, height:30, alignSelf: 'center', objectFit: 'contain'}}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style = {styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => LogoutPopup(navigation) }>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
@@ -400,44 +401,6 @@ const updateUserGoals = async (currentUser: any, newFeelBetter: boolean, newLose
     }
 };
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    topMenu:{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-around',
-        marginTop: '15%',
-    },
-    bottomMenu:{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-around',
-        position: 'absolute',
-        bottom: '5%',
-        width: '100%',
-    },
-    confirmButton:{
-        borderWidth:1,
-        borderColor:'orange',
-        width:200,
-        height:50,
-        backgroundColor:'#ADD8E6',
-        borderRadius:50,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: '10%'
-    },
-    topIcons:{
-        justifyContent: 'center',
-        borderColor: 'grey',
-        borderWidth: 1,
-        backgroundColor:'#fae7d7',
-        borderRadius: 40,
-        height: 50,
-        width: 50,
-    },
     weightIcons:{
         justifyContent: 'center',
         borderColor: 'grey',
@@ -450,12 +413,6 @@ const styles = StyleSheet.create({
     stars:{
         marginTop: '5%',
         alignSelf: 'center'
-    },
-    bottomIcons:{
-        justifyContent: 'center',
-        borderRadius: 40,
-        height: 40,
-        width: 40,
     },
     shadowContainerWeight: {
         width: '70%', // Adjust as needed

@@ -5,6 +5,7 @@ import {TeamLogo} from "@/components/getTeamImages";
 import User from "@/components/user";
 import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
+import { GlobalStyles } from '../styles/GlobalStyles';
 
 // TODO: Update game tile on home page to show live score & quarter based on a new CFBD API call
 
@@ -83,8 +84,8 @@ export default function HomePage() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.topMenu}>
+        <View style={GlobalStyles.container}>
+            <View style={GlobalStyles.topMenu}>
                 <Image
                     source={require('./../../assets/images/clipboardgator.jpg')}
                     style={{ width: 55, height: 55 }}
@@ -93,7 +94,7 @@ export default function HomePage() {
                     Hey, {currentUser.firstName}!
                 </Text>
                 <TouchableOpacity
-                    style={styles.topIcons}
+                    style={GlobalStyles.topIcons}
                     activeOpacity={0.5}
                     onPress={() => NavigateToNotifications(currentUser, navigation)}
                 >
@@ -103,7 +104,7 @@ export default function HomePage() {
                     />
                 </TouchableOpacity>
             </View>
-            <View style={styles.middleContent}>
+            <View style={GlobalStyles.middleContent}>
 
                 <View style={styles.scoreBox}>
                     {/* Home Team */}
@@ -170,15 +171,15 @@ export default function HomePage() {
                 </View>
             </View>
 
-            <View style={styles.bottomMenu}>
-                <TouchableOpacity style={styles.bottomIcons} activeOpacity={0.5}>
+            <View style={GlobalStyles.bottomMenu}>
+                <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
                         style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
                     />
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.bottomIcons}
+                    style={GlobalStyles.bottomIcons}
                     activeOpacity={0.5}
                     onPress={() => NavigateToGameSchedule(currentUser, navigation)}
                 >
@@ -188,7 +189,7 @@ export default function HomePage() {
                     />
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.bottomIcons}
+                    style={GlobalStyles.bottomIcons}
                     activeOpacity={0.5}
                     onPress={() => NavigateToProcessLogging(currentUser, navigation)}
                 >
@@ -198,7 +199,7 @@ export default function HomePage() {
                     />
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.bottomIcons}
+                    style={GlobalStyles.bottomIcons}
                     activeOpacity={0.5}
                     onPress={() => NavigateToProfileManagement(currentUser, navigation)}
                 >
@@ -208,7 +209,7 @@ export default function HomePage() {
                     />
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.bottomIcons}
+                    style={GlobalStyles.bottomIcons}
                     activeOpacity={0.5}
                     onPress={() => LogoutPopup(navigation)}
                 >
@@ -283,44 +284,6 @@ const demoGameNotifications = async () => {
 
 };
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    topMenu:{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-around',
-        marginTop: '15%',
-    },
-    bottomMenu:{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-around',
-        position: 'absolute',
-        bottom: '5%',
-        width: '100%',
-    },
-    topIcons:{
-        justifyContent: 'center',
-        borderColor: 'grey',
-        borderWidth: 1,
-        backgroundColor:'#fae7d7',
-        borderRadius: 40,
-        height: 50,
-        width: 50,
-    },
-    bottomIcons:{
-        justifyContent: 'center',
-        borderRadius: 40,
-        height: 40,
-        width: 40,
-    },
-    middleContent:{
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        marginTop: '7%',
-    },
     scoreBox:{
         flexDirection: 'row',
         justifyContent: 'space-evenly',
@@ -366,7 +329,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4,
       },
-      buttonText: {
+    buttonText: {
         color: 'white',
         fontSize: 16,
         textAlign: 'center',

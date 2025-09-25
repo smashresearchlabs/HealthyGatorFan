@@ -1,11 +1,12 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Button, Platform, FlatList, ScrollView, Alert, KeyboardAvoidingView, SafeAreaView} from 'react-native';
+import { Image, StyleSheet, View, Text, TouchableOpacity, TextInput, Button, Platform, FlatList, ScrollView, Alert, KeyboardAvoidingView, SafeAreaView} from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import NotificationData from "@/components/notificationdata";
 import { AppUrls } from '@/constants/AppUrls';
+import { GlobalStyles } from '../styles/GlobalStyles';
 
 const NotificationsPage = () => {
     const navigation = useNavigation();
@@ -35,29 +36,28 @@ const NotificationsPage = () => {
         loadNotifications();
     }, []);
 
-
     // Function to handle creating a notification
-  const handleCreateNotificationPress = async () => {
+    const handleCreateNotificationPress = async () => {
     if (newTitle === '' || newMessage === '') {
         Alert.alert('Missing information', 'You need to provide a title and message to create a notification.');
         return
     }
     try {
-      await createNotification(expoPushToken, currentUser.userId, newTitle, newMessage);
-      await sendPushNotification(expoPushToken, newTitle, newMessage);
-      await loadNotifications(); // Refresh the notifications after creation
+        await createNotification(expoPushToken, currentUser.userId, newTitle, newMessage);
+        await sendPushNotification(expoPushToken, newTitle, newMessage);
+        await loadNotifications(); // Refresh the notifications after creation
     } catch (error) {
-      Alert.alert('Error', 'Failed to create notification');
+        Alert.alert('Error', 'Failed to create notification');
     }
   };
 
   // Function to handle deleting a notification
   const handleDeleteNotificationPress = async (notification_id: number) => {
     try {
-      await deleteNotification(notification_id);
-      await loadNotifications(); // Refresh the notifications after deletion
+        await deleteNotification(notification_id);
+        await loadNotifications(); // Refresh the notifications after deletion
     } catch (error) {
-      Alert.alert('Error', 'Failed to delete notification');
+        Alert.alert('Error', 'Failed to delete notification');
     }
   };
 
@@ -117,6 +117,7 @@ const NotificationsPage = () => {
                 Notifications.removeNotificationSubscription(responseListener.current);
         };
     }, []);
+    
 
     // The below code is for sending a notification from backend
     const handlePollCFBD = async () => {
@@ -138,92 +139,117 @@ const NotificationsPage = () => {
 
     return (
 
-        <View style={styles.container}>
-
-        <Text style={styles.title}>Notifications</Text>
-
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={Platform.select({ ios: 60, android: 80 })}>
-
-            <View style={styles.shadowContainer}>
-                <ScrollView>
-                    {notificationDatas.map((obj, index) => (
-                        <View key={index} style={styles.card}>
-                            <View style={styles.cardHeader}>
-                                <Text style={styles.cardTitle}>{`${obj.notification_title}`}</Text>
-                                <TouchableOpacity style={styles.closeButton} onPress={() => handleDeleteNotificationPress(obj.notification_id)}>
-                                    <Text style={{fontWeight: 'bold', fontSize: 25}}>×</Text>
-                                </TouchableOpacity>
-                            </View>                            
-                            <Text style={styles.cardText}>{`${obj.notification_message}`}</Text>
-                            <Text style={styles.cardText}>{`Timestamp: ${obj.timestamp}`}</Text>
-                        </View>
-                    ))}
-                </ScrollView>
-            </View>
-
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.buttonForContainer}>
-                    <Text style={styles.buttonForContainerText}>Mark all as read</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonForContainer} onPress={() => handleDeleteAllNotificationPress(currentUser.userId)}>
-                    <Text style={styles.buttonForContainerText}>Clear all</Text>
-                </TouchableOpacity>
-            </View>
-            
-            <View style={styles.separator}>
-                <View style={styles.content}>
-                    <Text>--------------------------------------------------------------------------------------</Text>
+        <View style={GlobalStyles.container}>
+            <View style={GlobalStyles.topMenu}>
+                <Image
+                    source={require('./../../assets/images/clipboardgator.jpg')}
+                    style={{width:55, height:55}}/>
+                    <Text style={{fontSize: 25, fontFamily: 'System'}}>
+                        Notifications
+                    </Text>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.buttonForContainer} onPress={() => handleDeleteAllNotificationPress(currentUser.userId)}>
+                        <Text style={styles.buttonForContainerText}>Clear all</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
-
-            <View style={[styles.buttonContainer, {marginBottom: 5}]}>
-                <TextInput
-                    style={styles.editBox}
-                    placeholder="Title"
-                    editable={true}
-                    value={newTitle}
-                    defaultValue={"TEST TITLE"}
-                    onChangeText={newTitle => setNewTitle(newTitle)}
-                />
-                <TextInput
-                    style={styles.editBox}
-                    placeholder="Message"
-                    editable={true}
-                    value={newMessage}
-                    defaultValue={"TEST MESSAGE"}
-                    onChangeText={newMessage => setNewMessage(newMessage)}
-                />
-            </View>
-
-            <View style={styles.buttonContainer}>
-                <Text style={[{ fontSize: 15, width: '60%'}]}>Test creating & sending a notification from the frontend:</Text>
-
-                <TouchableOpacity style={[styles.buttonForContainer, {backgroundColor: '#FFD580', marginHorizontal: 0}]} onPress={handleCreateNotificationPress}>
-                    <Text style={[styles.buttonForContainerText, {color: 'black', fontSize: 15}]}>Generate notification</Text>
-                </TouchableOpacity>
-
-            </View>
-            
-            <View style={styles.separator}>
-                <View style={styles.content}>
-                    <Text>--------------------------------------------------------------------------------------</Text>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={Platform.select({ ios: 60, android: 80 })}>
+                <View>
+                    <ScrollView
+                        style={{ maxHeight: '95%'}}>
+                        {notificationDatas.map((obj, index) => (
+                            <View key={index} style={styles.card}>
+                                <Text style={styles.cardText}>{formatTimestamp(obj.timestamp)}</Text>
+                                <View style={styles.cardHeader}>
+                                    <Text style={styles.cardTitle}>{`${obj.notification_title}`}</Text>
+                                    <TouchableOpacity style={styles.closeButton} onPress={() => handleDeleteNotificationPress(obj.notification_id)}>
+                                        <Text style={{fontWeight: 'bold', fontSize: 25}}>x</Text>
+                                    </TouchableOpacity>
+                                </View>                            
+                                <Text style={styles.cardText}>{`${obj.notification_message}`}</Text>
+                                <View style={styles.seperator}></View>
+                            </View>
+                        ))}
+                    </ScrollView>
                 </View>
-            </View>
-
-            <View style={[styles.buttonContainer, {marginTop: 10}]}>
-
-                <Text style={[{ fontSize: 15, width: '60%'}]}>Test sending a notification from backend based on CFBD API:</Text>
-
-                <TouchableOpacity style={[styles.buttonForContainer, {backgroundColor: '#FFD580', marginHorizontal: 5}]} onPress={handlePollCFBD}>
-                    <Text style={[styles.buttonForContainerText, {color: 'black', fontSize: 15}]}>Get next game info</Text>
-                </TouchableOpacity>
-
-            </View>
-
             </KeyboardAvoidingView>
-        </View>  
-
+            <View style={GlobalStyles.bottomMenu}>
+                 <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
+                    onPress={() => NavigateToHomePage(currentUser, navigation)}>
+                    <Image
+                        source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
+                        style={{width:30, height:30, alignSelf: 'center', objectFit: 'contain'}}/>
+                    </TouchableOpacity>
+                <TouchableOpacity
+                    style={GlobalStyles.bottomIcons}
+                    activeOpacity={0.5}
+                    onPress={() => NavigateToGameSchedule(currentUser, navigation)}>
+                    <Image
+                        source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
+                        style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}/>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={GlobalStyles.bottomIcons}
+                    activeOpacity={0.5}
+                    onPress={() => NavigateToProcessLogging(currentUser, navigation)}>
+                    <Image
+                        source={require('../../assets/images/bottomHomeMenu/plus.png')}
+                        style={{ width: 45, height: 45, alignSelf: 'center', objectFit: 'contain' }}/>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={GlobalStyles.bottomIcons}
+                    activeOpacity={0.5}
+                    onPress={() => NavigateToProfileManagement(currentUser, navigation)}>
+                    <Image
+                        source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
+                        style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}/>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={GlobalStyles.bottomIcons}
+                    activeOpacity={0.5}
+                    onPress={() => LogoutPopup(navigation)}>
+                    <Image
+                        source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
+                        style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}/>
+                </TouchableOpacity>
+            </View>
+        </View>
     );
+};
+
+function LogoutPopup(navigation: any){
+    Alert.alert(
+        "Confirmation",
+        "Are you sure you want logout?",
+        [
+            {
+                text: "Cancel",
+                style: "cancel"
+            },
+            {
+                text: "Logout",
+                style: "destructive",
+                onPress: () => {
+                    // Navigate back to the welcome page.
+                    console.log("Logging out.");
+                    navigation.navigate('CreateOrSignIn' as never);
+                }
+            }
+        ]
+    );
+}
+
+function NavigateToHomePage(currentUser:any, navigation:any){
+    navigation.navigate('HomePage', {currentUser} as never)
+}
+function NavigateToGameSchedule(currentUser:any, navigation:any){
+    navigation.navigate('GameSchedule', {currentUser} as never)
+}
+function NavigateToProfileManagement(currentUser:any, navigation:any){
+    navigation.navigate('ProfileManagement', {currentUser} as never)
+}
+function NavigateToProcessLogging(currentUser:any, navigation:any){
+    navigation.navigate('ProcessLogging', {currentUser} as never)
 }
 
 export default NotificationsPage;
@@ -302,6 +328,22 @@ async function registerForPushNotificationsAsync() {
         handleRegistrationError('Must use physical device for push notifications');
     }
 }
+
+const formatTimestamp = (timestamp: string): string => {
+    const date = new Date(timestamp);
+
+    const dateString = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+    });
+    const timeString = date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    }).toLowerCase();
+
+    return `${dateString}, ${timeString}`;
+};
 
 // Notification Data POST API call
 const createNotification = async (expoPushToken: string, userID: number, title: string, message: string) => {
@@ -389,118 +431,55 @@ export const deleteAllNotifications = async (userId: number) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        gap: 10,
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-    },
-    shadowContainer: {
-        height: '50%', // Adjust as needed        
-        borderRadius: 10,
-        backgroundColor: 'white',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 5, // For Android shadow
-        marginBottom: 20,
-      },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        marginTop: '10%',
-        textAlign: 'center',
-    },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
         marginBottom: 10,
     },
     buttonForContainer: {
-        flex: 1, // Makes buttons take equal space
-        marginHorizontal: 5, // Adds space between buttons
-        backgroundColor: '#2196F3', // Default button color
-        paddingVertical: 10,
-        paddingHorizontal: 10,
-        borderRadius: 4,
-        elevation: 2, // For Android shadow
-        shadowColor: '#000', // For iOS shadow
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        justifyContent: 'center', // Centers content vertically
-      },
-      buttonForContainerText: {
+        backgroundColor: '#2196F3',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignSelf: 'flex-start',
+    },
+    buttonForContainerText: {
+        color: 'white',
+        fontSize: 14,
+        textAlign: 'center',
+    },
+    buttonText: {
         color: 'white',
         fontSize: 16,
         textAlign: 'center',
-    },
-    button: {
-        backgroundColor: '#2196F3', // Default button color
-        padding: 10,
-        borderRadius: 4,
-        elevation: 2, // For Android shadow
-        shadowColor: '#000', // For iOS shadow
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        alignSelf: 'center',
-      },
-      buttonText: {
-        color: 'white',
-        fontSize: 16,
-        textAlign: 'center',
-    },
-    editBox:{
-        flex: 1,
-        borderWidth: 1,
-        marginRight: '5%',
-        margin: 5,
-        borderRadius: 5,
-        padding: 10,
-        borderColor: '#D3D3D3',
     },
     card: {
         marginBottom: 5,
         padding: 10,
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 5, // For Android shadow
     },
     cardTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        flex: 1, // Allows the title to take available space
+        flex: 1,
     },
     cardText: {
         fontSize: 14,
-        //marginTop: 5,
+        width: '95%'
     },
     closeButton: {
         alignItems: 'flex-end'
     },
     cardHeader: {
         flexDirection: 'row',
-        alignItems: 'center', // Aligns items vertically centered
+        alignItems: 'center',
         justifyContent: 'space-between',
     },
-    separator: {
-        height: 1, // Height of the line
-        backgroundColor: '#CCCCCC', // Color of the line
-        marginVertical: 5, // Space around the line
-      },
-      content: {
-        marginTop: 70, // Adjust to avoid overlap with the title
-        padding: 20,
-      },
+    seperator: {
+        alignItems: 'center',
+        marginVertical: 5,
+        height: 1,
+        backgroundColor: '#000',
+    },
 });
