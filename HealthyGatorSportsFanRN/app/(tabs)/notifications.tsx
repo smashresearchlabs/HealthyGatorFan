@@ -456,8 +456,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     card: {
-        marginBottom: 5,
-        padding: 10,
+        marginHorizontal: 20,
     },
     cardTitle: {
         fontSize: 16,
@@ -478,7 +477,7 @@ const styles = StyleSheet.create({
     },
     seperator: {
         alignItems: 'center',
-        marginVertical: 5,
+        marginVertical: 15,
         height: 1,
         backgroundColor: '#000',
     },
