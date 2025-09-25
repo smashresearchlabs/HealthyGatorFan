@@ -5,6 +5,7 @@ import {useState, useEffect} from "react";
 import {Dropdown} from "react-native-element-dropdown";
 import Checkbox from "expo-checkbox";
 import { AppUrls } from '@/constants/AppUrls';
+import { GlobalStyles } from '../styles/GlobalStyles';
 
 export default function ProfileManagement() {
     const navigation = useNavigation();
@@ -93,9 +94,9 @@ export default function ProfileManagement() {
     return (
 
 
-        <View style={styles.container}>
+        <View style={GlobalStyles.container}>
 
-            <View style={styles.topMenu}>
+            <View style={GlobalStyles.topMenu}>
                 <Image
                     source={require('./../../assets/images/clipboardgator.jpg')}
                     style={{ width: 55, height: 55 }}
@@ -103,7 +104,7 @@ export default function ProfileManagement() {
                 <Text style={{ fontSize: 25, fontFamily: 'System' }}>
                     Hey, {currentUser.firstName}!
                 </Text>
-                <TouchableOpacity style={styles.topIcons} activeOpacity={0.5}
+                <TouchableOpacity style={GlobalStyles.topIcons} activeOpacity={0.5}
                     onPress={() => NavigateToNotifications(currentUser, navigation)}>
                     <Image
                         source={require('./../../assets/images/bell.png')}
@@ -305,7 +306,7 @@ export default function ProfileManagement() {
                             )}
                         </View>
 
-                        <TouchableOpacity style={[styles.confirmButton, { alignSelf: 'center' }]} activeOpacity={0.5}
+                        <TouchableOpacity style={[GlobalStyles.confirmButton, { alignSelf: 'center' }]} activeOpacity={0.5}
                             onPress={() => ConfirmChanges(currentUser, newFirstName, newLastName, heightFt, heightInch, newWeight, newGender, newFeelBetter, newLoseWeight, newGoalWeight, navigation)}>
                             <Text style={{ fontSize: 15, fontFamily: 'System' }}>
                                 Confirm Changes
@@ -316,35 +317,35 @@ export default function ProfileManagement() {
                 </View>
             </KeyboardAvoidingView>
 
-            <View style={styles.bottomMenu}>
-                <TouchableOpacity style={styles.bottomIcons} activeOpacity={0.5}
+            <View style={GlobalStyles.bottomMenu}>
+                <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
                     onPress={() => NavigateToHomePage(currentUser, navigation)}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
                         style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
                     onPress={() => NavigateToGameSchedule(currentUser, navigation)}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
                         style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
                     onPress={() => NavigateToProgressLogging(currentUser, navigation)}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/plus.png')}
                         style={{ width: 45, height: 45, alignSelf: 'center', objectFit: 'contain' }}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.bottomIcons} activeOpacity={0.5}>
+                <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
                         style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.bottomIcons} activeOpacity={0.5}
+                <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
                     onPress={() => LogoutPopup(navigation)}>
                     <Image
                         source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
@@ -654,48 +655,15 @@ const updateUser = async (currentUser: any, newFirstName: string, newLastName: s
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
     subContainer: {
         height: '75%', // Adjust as needed        
         borderRadius: 10,
         alignContent: 'center',
         marginTop: 20,
       },
-    topMenu:{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-around',
-        marginTop: '15%',
-    },
-    bottomMenu:{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-around',
-        position: 'absolute',
-        bottom: '5%',
-        width: '100%',
-    },
-    topIcons:{
-        justifyContent: 'center',
-        borderColor: 'grey',
-        borderWidth: 1,
-        backgroundColor:'#fae7d7',
-        borderRadius: 40,
-        height: 50,
-        width: 50,
-    },
     checkbox: {
         margin: 8,
         alignSelf: 'center',
-    },
-    bottomIcons:{
-        justifyContent: 'center',
-        borderRadius: 40,
-        height: 40,
-        width: 40,
     },
     section:{
         flexDirection: 'column',
@@ -752,17 +720,6 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         margin: 3,
         borderRadius: 10,
-    },
-    confirmButton:{
-        borderWidth:1,
-        borderColor:'orange',
-        width:200,
-        height:50,
-        marginTop: 5,
-        backgroundColor:'#ADD8E6',
-        borderRadius:50,
-        justifyContent: "center",
-        alignItems: "center",
     },
     dropdown:{
         borderColor: '#D3D3D3',
