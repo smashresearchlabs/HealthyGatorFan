@@ -113,7 +113,7 @@ export default function GameSchedule() {
                         }
 
                     return (
-                        <View>
+                        <View key={game.startDate}>
                             <View style={{
                                 alignItems: 'center',
                                 marginBottom: 5
