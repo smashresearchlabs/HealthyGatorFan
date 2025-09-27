@@ -230,3 +230,16 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': schedule(120.0),  # 10 seconds
     },
 }
+
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0') 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            # Set connection pooling options if necessary
+        }
+    }
+}
