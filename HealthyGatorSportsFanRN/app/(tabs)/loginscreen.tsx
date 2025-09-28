@@ -45,8 +45,9 @@ async function ConfirmData(email: any, password: any, navigation: any){
 
     //Connect to DB and ensure that the provided username and password are correct and exist
     console.log(email);
-    console.log(password);
+    console.log("password");
     //Eventually design a backup email verification system for forgotten passwords.
+    //fix-me: delete after test working
 
     const currentUser = new User(1,'','','','','','',0,0,0, false,true,0, "both", 0);
 
@@ -76,19 +77,18 @@ async function ConfirmData(email: any, password: any, navigation: any){
 
 const handleLogin = async (currentUser: any, email: any, password: any, navigation: any) => {
     try {
-        const response = await fetch(`${AppUrls.url}/user/login/?email=${email}&password=${password}`, {
-                method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        const response = await fetch(`${AppUrls.url}/user/login/`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json',},
+            body: JSON.stringify({ email, password }),
         });
 
         if (response.ok) {
             const data = await response.json();
-            console.log('User:', data);
+            console.log('User:', data); //fix-me:to be deleted
             currentUser.userId = data.user_id;
             currentUser.email = data.email;
-            currentUser.password = data.password;
+            //currentUser.password = data.password;
             currentUser.firstName = data.first_name;
             currentUser.lastName = data.last_name;
             currentUser.birthDate = data.birthdate;
@@ -105,6 +105,7 @@ const handleLogin = async (currentUser: any, email: any, password: any, navigati
         } else {
             const errorData = await response.json();
             Alert.alert('Error', errorData.detail || 'Username or password incorrect', [{ text: 'OK' }]);
+            return;
         }
     } catch (err) {
         console.error('Error during login:', err);
