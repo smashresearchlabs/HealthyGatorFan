@@ -20,8 +20,8 @@ from drf_yasg import openapi
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
 
 # Create your views here.
 
@@ -195,47 +195,74 @@ class LatestUserDataView(APIView):
 #         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserLoginView(APIView):
+    permission_classes = (AllowAny,)
     @swagger_auto_schema(
-        operation_summary="User login", operation_description="Authenticate and get user's information given email and password.",
-        manual_parameters=[
-                openapi.Parameter(
-                    'email',  # Name of the parameter
-                    openapi.IN_QUERY,  # Location of the parameter
-                    description="Login email entered by user",
-                    type=openapi.TYPE_STRING,  # Type of the parameter
-                    required=True  # Whether the parameter is required
-                ),
-                openapi.Parameter(
-                    'password',  # Name of the parameter
-                    openapi.IN_QUERY,  # Location of the parameter
-                    description="Login password entered by user",
-                    type=openapi.TYPE_STRING,  # Type of the parameter
-                    required=True  # Whether the parameter is required
-                )
-        ],
+        operation_summary="User login (POST)", operation_description="Authenticate and get user's information given email and password.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email', 'password'],
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING),
+                'password': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        # manual_parameters=[
+        #         openapi.Parameter(
+        #             'email',  # Name of the parameter
+        #             openapi.IN_QUERY,  # Location of the parameter
+        #             description="Login email entered by user",
+        #             type=openapi.TYPE_STRING,  # Type of the parameter
+        #             required=True  # Whether the parameter is required
+        #         ),
+        #         openapi.Parameter(
+        #             'password',  # Name of the parameter
+        #             openapi.IN_QUERY,  # Location of the parameter
+        #             description="Login password entered by user",
+        #             type=openapi.TYPE_STRING,  # Type of the parameter
+        #             required=True  # Whether the parameter is required
+        #         )
+        # ],
         responses={200: UserSerializer(many=False)}  # Define response schema
     )
-    def get(self, request):
-        email = request.query_params.get('email')
-        password = request.query_params.get('password')
-        users = User.objects.all()  # Fetch all users from the database
-        print("Email & password from query parameters: ", email, " & ", password)
-        print("Count of users: ", User.objects.count())
-        users = User.objects.all()
-        print("Users found: ", {users})
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if not email or not password:
+            return Response({"error": "Email and password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            # Fetch the user by email
             user = User.objects.get(email=email)
-            # Check if the provided password matches
-            print("User's password from DB: ", user.password)
-            if user.check_password(password):
-                # If the password is correct, serialize and return user data
-                serializer = UserSerializer(user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
         except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if not user.check_password(password):
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # def get(self, request):
+    #     email = request.query_params.get('email')
+    #     password = request.query_params.get('password')
+    #     users = User.objects.all()  # Fetch all users from the database
+    #     print("Email & password from query parameters: ", email, " & ", password)
+    #     print("Count of users: ", User.objects.count())
+    #     users = User.objects.all()
+    #     print("Users found: ", {users})
+    #     try:
+    #         # Fetch the user by email
+    #         user = User.objects.get(email=email)
+    #         # Check if the provided password matches
+    #         print("User's password from DB: ", user.password)
+    #         if user.check_password(password):
+    #             # If the password is correct, serialize and return user data
+    #             serializer = UserSerializer(user)
+    #             return Response(serializer.data, status=status.HTTP_200_OK)
+    #         else:
+    #             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+    #     except User.DoesNotExist:
+    #         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 # # Shannon, 11/19/2024: Below is an attempt I made at a more advanced auth method using django's built-in auth. I opted for simplicity for now.
 # class UserLoginView(APIView):
