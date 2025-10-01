@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from datetime import date, datetime
 from .utils import send_push_notification_next_game, check_game_status, send_notification
 from django.views.decorators.csrf import csrf_exempt
+from django.core.cache import cache
 from .management.commands import poll_cfbd
 from .management.commands.poll_cfbd import Command
 from django.conf import settings
@@ -59,6 +60,35 @@ def index(request):
         "notification_objs": notification_objs,
     }
     return render(request, "index.html", context)
+
+def get_cached_uf_games():
+    configuration = cfbd.Configuration(
+        host="https://apinext.collegefootballdata.com",
+        access_token=os.getenv('COLLEGE_FOOTBALL_API_KEY')
+    )
+    apiInstance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    current_year = date.today().year
+
+    CACHE_KEY = f'uf_football_games_{current_year}'
+    CACHE_TTL = 60 * 60 * 24  # 24 hours in seconds
+
+    games_list = cache.get(CACHE_KEY)
+    
+    if games_list is not None:
+        logger.info("Cache hit: Returning cached UF games.")
+        return games_list
+
+    logger.info("Cache miss: Fetching UF games from API.")
+    try:
+        games = apiInstance.get_games(year=current_year, team='Florida', conference='SEC')
+        games_list = [game.to_dict() for game in games]
+        
+        cache.set(CACHE_KEY, games_list, timeout=CACHE_TTL)
+        
+        return games_list
+    except Exception as e:
+        logger.error(f"Error fetching UF games from CFBD API: {e}")
+        return None 
 
 # API view to handle POST requests for user creation
 class CreateUserView(APIView):
@@ -332,99 +362,60 @@ class DeleteNotificationView(APIView):
 #
 @csrf_exempt
 def poll_cfbd_view(request):
-    configuration = cfbd.Configuration(
-        host="https://apinext.collegefootballdata.com",
-        access_token=os.getenv('COLLEGE_FOOTBALL_API_KEY')
-    )
-    print("Value of 'COLLEGE_FOOTBALL_API_KEY' environment variable :", os.getenv('COLLEGE_FOOTBALL_API_KEY'))                         
-    print("Value of 'EXPO_PUSH_TOKEN' environment variable :", os.getenv('EXPO_PUSH_TOKEN'))                         
-    apiInstance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    games = get_cached_uf_games()
 
-    def get_next_game():
-        current_year = date.today().year
-        games = apiInstance.get_games(year=current_year, team='Florida', conference='SEC')
-        today = datetime.combine(date.today(), datetime.min.time())
-        future_games = [game for game in games if game.start_date.replace(tzinfo=None) > today]
-        return min(future_games, key=lambda x: x.start_date) if future_games else None
-
-    next_game = get_next_game()
-    if next_game:
-        user_tz = pytz.timezone('America/New_York')  # TODO: Get user's timezone from database
-        game_time = next_game.start_date.astimezone(user_tz)
-        response = {
-            "teams": f"{next_game.home_team} vs {next_game.away_team}",
-            "date": game_time.strftime('%m-%d-%Y %I:%M %p')
-        }
-        message = f"Teams: {next_game.home_team} vs {next_game.away_team}, Date: {game_time.strftime('%m-%d-%Y %I:%M %p')}"
-    else:
-        response = {"message": "No upcoming games found."}
-        message = response["message"]
-    push_token = os.getenv('EXPO_PUSH_TOKEN')
-    #game_status= check_game_status(apiInstance)
-    game_status, home_team, home_score, away_team, away_score = check_game_status(apiInstance)
-    send_notification(game_status, home_team, home_score, away_team, away_score)
-    # if push_token:
-    #     try:
-    #         send_push_notification_next_game(push_token, message)
-    #     except Exception as e:
-    #         print(f"Error sending push notification: {e}")
-    return JsonResponse(response)
-#class GetGameNotificationView(APIView):
+    #to do: add logic to only check if there is a game on
+    #compare live scoreboard to games' schedules
 
 @csrf_exempt
 def home_tile_view(request):
-    configuration = cfbd.Configuration(
-        host="https://apinext.collegefootballdata.com",
-        access_token=os.getenv('COLLEGE_FOOTBALL_API_KEY')
-    )
-    print("Value of 'COLLEGE_FOOTBALL_API_KEY' environment variable :", os.getenv('COLLEGE_FOOTBALL_API_KEY'))                         
-    apiInstance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    # Fetch all games using the new cached helper
+    all_games = get_cached_uf_games()
+    
+    if all_games is None:
+        return JsonResponse({"message": "Could not retrieve upcoming games."}, status=500)
 
-    def get_next_game():
-        current_year = date.today().year
-        games = apiInstance.get_games(year=current_year, team='Florida', conference='SEC')
-        today = datetime.combine(date.today(), datetime.min.time())
-        future_games = [game for game in games if game.start_date.replace(tzinfo=None) > today]
-        return min(future_games, key=lambda x: x.start_date) if future_games else None
+    # Logic to find the next game (uses the cached list)
+    today = datetime.combine(date.today(), datetime.min.time(), tzinfo=pytz.UTC)
+    
+    future_games = []
+    for game in all_games:
+        game_start_date = game['startDate'].astimezone(pytz.UTC)
+        if game_start_date > today:
+            future_games.append((game_start_date, game))
 
-    next_game = get_next_game()
-    if next_game:
+    next_game_tuple = min(future_games, key=lambda x: x[0]) if future_games else None
 
-        # Log the team names for debugging (this returns correctly)
-        print(f"Home Team: {next_game.home_team}, Away Team: {next_game.away_team}")
+    if next_game_tuple:
+        next_game = next_game_tuple[1] 
+        game_time_utc = next_game_tuple[0] 
+
+        logger.info(f"Home Team: {next_game['homeTeam']}, Away Team: {next_game['awayTeam']}")
 
         user_tz = pytz.timezone('America/New_York')
-        game_time = next_game.start_date.astimezone(user_tz)
+        game_time = game_time_utc.astimezone(user_tz)
+        
         response = {
-            "home_team": f"{next_game.home_team}",
-            "away_team": f"{next_game.away_team}",
+            "home_team": next_game['homeTeam'],
+            "away_team": next_game['awayTeam'],
             "date": game_time.strftime('%m-%d-%Y %I:%M %p')
         }
-        message = f"Teams: {next_game.home_team} vs {next_game.away_team}, Date: {game_time.strftime('%m-%d-%Y %I:%M %p')}"
     else:
         response = {"message": "No upcoming games found."}
-        message = response["message"]
     
     return JsonResponse(response)
 
 
 @csrf_exempt
 def schedule_view(request):
-    configuration = cfbd.Configuration(
-        host="https://apinext.collegefootballdata.com",
-        access_token=os.getenv('COLLEGE_FOOTBALL_API_KEY')
-    )
-    apiInstance = cfbd.GamesApi(cfbd.ApiClient(configuration))
-    current_year = date.today().year
-    try:
-        games = apiInstance.get_games(year=current_year, team='Florida', conference='SEC')
-        games_list = [game.to_dict() for game in games]
-        return JsonResponse({"data": games_list})
-    except Exception as e:
-        print(e)
-        return JsonResponse(
-            {"error": f"Could not retrieve UF games for {current_year}"},
+    # Fetch all games using the new cached helper
+    games_list = get_cached_uf_games()
+
+    if games_list is None:
+         return JsonResponse(
+            {"error": f"Could not retrieve UF games for {date.today().year}"},
             status=500
         )
-    
+        
+    return JsonResponse({"data": games_list})
     
