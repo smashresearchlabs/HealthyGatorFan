@@ -3,6 +3,7 @@ import {useNavigation, useRoute} from "@react-navigation/native";
 import { Dropdown } from 'react-native-element-dropdown';
 import {SetStateAction, useState, useEffect} from "react";
 import User from "@/components/user";
+import {AppUrls} from "@/constants/AppUrls";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const BasicInformationCollection = () => {
@@ -181,7 +182,7 @@ const BasicInformationCollection = () => {
 
 export default BasicInformationCollection
 
-function SaveAndContinue(navigation: any, currentUser: any, weight: any, gender: any, heightInches: any, heightFeet: any, firstName: any, lastName: any, birthdate: Date){
+async function SaveAndContinue(navigation: any, currentUser: any, weight: any, gender: any, heightInches: any, heightFeet: any, firstName: any, lastName: any, birthdate: Date){
   
   if(weight === '' ||  gender === '' || heightInches === '' || heightFeet === '' || firstName === '' || lastName === '' || isToday(birthdate)) {
     Alert.alert('Missing Information', 'Please provide values for all fields on this page to continue.');
@@ -209,10 +210,44 @@ function SaveAndContinue(navigation: any, currentUser: any, weight: any, gender:
   console.log("Height in feet: ", currentUser.heightFeet);
   console.log("Height in inches: ", currentUser.heightInches);
   console.log("Weight: ", currentUser.currentWeight);
+  
+  const payload = {
+    first_name: firstName,
+    last_name: lastName,
+    birthdate: currentUser.birthDate,
+    gender: gender,
+    height_feet: heightFeet,
+    height_inches: heightInches,
+  };
 
-  // Continue to the next screen upon successful data submission
-  navigation.navigate('GoalCollection', { currentUser } as never);
+  try {
+    const res = await fetch(`${AppUrls.url}/user/${currentUser.userId}/`, {
+      method: 'PUT', // or 'PUT' if you prefer
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({} as any));
+    if (!res.ok) {
+      // DRF returns field errors like { field: ["msg"] }
+      const msg =
+        (data && (data.detail || Object.entries(data).map(([k,v]) => `${k}: ${Array.isArray(v)?v.join(', '):v}`).join('\n'))) ||
+        'Failed to save basic info.';
+      Alert.alert('Error', msg);
+      return;
+    }
 
+    currentUser.firstName    = data.first_name ?? currentUser.firstName;
+    currentUser.lastName     = data.last_name ?? currentUser.lastName;
+    currentUser.birthDate    = data.birthdate ?? currentUser.birthDate;
+    currentUser.gender       = data.gender ?? currentUser.gender;
+    currentUser.heightFeet   = data.height_feet ?? currentUser.heightFeet;
+    currentUser.heightInches = data.height_inches ?? currentUser.heightInches;
+
+    // Continue to the next screen upon successful data submission
+    navigation.navigate('GoalCollection', { currentUser } as never);
+  } catch (err: any) {
+    Alert.alert('Network Error', String(err?.message ?? err));
+  }
 }
 
 const isToday = (date: any) => {

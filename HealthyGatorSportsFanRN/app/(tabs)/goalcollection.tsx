@@ -73,7 +73,7 @@ const GoalCollection = () => {
 
 export default GoalCollection
 
-function confirmGoals(navigation: any, feelBetter: any, loseWeight: any, startWeight:any, goalWeight:any, currentUser: any){
+async function confirmGoals(navigation: any, feelBetter: any, loseWeight: any, startWeight:any, goalWeight:any, currentUser: any){
 
     // Access currentWeight from the nested currentUser structure
     const currentWeight = currentUser.currentWeight || startWeight;
@@ -166,54 +166,90 @@ function confirmGoals(navigation: any, feelBetter: any, loseWeight: any, startWe
         // Convert goalWeight to a float
         currentUser.goalWeight = parseFloat(goalWeight);
     
-        addNewUser(navigation, currentUser);
+        updateUserGoals(navigation, currentUser);
     }
 }
 
-function addNewUser(navigation: any, currentUser: any){
-    // User POST API call
-    // At this point we have everything we need to make the User POST call to create the account
-    fetch(`${AppUrls.url}/user/`, {
-        // send the user credentials to the backend
-        method: 'POST',
-        // this is a header to tell the server to parse the request body as JSON
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        // convert the data into JSON format
-        body: JSON.stringify({
-            email: currentUser.email,
-            password: currentUser.password,
-            first_name: currentUser.firstName,
-            last_name: currentUser.lastName,
-            birthdate: currentUser.birthDate, // "2000-01-01", 
-            gender: currentUser.gender,
-            height_feet: currentUser.heightFeet,
-            height_inches: currentUser.heightInches,
-            goal_weight: currentUser.goalWeight,
-            goal_to_lose_weight: currentUser.goal_to_lose_weight,
-            goal_to_feel_better: currentUser.goal_to_feel_better,
-        }),
-    })
-    // check to see what status the server sends back
-    .then(response => { // this is an arrow function that takes 'response' as an argument, like function(response)
-        if (!response.ok) {
-            throw new Error('Failed to save user account');
-        }
-        // convert the JSON back into a JavaScript object so it can be passed to the next '.then' to log the data that was saved
-        return response.json();
-    })
-    .then(data => { // 'data' is the JavaScript object that was created after parsing the JSON from the server response
-        console.log('User account saved successfully:', data);
-        currentUser.userId = data.user_id;
-        addNewUserInitialProgress(navigation, currentUser);
-        navigation.navigate('HomePage', { currentUser }); // TO DELETE! This is here for troubleshooting only. You should only go to the home page upon 2 successful API calls
-    })
-    .catch(error => {
-        console.error('Error saving data:', error);
-        Alert.alert("Failed to create account, please try again!");
+async function updateUserGoals(navigation: any, currentUser: any) {
+  const payload = {
+    goal_weight: currentUser.goalWeight,
+    goal_to_lose_weight: !!currentUser.goal_to_lose_weight,
+    goal_to_feel_better: !!currentUser.goal_to_feel_better,
+  };
+
+  try {
+    const res = await fetch(`${AppUrls.url}/user/${currentUser.userId}/`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
+    const data = await res.json().catch(() => ({} as any));
+    if (!res.ok) {
+      const msg =
+        data?.detail ||
+        Object.entries(data)
+          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+          .join('\n') ||
+        'Failed to save goals.';
+      Alert.alert('Error', msg);
+      return;
+    }
+
+    currentUser.goalWeight = data.goal_weight ?? currentUser.goalWeight;
+    currentUser.goal_to_lose_weight = data.goal_to_lose_weight ?? currentUser.goal_to_lose_weight;
+    currentUser.goal_to_feel_better = data.goal_to_feel_better ?? currentUser.goal_to_feel_better;
+
+    addNewUserInitialProgress(navigation, currentUser);
+  } catch (err: any) {
+    console.error('Error updating goals:', err);
+    Alert.alert('Network Error', String(err?.message ?? err));
+  }
 }
+
+// function addNewUser(navigation: any, currentUser: any){
+//     // User POST API call
+//     // At this point we have everything we need to make the User POST call to create the account
+//     fetch(`${AppUrls.url}/user/`, {
+//         // send the user credentials to the backend
+//         method: 'POST',
+//         // this is a header to tell the server to parse the request body as JSON
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         // convert the data into JSON format
+//         body: JSON.stringify({
+//             email: currentUser.email,
+//             password: currentUser.password,
+//             first_name: currentUser.firstName,
+//             last_name: currentUser.lastName,
+//             birthdate: currentUser.birthDate, // "2000-01-01", 
+//             gender: currentUser.gender,
+//             height_feet: currentUser.heightFeet,
+//             height_inches: currentUser.heightInches,
+//             goal_weight: currentUser.goalWeight,
+//             goal_to_lose_weight: currentUser.goal_to_lose_weight,
+//             goal_to_feel_better: currentUser.goal_to_feel_better,
+//         }),
+//     })
+//     // check to see what status the server sends back
+//     .then(response => { // this is an arrow function that takes 'response' as an argument, like function(response)
+//         if (!response.ok) {
+//             throw new Error('Failed to save user account');
+//         }
+//         // convert the JSON back into a JavaScript object so it can be passed to the next '.then' to log the data that was saved
+//         return response.json();
+//     })
+//     .then(data => { // 'data' is the JavaScript object that was created after parsing the JSON from the server response
+//         console.log('User account saved successfully:', data);
+//         currentUser.userId = data.user_id;
+//         addNewUserInitialProgress(navigation, currentUser);
+//         navigation.navigate('HomePage', { currentUser }); // TO DELETE! This is here for troubleshooting only. You should only go to the home page upon 2 successful API calls
+//     })
+//     .catch(error => {
+//         console.error('Error saving data:', error);
+//         Alert.alert("Failed to create account, please try again!");
+//     });
+// }
 
 function addNewUserInitialProgress(navigation: any, currentUser: any){
         // UserData POST API call
