@@ -1,9 +1,5 @@
 from django.db import models
-from django.contrib.auth.hashers import check_password as django_check_password
-
-# Create your models here.
-
-# Best practice is one model per database table, so each model represents a table.
+from django.contrib.auth.hashers import make_password, check_password as django_check_password
 
 # User model
 class User(models.Model):
@@ -28,11 +24,19 @@ class User(models.Model):
     def __str__(self):
         return f"User ID: {self.user_id}, Email: {self.email}"
 
-    def check_password(self, password_entered):
-        if (password_entered == self.password):
-            return True
-        else:
+    def set_password(self, raw_password: str):
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password: str) -> bool:
+        if not self.password:
             return False
+        return django_check_password(raw_password, self.password)
+
+    # def check_password(self, password_entered):
+    #     if (password_entered == self.password):
+    #         return True
+    #     else:
+    #         return False
         
 # UserData model
 class UserData(models.Model):
