@@ -43,9 +43,25 @@ PORT = os.getenv('PORT', '8000')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['healthygatorsportsfan-84ee3c84673f.herokuapp.com','127.0.0.1', 'localhost', '192.168.68.124', '192.168.4.168', 'b862-184-185-222-16.ngrok-free.app', 'sawfish-premium-unlikely.ngrok-free.app', 'strongly-inviting-stinkbug.ngrok-free.app', 'normal-elegant-corgi.ngrok-free.app']
+ALLOWED_HOSTS = [
+    'healthygatorsportsfan-84ee3c84673f.herokuapp.com',
+    '127.0.0.1', 
+    'localhost', 
+    '192.168.68.124', 
+    '192.168.4.168', 
+    'b862-184-185-222-16.ngrok-free.app', 
+    'sawfish-premium-unlikely.ngrok-free.app', 
+    'strongly-inviting-stinkbug.ngrok-free.app', 
+    'normal-elegant-corgi.ngrok-free.app',
+    'tuna-fleet-hamster.ngrok-free.app',
+]
+
+# Add Cloud Run domain pattern
+if os.getenv('K_SERVICE'):
+    ALLOWED_HOSTS.append(f'{os.getenv("K_SERVICE")}-{os.getenv("K_REVISION")}.{os.getenv("K_CONFIGURATION")}-{os.getenv("GOOGLE_CLOUD_PROJECT")}.uc.r.appspot.com')
+    ALLOWED_HOSTS.append(f'{os.getenv("K_SERVICE")}-{os.getenv("GOOGLE_CLOUD_PROJECT")}.uc.r.appspot.com')
 
 
 # Application definition
@@ -74,6 +90,13 @@ INSTALLED_APPS = [
     'app',
     'rest_framework',
     'corsheaders',
+]
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.ScryptPasswordHasher',
 ]
 
 MIDDLEWARE = [
@@ -115,17 +138,34 @@ TEMPLATES = [
 #WSGI_APPLICATION = 'HealthyGatorSportsFanDjango.project.wsgi.application'
 
 
-# Database (for running locally)
+# Database configuration
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+# Check if running on Cloud Run (production)
+if os.getenv('K_SERVICE'):
+    # Cloud SQL configuration for production
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DATABASE_NAME', 'healthygator_db'),
+            'USER': os.getenv('DATABASE_USER', 'postgres'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+            'HOST': f'/cloudsql/{os.getenv("CLOUD_SQL_CONNECTION_NAME")}',
+            'PORT': '5432',
+        }
     }
-}
+else:
+    # Local development database
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DATABASE_NAME'),
+            'USER': os.getenv('DATABASE_USER'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+            'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+            'PORT': os.getenv('DATABASE_PORT', '5432'),
+        }
+    }
 
 # Database (for pushing to heroku)
 # Configure the database connection using DATABASE_URL environment variable
@@ -190,7 +230,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://normal-elegant-corgi.ngrok-free.app',
     'https://sawfish-premium-unlikely.ngrok-free.app',
     'https://strongly-inviting-stinkbug.ngrok-free.app',
-    'https://healthygatorsportsfan-84ee3c84673f.herokuapp.com'
+    'https://healthygatorsportsfan-84ee3c84673f.herokuapp.com',
+    'https://tuna-fleet-hamster.ngrok-free.app',
+    'https://oriented-magpie-hip.ngrok-free.app'
 ]
 
 # for pushing to Heroku
@@ -207,9 +249,17 @@ CSRF_TRUSTED_ORIGINS = [
 #CELERY_RESULT_SERIALIZER = 'json'
 #CELERY_TIMEZONE = 'UTC'
 
-# for running locally
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# Celery configuration
+if os.getenv('K_SERVICE'):
+    # Production Redis configuration for Cloud Run
+    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
+else:
+    # Local Redis configuration
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -231,7 +281,11 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0') 
+# Redis cache configuration
+if os.getenv('K_SERVICE'):
+    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+else:
+    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 
 CACHES = {
     'default': {
@@ -239,7 +293,6 @@ CACHES = {
         'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            # Set connection pooling options if necessary
         }
     }
 }
