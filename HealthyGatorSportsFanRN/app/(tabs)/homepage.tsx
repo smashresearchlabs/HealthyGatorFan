@@ -5,7 +5,7 @@ import {TeamLogo} from "@/components/getTeamImages";
 import User from "@/components/user";
 import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
-import { GlobalStyles } from '../styles/GlobalStyles';
+import GlobalStyles from '../styles/GlobalStyles';
 
 // TODO: Update game tile on home page to show live score & quarter based on a new CFBD API call
 

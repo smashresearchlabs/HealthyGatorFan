@@ -1,158 +1,298 @@
-import {StyleSheet, View, Text, Alert, TouchableOpacity, TextInput, SafeAreaView, KeyboardAvoidingView} from 'react-native';
-import {useNavigation} from "@react-navigation/native";
-import {useState} from "react";
-import User from "@/components/user";
+import React, { useMemo, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Alert,
+  TouchableOpacity,
+  TextInput,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useColorScheme } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
-//PLACEHOLDER CODE: Insert this between the welcome screen and the next screens once the google sign in is working.
 export default function CreateCredentials() {
-    const navigation = useNavigation();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordConfirmed, setPasswordConfirmed] = useState('');
+  const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmed, setPasswordConfirmed] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
+  const [showPwd2, setShowPwd2] = useState(false);
 
-    return(
+  // 聚焦状态，用于输入框高亮描边（橙色）
+  const [fEmail, setFEmail] = useState(false);
+  const [fPwd, setFPwd] = useState(false);
+  const [fPwd2, setFPwd2] = useState(false);
 
+  const scheme = useColorScheme();
+  const c = Colors[scheme ?? 'light'];
+  const ins = useSafeAreaInsets();
 
-    <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <View style={styles.container}>
-            <Text style={{fontSize: 15, fontFamily: 'System'}}>
-                Please provide an email and password.
+  // 前端校验（与 ConfirmData 保持一致）——仅用于样式，不阻止点击
+  const emailOk = useMemo(() => /\S+@\S+\.\S+/.test(email.trim()), [email]);
+  const pwdOk = useMemo(
+    () => /[A-Za-z]/.test(password) && /\d/.test(password) && password.length >= 8,
+    [password]
+  );
+  const sameOk = useMemo(
+    () => password.length > 0 && password === passwordConfirmed,
+    [password, passwordConfirmed]
+  );
+  const canSubmit = emailOk && pwdOk && sameOk;
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.background }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.select({ ios: 'padding', android: undefined })}
+      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: Math.max(ins.bottom + 20, 24) },
+          ]}
+        >
+          {/* 居中块 */}
+          <View style={styles.centerBlock}>
+            <Text style={[styles.title, { color: c.ufBlue }]}>
+              Please provide an email and password.
             </Text>
-            <TextInput
-                style = {[styles.input, {marginTop: 15} ]}
+            {/* 橙色细分割线：增加品牌感 */}
+            <View style={[styles.orangeBar, { backgroundColor: c.ufOrange }]} />
+
+            {/* Email */}
+            <View
+              style={[
+                styles.inputWrap,
+                {
+                  backgroundColor: c.bgSoft,
+                  borderColor: fEmail ? c.ufOrange : email.length ? (emailOk ? c.ufBlue : c.ufOrange) : c.border,
+                },
+              ]}
+            >
+              <TextInput
+                style={[styles.input, { color: c.text }]}
                 placeholder="Email"
+                placeholderTextColor={c.muted}
                 value={email}
-                onChangeText={email => setEmail(email)}
-            />
-            <TextInput
-                style={styles.input}
+                onChangeText={setEmail}
+                onFocus={() => setFEmail(true)}
+                onBlur={() => setFEmail(false)}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                returnKeyType="next"
+              />
+            </View>
+
+            {/* Password */}
+            <View
+              style={[
+                styles.inputWrap,
+                styles.row,
+                {
+                  backgroundColor: c.bgSoft,
+                  borderColor: fPwd ? c.ufOrange : password.length ? (pwdOk ? c.ufBlue : c.ufOrange) : c.border,
+                },
+              ]}
+            >
+              <TextInput
+                style={[styles.input, styles.flex, { color: c.text }]}
                 placeholder="Password"
+                placeholderTextColor={c.muted}
                 value={password}
-                onChangeText={pass => setPassword(pass)}
-                secureTextEntry={true}
-            />
-            <TextInput
-                style={styles.input}
+                onChangeText={setPassword}
+                onFocus={() => setFPwd(true)}
+                onBlur={() => setFPwd(false)}
+                secureTextEntry={!showPwd}
+                returnKeyType="next"
+              />
+              <TouchableOpacity onPress={() => setShowPwd(v => !v)}>
+                <Text style={{ color: c.ufBlue, fontWeight: '700' }}>
+                  {showPwd ? 'HIDE' : 'SHOW'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Confirm Password */}
+            <View
+              style={[
+                styles.inputWrap,
+                styles.row,
+                {
+                  backgroundColor: c.bgSoft,
+                  borderColor: fPwd2 ? c.ufOrange : passwordConfirmed.length ? (sameOk ? c.ufBlue : c.ufOrange) : c.border,
+                },
+              ]}
+            >
+              <TextInput
+                style={[styles.input, styles.flex, { color: c.text }]}
                 placeholder="Confirm Password"
+                placeholderTextColor={c.muted}
                 value={passwordConfirmed}
-                onChangeText={pass => setPasswordConfirmed(pass)}
-                secureTextEntry={true}
-            />
-            <Text style={{fontSize: 15, fontFamily: 'System', textAlign: 'center', margin : 20, color: "grey"}}>
-                Passwords must contain at least 1 letter and character, and must be at least 8 characters long.
+                onChangeText={setPasswordConfirmed}
+                onFocus={() => setFPwd2(true)}
+                onBlur={() => setFPwd2(false)}
+                secureTextEntry={!showPwd2}
+                returnKeyType="done"
+                onSubmitEditing={() => ConfirmData(email, password, passwordConfirmed, navigation)}
+              />
+              <TouchableOpacity onPress={() => setShowPwd2(v => !v)}>
+                <Text style={{ color: c.ufBlue, fontWeight: '700' }}>
+                  {showPwd2 ? 'HIDE' : 'SHOW'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.helper, { color: c.muted }]}>
+              Passwords must include at least 1 letter and 1 number, and be at least 8 characters long.
             </Text>
-                <TouchableOpacity style = {[styles.buttons, {marginTop: 20} ]} activeOpacity={0.5}
-                                  onPress={() => ConfirmData(email, password, passwordConfirmed, navigation) }>
-                    <Text style={{fontSize: 15, fontFamily: 'System'}}>
-                        Create Account
-                    </Text>
-                </TouchableOpacity>
-        </View>
 
-        </KeyboardAvoidingView>
-
-        </SafeAreaView>
-    );
+            {/* 橙色主按钮 —— 始终可点（不使用 disabled） */}
+            <TouchableOpacity
+              style={[
+                styles.btn,
+                { backgroundColor: c.ufOrange, opacity: canSubmit ? 1 : 0.35 },
+              ]}
+              activeOpacity={0.9}
+              onPress={() => ConfirmData(email, password, passwordConfirmed, navigation)}
+              accessibilityRole="button"
+              accessibilityLabel="Create Account"
+            >
+              <Text style={styles.btnText}>Create Account</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 }
 
+/* 下面逻辑保持你的原样，不影响后端 */
+async function ConfirmData(email: any, password: any, passwordConfirmed: any, navigation: any) {
+  if (!(email.includes('@') && email.includes('.'))) {
+    Alert.alert('Invalid email address!');
+    return;
+  }
+  if (password !== passwordConfirmed) {
+    Alert.alert('Passwords do not match!');
+    return;
+  }
+  if (password.length < 8) {
+    Alert.alert('Passwords must be at least 8 characters long!');
+    return;
+  }
+  const hasNumber = /\d/;
+  if (!hasNumber.test(password)) {
+    Alert.alert('Passwords must include a numeric character!');
+    return;
+  }
+  const hasLetter = /.*[a-zA-Z].*/;
+  if (!hasLetter.test(password)) {
+    Alert.alert('Passwords must include a letter!');
+    return;
+  }
 
-async function ConfirmData(email: any, password: any, passwordConfirmed: any, navigation : any){
-    //Check that the inputted username does not yet exist through connection with database
-    //TODO
+  console.log('Email: ', email);
+  console.log('Password: ', password);
 
-    //Confirm that the email format is valid //todo; add more checks here
-    if(!(email.includes("@") && email.includes("."))){
-        Alert.alert("Invalid email address!");
-        return;
-    }
+  if ((await emailTaken(email)) === false) {
+    const currentUser = new User(0, '', '', '', '', '', '', 0, 0, 0, false, true, 0, '', 0);
+    currentUser.email = email;
+    currentUser.password = password;
 
-    //Confirm that the password and the confirmedpassword match
-    if (password != passwordConfirmed){
-        Alert.alert("Passwords do not match!");
-        return;
-    }
-    if (password.length < 8){
-        Alert.alert("Passwords must be at least 8 characters long!");
-        return;
-    }
-    //Use regex to check if the password string contains a digit
-    var hasNumber = /\d/;
-    if (!hasNumber.test(password)){
-        Alert.alert("Passwords must include a numeric character!");
-        return;
-    }
-    //Use regex to check if the password string contains a letter
-    var hasLetter = /.*[a-zA-Z].*/;
-    if (!hasLetter.test(password)){
-        Alert.alert("Passwords must include a character!");
-        return;
-    }
-
-    console.log("Email: ", email);
-    console.log("Password: ",password);
-
-    if (await emailTaken(email) === false) {
-
-        //Store user info into frontend variable to send to backend at end of account creation
-        const currentUser = new User(0,'','','','','','',0,0,0,false,true,0,'', 0); //TODO: INSPECT ERROR
-        currentUser.email = email;
-        currentUser.password = password;
-
-        // move to the next screen
-        navigation.navigate('BasicInfo', {currentUser} as never);
-    }
-
+    // 注意路由名称是否与实际一致（BasicInfo vs basicinfo）
+    navigation.navigate('BasicInfo', { currentUser } as never);
+  }
 }
 
 const emailTaken = async (email: string) => {
-    try {
-        const response = await fetch(`${AppUrls.url}/user/checkemail/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email }),
-        });
-
-        const data = await response.json();
-        console.log("Email is.....", data);
-        if (data.exists) {
-            console.log("Email exists.....");
-            Alert.alert('Email already exists', 'Please use a different email address.');
-        } 
-        return data.exists; // Return the boolean value directly
-    } catch (error) {
-        console.error('Error checking email:', error);
-        return false; // Return false in case of an error
+  try {
+    const response = await fetch(`${AppUrls.url}/user/checkemail/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await response.json();
+    if (data.exists) {
+      Alert.alert('Email already exists', 'Please use a different email address.');
     }
+    return data.exists; // boolean
+  } catch (error) {
+    console.error('Error checking email:', error);
+    return false;
+  }
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    buttons:{
-        borderWidth:1,
-        borderColor:'orange',
-        width:200,
-        height:50,
-        backgroundColor:'#ADD8E6',
-        borderRadius:50,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    input: {
-        width: '90%',
-        height: 40,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        marginBottom: 20,
-        paddingHorizontal: 10,
-    }
+  // 居中表单
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  centerBlock: {
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  orangeBar: {
+    width: 64,
+    height: 4,
+    borderRadius: 2,
+    marginBottom: 16,
+  },
+  inputWrap: {
+    width: '100%',
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 12,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 10,
+  },
+  input: {
+    fontSize: 16,
+    padding: 0,
+  },
+  flex: { flex: 1 },
+  helper: {
+    marginTop: 14,
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  btn: {
+    marginTop: 18,
+    height: 52,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 22,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+    alignSelf: 'stretch',
+  },
+  btnText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 16,
+  },
 });

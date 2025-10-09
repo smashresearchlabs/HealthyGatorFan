@@ -5,7 +5,8 @@ import {TeamLogo} from "@/components/getTeamImages";
 import User from "@/components/user";
 import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
-import { GlobalStyles } from '../styles/GlobalStyles';
+import GlobalStyles from '../styles/GlobalStyles';
+
 
 export default function GameSchedule() {
     interface Game {
