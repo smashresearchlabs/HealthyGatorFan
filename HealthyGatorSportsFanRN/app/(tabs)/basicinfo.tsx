@@ -72,13 +72,11 @@ const BasicInformationCollection = () => {
             { paddingBottom: Math.max(ins.bottom + 84, 120) }, // 给底部按钮留空间
           ]}
         >
-          {/* Title */}
           <Text style={[styles.title, { color: c.text }]}>
             Before we begin, we need some{'\n'}basic information.
           </Text>
           <View style={[styles.orangeBar, { backgroundColor: c.ufOrange }]} />
 
-          {/* Mascot */}
           <Image
             source={require('./../../assets/images/clipboardgator.jpg')}
             style={styles.mascot}
@@ -87,9 +85,7 @@ const BasicInformationCollection = () => {
             accessibilityLabel="Gator with clipboard"
           />
 
-          {/* Card */}
           <View style={[styles.card, { backgroundColor: c.bgSoft, borderColor: c.border }]}>
-            {/* Name */}
             <Text style={[styles.label, { color: c.text }]}>Enter your name:</Text>
             <View style={styles.row}>
               <TextInput
@@ -111,7 +107,6 @@ const BasicInformationCollection = () => {
               />
             </View>
 
-            {/* Birthdate */}
             <Text style={[styles.label, { color: c.text }]}>Select your birthdate:</Text>
             <TouchableOpacity
               style={styles.input}
@@ -134,7 +129,6 @@ const BasicInformationCollection = () => {
               maximumDate={new Date()}
             />
 
-            {/* Gender */}
             <Text style={[styles.label, { color: c.text }]}>Select your gender:</Text>
             <Dropdown
               style={styles.dropdown}
@@ -148,7 +142,6 @@ const BasicInformationCollection = () => {
               onChange={(item) => setGender(item.value)}
             />
 
-            {/* Height */}
             <Text style={[styles.label, { color: c.text }]}>Enter your height:</Text>
             <View style={styles.row}>
               <Text style={[styles.inline, { color: c.text }]}>Feet:</Text>
@@ -177,7 +170,6 @@ const BasicInformationCollection = () => {
               />
             </View>
 
-            {/* Weight */}
             <Text style={[styles.label, { color: c.text }]}>Enter your weight in pounds:</Text>
             <TextInput
               style={styles.input}
@@ -191,7 +183,6 @@ const BasicInformationCollection = () => {
           </View>
         </ScrollView>
 
-        {/* Continue Button (sticky bottom) */}
         <View style={[styles.bottomBar, { paddingBottom: Math.max(ins.bottom + 12, 20) }]}>
           <TouchableOpacity
             onPress={() =>
@@ -299,7 +290,6 @@ const isToday = (date: any) => {
   );
 };
 
-/* ───────── 样式：UF 主题 ───────── */
 function SetStyles(c: any) {
   return StyleSheet.create({
     scrollContent: {

@@ -107,7 +107,6 @@ export default function HomePage() {
             <View style={GlobalStyles.middleContent}>
 
                 <View style={styles.scoreBox}>
-                    {/* Home Team */}
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-evenly', flexBasis: '30%' }}>
                         {loading ? (
                             <Text style={{textAlign:'center', alignSelf: 'center'}}>Loading...</Text>
@@ -117,12 +116,10 @@ export default function HomePage() {
                             <Text>No Logo Found</Text>
                         )}
                     </View>
-                    {/* Game Info */}
                     <View style={{flexBasis: '40%', alignSelf: 'center'}}>
                         <Text style={{ fontSize: 18, textAlign:'center', marginBottom: 5 }}>{gameData.home_team} vs {gameData.away_team}</Text>
                         <Text style={{ fontSize: 15, textAlign:'center' }}>{gameData.date}</Text>
                     </View>
-                    {/* Away Team */}
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-evenly', flexBasis: '30%' }}>
                         {loading ? (
                             <Text>Loading...</Text>
@@ -248,7 +245,6 @@ function LogoutPopup(navigation: any){
                 text: "Logout",
                 style: "destructive",
                 onPress: () => {
-                    // Navigate back to the welcome page.
                     console.log("Logging out.");
                     navigation.navigate('CreateOrSignIn' as never);
                 }
@@ -297,7 +293,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
-        elevation: 5, // For Android shadow
+        elevation: 5,
         overflow: 'hidden',
     },
     scoreBoxText:{
@@ -305,7 +301,7 @@ const styles = StyleSheet.create({
     },
     weightBox:{
         flexDirection:'column',
-        width: '80%', // Adjust as needed
+        width: '80%',
         padding: 10,
         borderRadius: 10,
         backgroundColor: 'white',
@@ -313,18 +309,18 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
-        elevation: 5, // For Android shadow
+        elevation: 5,
         marginTop: '5%',
         alignSelf: 'center',
         justifyContent:'space-around',
     },
     button: {
-        backgroundColor: '#2196F3', // Default button color
+        backgroundColor: '#2196F3',
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 4,
-        elevation: 2, // For Android shadow
-        shadowColor: '#000', // For iOS shadow
+        elevation: 2,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,

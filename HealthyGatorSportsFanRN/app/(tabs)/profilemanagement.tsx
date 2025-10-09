@@ -59,7 +59,6 @@ export default function ProfileManagement() {
 
   return (
     <View style={[GlobalStyles.container, { backgroundColor: '#F7F9FF' }]}>
-      {/* 顶部 */}
       <View style={[GlobalStyles.topMenu, { paddingHorizontal: 18 }]}>
         <Image source={require('./../../assets/images/clipboardgator.jpg')} style={{ width: 55, height: 55 }} />
         <View style={{ alignItems: 'center' }}>
@@ -76,12 +75,10 @@ export default function ProfileManagement() {
         <View style={styles.subContainer}>
           <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
 
-            {/* Personal */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Personal Details</Text>
               <View style={styles.orangeBar} />
 
-              {/* Name */}
               <TouchableOpacity style={styles.row} activeOpacity={0.5}
                 onPress={() => setShowEditName(!showEditName)}>
                 <Text style={styles.rowTextLabel}>Name</Text>
@@ -108,7 +105,6 @@ export default function ProfileManagement() {
                 </>
               )}
 
-              {/* Height */}
               <TouchableOpacity style={styles.row} activeOpacity={0.5}
                 onPress={() => setShowEditHeight(!showEditHeight)}>
                 <Text style={styles.rowTextLabel}>Height</Text>
@@ -151,7 +147,6 @@ export default function ProfileManagement() {
                 </View>
               )}
 
-              {/* Gender */}
               <TouchableOpacity style={styles.row} activeOpacity={0.5}
                 onPress={() => setShowEditGender(!showEditGender)}>
                 <Text style={styles.rowTextLabel}>Gender</Text>
@@ -176,7 +171,6 @@ export default function ProfileManagement() {
               )}
             </View>
 
-            {/* Goals */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Goals</Text>
               <View style={styles.orangeBar} />
@@ -216,7 +210,6 @@ export default function ProfileManagement() {
               )}
             </View>
 
-            {/* Confirm */}
             <TouchableOpacity style={styles.confirmBtn} activeOpacity={0.85}
               onPress={() => ConfirmChanges(
                 currentUser, newFirstName, newLastName, heightFt, heightInch,
@@ -229,7 +222,6 @@ export default function ProfileManagement() {
         </View>
       </KeyboardAvoidingView>
 
-      {/* 底部菜单：完全不改动功能 */}
       <View style={GlobalStyles.bottomMenu}>
         <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
           onPress={() => NavigateToHomePage(currentUser, navigation)}>
@@ -260,7 +252,6 @@ export default function ProfileManagement() {
   );
 }
 
-/* ========= 原有功能函数保持不变 ========= */
 function ConfirmChanges(currentUser:User, newFirstName:any, newLastName:any, newFt:any, newInch:any, newWeight:any, newGender:any, newFeelBetter:any, newLoseWeight:any, newGoalWeight:any, navigation:any){
   console.log("currentUser when 'Confirm Changes' is pressed: ", currentUser);
   if(newFeelBetter === false && newLoseWeight === false){
@@ -371,7 +362,6 @@ const updateUser = async (currentUser: any, newFirstName: string, newLastName: s
   }
 };
 
-/* ----------- 样式（仅 UI 优化）----------- */
 const styles = StyleSheet.create({
   subContainer: {
     height: '75%',
@@ -385,12 +375,12 @@ const styles = StyleSheet.create({
   sectionTitle:{
     fontSize: 20,
     fontWeight: '800',
-    color: '#0021A5', // UF Blue
+    color: '#0021A5',
     alignSelf: 'center'
   },
   orangeBar:{
     width: 64, height: 4, borderRadius: 2,
-    backgroundColor: '#FA4616', // UF Orange
+    backgroundColor: '#FA4616',
     alignSelf: 'center', marginTop: 6, marginBottom: 10
   },
 

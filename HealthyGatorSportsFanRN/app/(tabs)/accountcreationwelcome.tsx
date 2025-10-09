@@ -12,7 +12,6 @@ export default function WelcomeScreen() {
   const scheme = useColorScheme();
   const c = Colors[scheme ?? 'light'];
 
-  // 根据屏宽自适应图片尺寸
   const heroW = Math.min(width * 0.68, 340);
   const heroH = heroW * 0.8;
 
@@ -31,7 +30,6 @@ export default function WelcomeScreen() {
         </Text>
       </View>
 
-      {/* 右下角“前进”按钮，吸附安全区，不会偏左 */}
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => navigation.navigate('CreateCredentialsScreen' as never)}
@@ -62,7 +60,7 @@ const s = StyleSheet.create({
   centerBlock: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center', // ⬅️ 图片+文案垂直居中
+    justifyContent: 'center',
     paddingHorizontal: 24,
   },
   hero: {

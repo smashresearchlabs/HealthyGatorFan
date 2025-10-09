@@ -14,7 +14,6 @@ import Checkbox from 'expo-checkbox';
 import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 
-// UF theme colors（避免依赖外部 Colors，直接在本页用）
 const UF_BLUE = '#0021A5';
 const UF_ORANGE = '#FA4616';
 const BG_SOFT = '#F8FAFF';
@@ -29,23 +28,19 @@ const GoalCollection = () => {
   const [feelBetter, setFeelBetter] = useState(false);
   const [loseWeight, setLoseWeight] = useState(false);
 
-  // startWeight 初始化为 currentWeight
   const [startWeight] = useState(currentUser.currentWeight || '');
   const [goalWeight, setGoalWeight] = useState('');
 
-  // 行点击也能切换
   const toggleFeelBetter = () => setFeelBetter((v) => !v);
   const toggleLoseWeight = () => setLoseWeight((v) => !v);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <View style={styles.container}>
-        {/* 中心块：标题 + 选项 +（可能的）输入框 */}
         <View style={styles.centerWrap}>
           <Text style={styles.title}>What are your goals?</Text>
           <View style={styles.orangeBar} />
 
-          {/* Feel Better */}
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={toggleFeelBetter}
@@ -79,7 +74,6 @@ const GoalCollection = () => {
             </View>
           </TouchableOpacity>
 
-          {/* Lose Weight */}
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={toggleLoseWeight}
@@ -113,7 +107,6 @@ const GoalCollection = () => {
             </View>
           </TouchableOpacity>
 
-          {/* 目标体重输入（仅当选中 Lose Weight） */}
           {loseWeight && (
             <View style={styles.card}>
               <Text style={styles.cardLabel}>Goal Weight (lbs)</Text>
@@ -134,7 +127,6 @@ const GoalCollection = () => {
           )}
         </View>
 
-        {/* 右下角下一步 */}
         <TouchableOpacity
           style={styles.bottomObject}
           activeOpacity={0.85}
@@ -375,14 +367,12 @@ function addNewUserInitialProgress(navigation: any, currentUser: any){
 }
 
 
-/* ---------- 样式（更漂亮但很稳） ---------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
 
-  // 让主要内容垂直居中；底部按钮不被遮挡
   centerWrap: {
     flex: 1,
     alignItems: 'center',
@@ -448,7 +438,6 @@ const styles = StyleSheet.create({
     opacity: 0.95,
   },
 
-  // 目标体重卡片
   card: {
     alignSelf: 'stretch',
     width: 300,
@@ -479,7 +468,6 @@ const styles = StyleSheet.create({
     color: MUTED,
   },
 
-  // 右下角前进按钮（FAB）
   bottomObject: {
     position: 'absolute',
     right: 20,

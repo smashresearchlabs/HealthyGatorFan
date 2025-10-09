@@ -27,7 +27,6 @@ export default function LogInScreen() {
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 简单前端校验
   const emailOk = useMemo(() => /\S+@\S+\.\S+/.test(email.trim()), [email]);
   const pwdOk = useMemo(() => password.length >= 1, [password]);
   const canSubmit = emailOk && pwdOk && !loading;
@@ -39,11 +38,9 @@ export default function LogInScreen() {
         behavior={Platform.select({ ios: 'padding', android: undefined })}
       >
         <View style={styles.container}>
-          {/* 标题 */}
           <Text style={styles.title}>Please enter your email and password.</Text>
           <View style={styles.orangeBar} />
 
-          {/* Email */}
           <View
             style={[
               styles.inputWrap,
@@ -61,7 +58,6 @@ export default function LogInScreen() {
             />
           </View>
 
-          {/* Password + SHOW */}
           <View
             style={[
               styles.inputWrap,
@@ -82,7 +78,6 @@ export default function LogInScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* 登录按钮 */}
           <TouchableOpacity
             style={[styles.btn, { opacity: canSubmit ? 1 : 0.4 }]}
             disabled={!canSubmit}
@@ -99,7 +94,6 @@ export default function LogInScreen() {
             <Text style={styles.btnText}>{loading ? 'Logging in…' : 'Login'}</Text>
           </TouchableOpacity>
 
-          {/* 小提示 */}
           {!emailOk && email.length > 0 && (
             <Text style={styles.helper}>Please enter a valid email address.</Text>
           )}
@@ -109,7 +103,6 @@ export default function LogInScreen() {
   );
 }
 
-/* ---------------- 保留你的原始登录逻辑 ---------------- */
 
 async function ConfirmData(email: any, password: any, navigation: any) {
   const currentUser = new User(1, '', '', '', '', '', '', 0, 0, 0, false, true, 0, 'both', 0);
@@ -201,13 +194,11 @@ const getLatestUserData = async (currentUser: any, navigation: any) => {
   }
 };
 
-/* ---------------- 样式 ---------------- */
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    justifyContent: 'center', // 垂直居中
+    justifyContent: 'center',
   },
   title: {
     fontSize: 18,

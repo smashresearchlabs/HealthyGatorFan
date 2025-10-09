@@ -25,7 +25,6 @@ export default function ProgressLogging() {
 
     return (
         <View style={[GlobalStyles.container, {backgroundColor:'#F7F9FF'}]}>
-            {/* 顶部条保持原逻辑，仅微调配色 */}
             <View style={GlobalStyles.topMenu}>
                 <Image
                     source={require('./../../assets/images/clipboardgator.jpg')}
@@ -43,7 +42,6 @@ export default function ProgressLogging() {
                 </TouchableOpacity>
             </View>
 
-            {/* 体重卡片 */}
             {isGoalToLoseWeight && (
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Enter New Weight:</Text>
@@ -71,12 +69,10 @@ export default function ProgressLogging() {
                 </View>
             )}
 
-            {/* 目标文案 */}
             {isGoalToLoseWeight && (
                 <Text style={styles.goalText}>Your goal: {Math.floor(currentUser.goalWeight)}</Text>
             )}
 
-            {/* 打分卡片 */}
             {isGoalToFeelBetter && (
                 <View style={[styles.card, {marginTop: 18}]}>
                     <Text style={styles.cardTitle}>How are you feeling?</Text>
@@ -90,7 +86,6 @@ export default function ProgressLogging() {
                 </View>
             )}
 
-            {/* 提交按钮：沿用全局按钮 + 橙色主题 */}
             <TouchableOpacity
                 style={[GlobalStyles.confirmButton, styles.cta]}
                 activeOpacity={0.8}
@@ -99,7 +94,6 @@ export default function ProgressLogging() {
                 <Text style={styles.ctaText}>Submit Assessment</Text>
             </TouchableOpacity>
 
-            {/* 底部导航保持不变 */}
             <View style={GlobalStyles.bottomMenu}>
                 <TouchableOpacity style = {GlobalStyles.bottomIcons} activeOpacity={0.5}
                                   onPress={() => NavigateToHomePage(currentUser, navigation)}>
@@ -140,7 +134,6 @@ export default function ProgressLogging() {
     );
 }
 
-/* ---------- 以下所有函数保持原样（未改业务逻辑） ---------- */
 function ConfirmChanges(navigation: any, rating: number, newWeight: any, currentUser: User){
     if (currentUser.feelBetter && currentUser.loseWeight) {
         currentUser.goalType = 'both';
@@ -246,7 +239,7 @@ const updateUserGoals = async (currentUser: any, newFeelBetter: boolean, newLose
     } catch { Alert.alert("Network error"); }
 };
 
-/* ==================== 纯 UI 样式 ==================== */
+
 const UF_BLUE = '#0021A5';
 const UF_ORANGE = '#FA4616';
 
@@ -254,8 +247,8 @@ const styles = StyleSheet.create({
     card:{
         width: '88%',
         alignSelf: 'center',
-        marginTop: '15%',       // ✅ 稍微下移，但减少后续留白
-        marginBottom: 10,       // ✅ 减少卡片与按钮的间距
+        marginTop: '15%',
+        marginBottom: 10,
         borderRadius: 16,
         backgroundColor: '#FFFFFF',
         borderWidth: 1,
@@ -313,7 +306,7 @@ const styles = StyleSheet.create({
     weightValue:{
         fontSize: 34,
         textAlign: 'center',
-        minWidth: 110,   // 让数字在两侧按钮之间稳定居中
+        minWidth: 110,
         color: '#101828',
         fontFamily: 'System',
         fontWeight: '700',
@@ -330,9 +323,7 @@ const styles = StyleSheet.create({
     borderColor: UF_ORANGE,
     width: '70%',
     alignSelf: 'center',
-    marginTop: 15,    // ✅ 原40→15，让按钮更贴近卡片
+    marginTop: 15,
 },
-
-    
     ctaText:{ color:'#fff', fontWeight:'700', fontSize:16 },
 });

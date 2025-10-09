@@ -45,7 +45,6 @@ export default function CreateOrSignIn() {
         </View>
       </Modal>
 
-      {/* Mascot / Hero */}
       <Image
         source={require('./../../assets/images/coolgator.png')}
         style={styles.hero}
@@ -54,13 +53,11 @@ export default function CreateOrSignIn() {
         accessibilityLabel="Gator mascot"
       />
 
-      {/* Title / Subtitle */}
       <View style={styles.headerWrap}>
         <Text style={[styles.title, { color: c.ufBlue }]}>Gator Goals</Text>
         <Text style={[styles.subtitle, { color: c.muted }]}>Track games, mood & weight like a true Gator</Text>
       </View>
 
-      {/* Actions */}
       <TouchableOpacity
         style={[styles.primaryBtn, { backgroundColor: c.ufOrange, marginTop: 28 }]}
         activeOpacity={0.9}
@@ -79,7 +76,6 @@ export default function CreateOrSignIn() {
         <Text style={[styles.secondaryBtnText, { color: c.ufBlue }]}>Login</Text>
       </TouchableOpacity>
 
-      {/* Footer hint */}
       <View style={styles.footer}>
         <Text style={[styles.footerText, { color: c.muted }]}>It’s Great to be a Florida Gator!</Text>
       </View>
@@ -151,21 +147,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 
-  // --- Modal Styles ---
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',       // ⬅️ 确保居中
+    alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.45)',
-    paddingHorizontal: 20,      // ⬅️ 防止贴边
+    paddingHorizontal: 20,
   },
   modalContent: {
-    width: '85%',               // ⬅️ 不用100%，留白
+    width: '85%',
     borderRadius: 16,
     paddingVertical: 24,
     paddingHorizontal: 20,
     borderWidth: 1,
-    alignItems: 'center',       // ⬅️ 内容居中
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.18,
     shadowRadius: 8,

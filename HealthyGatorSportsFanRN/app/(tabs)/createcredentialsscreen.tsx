@@ -26,7 +26,6 @@ export default function CreateCredentials() {
   const [showPwd, setShowPwd] = useState(false);
   const [showPwd2, setShowPwd2] = useState(false);
 
-  // 聚焦状态，用于输入框高亮描边（橙色）
   const [fEmail, setFEmail] = useState(false);
   const [fPwd, setFPwd] = useState(false);
   const [fPwd2, setFPwd2] = useState(false);
@@ -35,7 +34,6 @@ export default function CreateCredentials() {
   const c = Colors[scheme ?? 'light'];
   const ins = useSafeAreaInsets();
 
-  // 前端校验（与 ConfirmData 保持一致）——仅用于样式，不阻止点击
   const emailOk = useMemo(() => /\S+@\S+\.\S+/.test(email.trim()), [email]);
   const pwdOk = useMemo(
     () => /[A-Za-z]/.test(password) && /\d/.test(password) && password.length >= 8,
@@ -60,15 +58,12 @@ export default function CreateCredentials() {
             { paddingBottom: Math.max(ins.bottom + 20, 24) },
           ]}
         >
-          {/* 居中块 */}
           <View style={styles.centerBlock}>
             <Text style={[styles.title, { color: c.ufBlue }]}>
               Please provide an email and password.
             </Text>
-            {/* 橙色细分割线：增加品牌感 */}
             <View style={[styles.orangeBar, { backgroundColor: c.ufOrange }]} />
 
-            {/* Email */}
             <View
               style={[
                 styles.inputWrap,
@@ -92,7 +87,6 @@ export default function CreateCredentials() {
               />
             </View>
 
-            {/* Password */}
             <View
               style={[
                 styles.inputWrap,
@@ -121,7 +115,6 @@ export default function CreateCredentials() {
               </TouchableOpacity>
             </View>
 
-            {/* Confirm Password */}
             <View
               style={[
                 styles.inputWrap,
@@ -155,7 +148,6 @@ export default function CreateCredentials() {
               Passwords must include at least 1 letter and 1 number, and be at least 8 characters long.
             </Text>
 
-            {/* 橙色主按钮 —— 始终可点（不使用 disabled） */}
             <TouchableOpacity
               style={[
                 styles.btn,
@@ -269,7 +261,6 @@ const emailTaken = async (email: string) => {
 };
 
 const styles = StyleSheet.create({
-  // 居中表单
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
