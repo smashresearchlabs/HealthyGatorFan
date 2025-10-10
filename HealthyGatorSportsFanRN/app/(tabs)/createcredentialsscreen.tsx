@@ -1,60 +1,170 @@
-import {StyleSheet, View, Text, Alert, TouchableOpacity, TextInput, SafeAreaView, KeyboardAvoidingView} from 'react-native';
-import {useNavigation} from "@react-navigation/native";
-import {useState} from "react";
-import User from "@/components/user";
+import React, { useMemo, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Alert,
+  TouchableOpacity,
+  TextInput,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useColorScheme } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
-//PLACEHOLDER CODE: Insert this between the welcome screen and the next screens once the google sign in is working.
 export default function CreateCredentials() {
-    const navigation = useNavigation();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordConfirmed, setPasswordConfirmed] = useState('');
+  const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmed, setPasswordConfirmed] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
+  const [showPwd2, setShowPwd2] = useState(false);
 
-    return(
+  const [fEmail, setFEmail] = useState(false);
+  const [fPwd, setFPwd] = useState(false);
+  const [fPwd2, setFPwd2] = useState(false);
 
+  const scheme = useColorScheme();
+  const c = Colors[scheme ?? 'light'];
+  const ins = useSafeAreaInsets();
 
-    <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <View style={styles.container}>
-            <Text style={{fontSize: 15, fontFamily: 'System'}}>
-                Please provide an email and password.
+  const emailOk = useMemo(() => /\S+@\S+\.\S+/.test(email.trim()), [email]);
+  const pwdOk = useMemo(
+    () => /[A-Za-z]/.test(password) && /\d/.test(password) && password.length >= 8,
+    [password]
+  );
+  const sameOk = useMemo(
+    () => password.length > 0 && password === passwordConfirmed,
+    [password, passwordConfirmed]
+  );
+  const canSubmit = emailOk && pwdOk && sameOk;
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.background }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.select({ ios: 'padding', android: undefined })}
+      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: Math.max(ins.bottom + 20, 24) },
+          ]}
+        >
+          <View style={styles.centerBlock}>
+            <Text style={[styles.title, { color: c.ufBlue }]}>
+              Please provide an email and password.
             </Text>
-            <TextInput
-                style = {[styles.input, {marginTop: 15} ]}
+            <View style={[styles.orangeBar, { backgroundColor: c.ufOrange }]} />
+
+            <View
+              style={[
+                styles.inputWrap,
+                {
+                  backgroundColor: c.bgSoft,
+                  borderColor: fEmail ? c.ufOrange : email.length ? (emailOk ? c.ufBlue : c.ufOrange) : c.border,
+                },
+              ]}
+            >
+              <TextInput
+                style={[styles.input, { color: c.text }]}
                 placeholder="Email"
+                placeholderTextColor={c.muted}
                 value={email}
-                onChangeText={email => setEmail(email)}
-            />
-            <TextInput
-                style={styles.input}
+                onChangeText={setEmail}
+                onFocus={() => setFEmail(true)}
+                onBlur={() => setFEmail(false)}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                returnKeyType="next"
+              />
+            </View>
+
+            <View
+              style={[
+                styles.inputWrap,
+                styles.row,
+                {
+                  backgroundColor: c.bgSoft,
+                  borderColor: fPwd ? c.ufOrange : password.length ? (pwdOk ? c.ufBlue : c.ufOrange) : c.border,
+                },
+              ]}
+            >
+              <TextInput
+                style={[styles.input, styles.flex, { color: c.text }]}
                 placeholder="Password"
+                placeholderTextColor={c.muted}
                 value={password}
-                onChangeText={pass => setPassword(pass)}
-                secureTextEntry={true}
-            />
-            <TextInput
-                style={styles.input}
+                onChangeText={setPassword}
+                onFocus={() => setFPwd(true)}
+                onBlur={() => setFPwd(false)}
+                secureTextEntry={!showPwd}
+                returnKeyType="next"
+              />
+              <TouchableOpacity onPress={() => setShowPwd(v => !v)}>
+                <Text style={{ color: c.ufBlue, fontWeight: '700' }}>
+                  {showPwd ? 'HIDE' : 'SHOW'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View
+              style={[
+                styles.inputWrap,
+                styles.row,
+                {
+                  backgroundColor: c.bgSoft,
+                  borderColor: fPwd2 ? c.ufOrange : passwordConfirmed.length ? (sameOk ? c.ufBlue : c.ufOrange) : c.border,
+                },
+              ]}
+            >
+              <TextInput
+                style={[styles.input, styles.flex, { color: c.text }]}
                 placeholder="Confirm Password"
+                placeholderTextColor={c.muted}
                 value={passwordConfirmed}
-                onChangeText={pass => setPasswordConfirmed(pass)}
-                secureTextEntry={true}
-            />
-            <Text style={{fontSize: 15, fontFamily: 'System', textAlign: 'center', margin : 20, color: "grey"}}>
-                Passwords must contain at least 1 letter and character, and must be at least 8 characters long.
+                onChangeText={setPasswordConfirmed}
+                onFocus={() => setFPwd2(true)}
+                onBlur={() => setFPwd2(false)}
+                secureTextEntry={!showPwd2}
+                returnKeyType="done"
+                onSubmitEditing={() => ConfirmData(email, password, passwordConfirmed, navigation)}
+              />
+              <TouchableOpacity onPress={() => setShowPwd2(v => !v)}>
+                <Text style={{ color: c.ufBlue, fontWeight: '700' }}>
+                  {showPwd2 ? 'HIDE' : 'SHOW'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.helper, { color: c.muted }]}>
+              Passwords must include at least 1 letter and 1 number, and be at least 8 characters long.
             </Text>
-                <TouchableOpacity style = {[styles.buttons, {marginTop: 20} ]} activeOpacity={0.5}
-                                  onPress={() => ConfirmData(email, password, passwordConfirmed, navigation) }>
-                    <Text style={{fontSize: 15, fontFamily: 'System'}}>
-                        Create Account
-                    </Text>
-                </TouchableOpacity>
-        </View>
 
-        </KeyboardAvoidingView>
-
-        </SafeAreaView>
-    );
+            <TouchableOpacity
+              style={[
+                styles.btn,
+                { backgroundColor: c.ufOrange, opacity: canSubmit ? 1 : 0.35 },
+              ]}
+              activeOpacity={0.9}
+              onPress={() => ConfirmData(email, password, passwordConfirmed, navigation)}
+              accessibilityRole="button"
+              accessibilityLabel="Create Account"
+            >
+              <Text style={styles.btnText}>Create Account</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 }
 
 async function registerUser(baseUrl: string, email: string, password: string) {
@@ -151,29 +261,66 @@ const emailTaken = async (email: string) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    buttons:{
-        borderWidth:1,
-        borderColor:'orange',
-        width:200,
-        height:50,
-        backgroundColor:'#ADD8E6',
-        borderRadius:50,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    input: {
-        width: '90%',
-        height: 40,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        marginBottom: 20,
-        paddingHorizontal: 10,
-    }
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  centerBlock: {
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  orangeBar: {
+    width: 64,
+    height: 4,
+    borderRadius: 2,
+    marginBottom: 16,
+  },
+  inputWrap: {
+    width: '100%',
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 12,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 10,
+  },
+  input: {
+    fontSize: 16,
+    padding: 0,
+  },
+  flex: { flex: 1 },
+  helper: {
+    marginTop: 14,
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  btn: {
+    marginTop: 18,
+    height: 52,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 22,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+    alignSelf: 'stretch',
+  },
+  btnText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 16,
+  },
 });

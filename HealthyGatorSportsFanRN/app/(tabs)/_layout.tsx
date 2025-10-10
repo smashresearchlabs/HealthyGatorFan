@@ -16,7 +16,6 @@ import ProcessLogging from "@/app/(tabs)/progresslogging";
 
 const Stack = createNativeStackNavigator();
 
-
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 

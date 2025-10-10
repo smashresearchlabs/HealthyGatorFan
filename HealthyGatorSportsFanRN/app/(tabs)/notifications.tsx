@@ -6,7 +6,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import NotificationData from "@/components/notificationdata";
 import { AppUrls } from '@/constants/AppUrls';
-import { GlobalStyles } from '../styles/GlobalStyles';
+import GlobalStyles from '../styles/GlobalStyles';
 
 const NotificationsPage = () => {
     const navigation = useNavigation();

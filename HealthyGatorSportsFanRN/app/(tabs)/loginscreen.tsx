@@ -1,78 +1,136 @@
-import {StyleSheet, View, Text, TouchableOpacity, TextInput, Alert} from 'react-native';
-import {useNavigation} from "@react-navigation/native";
-import {useState} from "react";
-import User from "@/components/user";
+import React, { useMemo, useState } from 'react';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 
+const UF_BLUE = '#0021A5';
+const UF_ORANGE = '#FA4616';
+const BORDER = 'rgba(0,0,0,0.12)';
+const TEXT_MUTED = '#6B7280';
+
 export default function LogInScreen() {
-    const navigation = useNavigation();
-    // const [username, setUsername] = useState('');
-    // const [password, setPassword] = useState('');
+  const navigation = useNavigation<any>();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    return (
-            <View style={styles.container}>
-                <Text style={{fontSize: 15, fontFamily: 'System'}}>
-                    Please enter your email and password.
-                </Text>
-                <TextInput
-                    style = {[styles.input, {marginTop: 100} ]}
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={email => setEmail(email)}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={pass => setPassword(pass)}
-                    secureTextEntry={true}
-                />
-                <TouchableOpacity style = {[styles.buttons, {marginTop: 20} ]} activeOpacity={0.5}
-                                  onPress={() => ConfirmData(email, password, navigation) }>
-                    <Text style={{fontSize: 15, fontFamily: 'System'}}>
-                        Login
-                    </Text>
-                </TouchableOpacity>
+  const emailOk = useMemo(() => /\S+@\S+\.\S+/.test(email.trim()), [email]);
+  const pwdOk = useMemo(() => password.length >= 1, [password]);
+  const canSubmit = emailOk && pwdOk && !loading;
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.select({ ios: 'padding', android: undefined })}
+      >
+        <View style={styles.container}>
+          <Text style={styles.title}>Please enter your email and password.</Text>
+          <View style={styles.orangeBar} />
+
+          <View
+            style={[
+              styles.inputWrap,
+              { borderColor: email.length ? (emailOk ? UF_BLUE : UF_ORANGE) : BORDER },
+            ]}
+          >
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor={TEXT_MUTED}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
+
+          <View
+            style={[
+              styles.inputWrap,
+              styles.row,
+              { borderColor: password.length ? UF_BLUE : BORDER },
+            ]}
+          >
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="Password"
+              placeholderTextColor={TEXT_MUTED}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPwd}
+            />
+            <TouchableOpacity onPress={() => setShowPwd(v => !v)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Text style={styles.linkBlue}>{showPwd ? 'HIDE' : 'SHOW'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.btn, { opacity: canSubmit ? 1 : 0.4 }]}
+            disabled={!canSubmit}
+            activeOpacity={0.9}
+            onPress={async () => {
+              setLoading(true);
+              try {
+                await ConfirmData(email.trim(), password, navigation);
+              } finally {
+                setLoading(false);
+              }
+            }}
+          >
+            <Text style={styles.btnText}>{loading ? 'Logging in…' : 'Login'}</Text>
+          </TouchableOpacity>
+
+          {!emailOk && email.length > 0 && (
+            <Text style={styles.helper}>Please enter a valid email address.</Text>
+          )}
         </View>
-    );
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 }
 
-async function ConfirmData(email: any, password: any, navigation: any){
 
+async function ConfirmData(email: any, password: any, navigation: any) {
+  const currentUser = new User(1, '', '', '', '', '', '', 0, 0, 0, false, true, 0, 'both', 0);
     //Connect to DB and ensure that the provided username and password are correct and exist
     console.log(email);
     console.log("password");
     //Eventually design a backup email verification system for forgotten passwords.
     //fix-me: delete after test working
 
-    const currentUser = new User(1,'','','','','','',0,0,0, false,true,0, "both", 0);
-
-    //TODO: REMOVE ME AFTER TESTING, THIS IS FOR DEBUG USER
-    if ((email == "debug" || email == "Debug") && (password == "debug" || password == "Debug")){
-        //For debug mode, use these default user data fields:
-        currentUser.userId = 54;
-        currentUser.firstName = 'Lisa';
-        currentUser.lastName = 'Reichelson';
-        currentUser.password = "Debug";
-        currentUser.gender = 'female';
-        currentUser.heightInches = 1;
-        currentUser.heightFeet = 5;
-        currentUser.currentWeight = 120;
-        currentUser.goalWeight = 115;
-        currentUser.goalType = "both";
-        currentUser.feelBetter = true;
-        currentUser.loseWeight = true;
-        currentUser.email = email;
-        navigation.navigate('HomePage', {currentUser} as never);
-    }
-    else{
-        await handleLogin(currentUser, email, password, navigation);
-        console.log("currentUser", currentUser)    
-    }    
+  // Debug 直达
+  if ((email === 'debug' || email === 'Debug') && (password === 'debug' || password === 'Debug')) {
+    currentUser.userId = 54;
+    currentUser.firstName = 'Lisa';
+    currentUser.lastName = 'Reichelson';
+    currentUser.password = 'Debug';
+    currentUser.gender = 'female';
+    currentUser.heightInches = 1;
+    currentUser.heightFeet = 5;
+    currentUser.currentWeight = 120;
+    currentUser.goalWeight = 115;
+    currentUser.goalType = 'both';
+    currentUser.feelBetter = true;
+    currentUser.loseWeight = true;
+    currentUser.email = email;
+    navigation.navigate('HomePage', { currentUser } as never);
+  } else {
+    await handleLogin(currentUser, email, password, navigation);
+  }
 }
 
 const handleLogin = async (currentUser: any, email: any, password: any, navigation: any) => {
@@ -114,56 +172,93 @@ const handleLogin = async (currentUser: any, email: any, password: any, navigati
 };
 
 const getLatestUserData = async (currentUser: any, navigation: any) => {
-    console.log("Before 2nd API call the currentUser = ", currentUser)  
-    try {
-        const response = await fetch(`${AppUrls.url}/userdata/latest/${currentUser.userId}/`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+  try {
+    const response = await fetch(`${AppUrls.url}/userdata/latest/${currentUser.userId}/`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-        if (response.ok) {
-            const data = await response.json();
-            console.log('UserData:', data);
-            currentUser.currentWeight = data.weight_value;
-            currentUser.goalType = data.goal_type; // This is the goal type as of their last user data entry, but it may not match their current goals. Best practice it to use the booleans in the User to detect current goal type.
-            currentUser.lastRating = data.feel_better_value;
-            navigation.navigate('HomePage', {currentUser} as never);
-        } else {
-            const errorData = await response.json();
-            Alert.alert('Error', errorData.detail || 'Something went wrong getting latest userData', [{ text: 'OK' }]);
-        }
-    } catch (err) {
-        console.error('Error during login:', err);
-        Alert.alert('Error', 'Network error', [{ text: 'OK' }]);
+    if (response.ok) {
+      const data = await response.json();
+      currentUser.currentWeight = data.weight_value;
+      currentUser.goalType = data.goal_type;
+      currentUser.lastRating = data.feel_better_value;
+      navigation.navigate('HomePage', { currentUser } as never);
+    } else {
+      const errorData = await response.json();
+      Alert.alert('Error', errorData.detail || 'Something went wrong getting latest userData', [{ text: 'OK' }]);
     }
+  } catch (err) {
+    console.error('Error during login:', err);
+    Alert.alert('Error', 'Network error', [{ text: 'OK' }]);
+  }
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    buttons:{
-        borderWidth:1,
-        borderColor:'orange',
-        width:200,
-        height:50,
-        backgroundColor:'#ADD8E6',
-        borderRadius:50,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    input: {
-        width: '90%',
-        height: 40,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        marginBottom: 20,
-        paddingHorizontal: 10,
-    },
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: UF_BLUE,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  orangeBar: {
+    alignSelf: 'center',
+    width: 64,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: UF_ORANGE,
+    marginBottom: 18,
+  },
+  inputWrap: {
+    borderWidth: 1.5,
+    borderColor: BORDER,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 12,
+    backgroundColor: '#F7F8FA',
+  },
+  input: {
+    fontSize: 16,
+    color: '#111827',
+    padding: 0,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 10,
+  },
+  linkBlue: {
+    color: UF_BLUE,
+    fontWeight: '800',
+  },
+  btn: {
+    marginTop: 20,
+    height: 52,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: UF_ORANGE,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  btnText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 16,
+  },
+  helper: {
+    marginTop: 10,
+    textAlign: 'center',
+    color: TEXT_MUTED,
+  },
 });
