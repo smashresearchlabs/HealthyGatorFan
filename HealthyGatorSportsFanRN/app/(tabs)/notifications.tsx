@@ -12,19 +12,29 @@ import {
   Platform,
   RefreshControl,
   ActivityIndicator,
+  StatusBar,
 } from "react-native";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { AppUrls } from "@/constants/AppUrls";
 import GlobalStyles from "../styles/GlobalStyles";
 
 /* ---------------- Top-level component ---------------- */
 
-const NotificationsPage = () => {
+
+const TAB_VISUAL_H = 64;
+
+export default function NotificationsPage() {
   const navigation = useNavigation();
   const route = useRoute();
   const { currentUser } = route.params as { currentUser: any };
+
+  const insets = useSafeAreaInsets();
+  const [bottomH, setBottomH] = useState<number>(TAB_VISUAL_H + insets.bottom);
+  const padBottom = bottomH + 24;
 
   const [newTitle, setNewTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
@@ -63,54 +73,7 @@ const NotificationsPage = () => {
     loadNotifications();
   }, []);
 
-  // --- Create/Delete handlers ---
-
-  const handleCreateNotificationPress = async () => {
-    if (!newTitle || !newMessage) {
-      Alert.alert("Missing information", "Please provide a title and a message.");
-      return;
-    }
-    try {
-      await createNotification(expoPushToken, currentUser.userId, newTitle, newMessage);
-      await sendPushNotification(expoPushToken, newTitle, newMessage);
-      await loadNotifications();
-    } catch (error) {
-      Alert.alert("Error", "Failed to create notification");
-    }
-  };
-
-  const handleDeleteNotificationPress = async (notification_id: number) => {
-    try {
-      await deleteNotification(notification_id);
-      await loadNotifications();
-    } catch (error) {
-      Alert.alert("Error", "Failed to delete notification");
-    }
-  };
-
-  const handleDeleteAllNotificationPress = async (userId: number) => {
-    if (numNotifications <= 0) {
-      Alert.alert("No notifications", "You have no notifications to delete.");
-      return;
-    }
-    Alert.alert("Confirmation", "Delete all notifications?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Yes",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteAllNotifications(userId);
-            await loadNotifications();
-          } catch (error) {
-            Alert.alert("Error", "Failed to delete notifications");
-          }
-        },
-      },
-    ]);
-  };
-
-  // --- Expo notification wiring (keep your logic) ---
+  // --- Expo notification wiring (保留你的逻辑) ---
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState<Notifications.Notification | undefined>(undefined);
   const notificationListener = useRef<Notifications.Subscription>();
@@ -122,21 +85,28 @@ const NotificationsPage = () => {
       .catch((error: any) => setExpoPushToken(`${error}`));
 
     notificationListener.current = Notifications.addNotificationReceivedListener((n) => setNotification(n));
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) =>
-      console.log(response)
-    );
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => console.log(response));
 
     return () => {
-      if (notificationListener.current)
-        Notifications.removeNotificationSubscription(notificationListener.current);
+      if (notificationListener.current) Notifications.removeNotificationSubscription(notificationListener.current);
       if (responseListener.current) Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
 
   return (
-    <View style={GlobalStyles.container}>
-      {/* top */}
-      <View style={GlobalStyles.topMenu}>
+
+    <SafeAreaView style={GlobalStyles.container} edges={["top"]}>
+      {/*top bar */}
+      <View
+        style={[
+          GlobalStyles.topMenu,
+          {
+            paddingHorizontal: 20,
+            paddingTop: (Platform.OS === "android" ? (StatusBar.currentHeight || 0) : 0) + 22,
+            paddingBottom: 10,
+          },
+        ]}
+      >
         <Image source={require("./../../assets/images/clipboardgator.jpg")} style={{ width: 55, height: 55 }} />
         <View style={{ alignItems: "center", flex: 1 }}>
           <Text style={{ fontSize: 25, fontWeight: "800", color: colors.ufBlue }}>Notifications</Text>
@@ -165,7 +135,7 @@ const NotificationsPage = () => {
         ) : (
           <ScrollView
             style={{ flex: 1 }}
-            contentContainerStyle={{ paddingTop: 8, paddingBottom: 110 }}
+            contentContainerStyle={{ paddingTop: 8, paddingBottom: padBottom }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           >
             {notificationDatas.length === 0 ? (
@@ -175,10 +145,10 @@ const NotificationsPage = () => {
             ) : (
               notificationDatas.map((obj, index) => (
                 <View key={`${obj.notification_id}-${index}`} style={styles.card}>
-                  {/* 时间戳 */}
+                  {/* time */}
                   <Text style={styles.timeText}>{formatTimestamp(obj.timestamp)}</Text>
 
-                  {/* 标题 + 删除 */}
+                  {/* title */}
                   <View style={styles.cardHeader}>
                     <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
                       <View style={styles.unreadDot} />
@@ -196,10 +166,10 @@ const NotificationsPage = () => {
                     </TouchableOpacity>
                   </View>
 
-                  {/* 内容 */}
+                  {/* content */}
                   <Text style={styles.cardText}>{obj.notification_message}</Text>
 
-                  {/* 分割线 */}
+                  {/* spliting line */}
                   <View style={styles.separator} />
                 </View>
               ))
@@ -208,27 +178,24 @@ const NotificationsPage = () => {
         )}
       </KeyboardAvoidingView>
 
-      {/* 底栏 */}
-      <View style={GlobalStyles.bottomMenu}>
+      {/* absolute height */}
+      <View
+        onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
+        style={[GlobalStyles.bottomMenu, { paddingBottom: insets.bottom }]}
+      >
         <TouchableOpacity
           style={GlobalStyles.bottomIcons}
           activeOpacity={0.5}
           onPress={() => NavigateToHomePage(currentUser, navigation)}
         >
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/homeIcon.png")}
-            style={styles.tabIcon}
-          />
+          <Image source={require("../../assets/images/bottomHomeMenu/homeIcon.png")} style={styles.tabIcon} />
         </TouchableOpacity>
         <TouchableOpacity
           style={GlobalStyles.bottomIcons}
           activeOpacity={0.5}
           onPress={() => NavigateToGameSchedule(currentUser, navigation)}
         >
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/calendarIcon.png")}
-            style={styles.tabIcon}
-          />
+          <Image source={require("../../assets/images/bottomHomeMenu/calendarIcon.png")} style={styles.tabIcon} />
         </TouchableOpacity>
         <TouchableOpacity
           style={GlobalStyles.bottomIcons}
@@ -237,7 +204,7 @@ const NotificationsPage = () => {
         >
           <Image
             source={require("../../assets/images/bottomHomeMenu/plus.png")}
-            style={{ width: 45, height: 45, alignSelf: "center", objectFit: "contain" }}
+            style={{ width: 45, height: 45, alignSelf: "center", resizeMode: "contain" }}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -245,25 +212,62 @@ const NotificationsPage = () => {
           activeOpacity={0.5}
           onPress={() => NavigateToProfileManagement(currentUser, navigation)}
         >
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/defaultprofile.png")}
-            style={styles.tabIcon}
-          />
+          <Image source={require("../../assets/images/bottomHomeMenu/defaultprofile.png")} style={styles.tabIcon} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={GlobalStyles.bottomIcons}
-          activeOpacity={0.5}
-          onPress={() => LogoutPopup(navigation)}
-        >
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/logoutIcon.png")}
-            style={styles.tabIcon}
-          />
+        <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5} onPress={() => LogoutPopup(navigation)}>
+          <Image source={require("../../assets/images/bottomHomeMenu/logoutIcon.png")} style={styles.tabIcon} />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
-};
+
+  /* ---------------- Handlers ---------------- */
+
+  async function handleCreateNotificationPress() {
+    if (!newTitle || !newMessage) {
+      Alert.alert("Missing information", "Please provide a title and a message.");
+      return;
+    }
+    try {
+      await createNotification(expoPushToken, currentUser.userId, newTitle, newMessage);
+      await sendPushNotification(expoPushToken, newTitle, newMessage);
+      await loadNotifications();
+    } catch (error) {
+      Alert.alert("Error", "Failed to create notification");
+    }
+  }
+
+  async function handleDeleteNotificationPress(notification_id: number) {
+    try {
+      await deleteNotification(notification_id);
+      await loadNotifications();
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete notification");
+    }
+  }
+
+  async function handleDeleteAllNotificationPress(userId: number) {
+    if (numNotifications <= 0) {
+      Alert.alert("No notifications", "You have no notifications to delete.");
+      return;
+    }
+    Alert.alert("Confirmation", "Delete all notifications?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Yes",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteAllNotifications(userId);
+            await loadNotifications();
+          } catch (error) {
+            Alert.alert("Error", "Failed to delete notifications");
+          }
+        },
+      },
+    ]);
+  }
+}
 
 /* ---------------- Navigation helpers ---------------- */
 
@@ -285,8 +289,6 @@ function NavigateToProfileManagement(currentUser: any, navigation: any) {
 function NavigateToProcessLogging(currentUser: any, navigation: any) {
   navigation.navigate("ProcessLogging", { currentUser } as never);
 }
-
-export default NotificationsPage;
 
 /* ---------------- Expo push setup / utils ---------------- */
 
@@ -348,7 +350,9 @@ async function registerForPushNotificationsAsync() {
 const formatTimestamp = (timestamp: string): string => {
   const date = new Date(timestamp);
   const dateString = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  const timeString = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).toLowerCase();
+  const timeString = date
+    .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+    .toLowerCase();
   return `${dateString}, ${timeString}`;
 };
 
@@ -401,7 +405,7 @@ const colors = {
 };
 
 const styles = StyleSheet.create({
-  tabIcon: { width: 30, height: 30, alignSelf: "center", objectFit: "contain" },
+  tabIcon: { width: 30, height: 30, alignSelf: "center", resizeMode: "contain" },
 
   clearBtn: {
     backgroundColor: "white",

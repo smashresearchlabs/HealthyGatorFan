@@ -1,17 +1,38 @@
-import {StyleSheet, View, Text, TouchableOpacity, TextInput, Image, Alert, ScrollView, KeyboardAvoidingView} from 'react-native';
-import {useNavigation, usePreventRemove, useRoute} from "@react-navigation/native";
-import User from "@/components/user";
-import {useState} from "react";
-import {Dropdown} from "react-native-element-dropdown";
-import Checkbox from "expo-checkbox";
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
+} from 'react-native';
+import { useNavigation, usePreventRemove, useRoute } from '@react-navigation/native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Dropdown } from 'react-native-element-dropdown';
+import Checkbox from 'expo-checkbox';
+
+import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 import GlobalStyles from '../styles/GlobalStyles';
+
+const TAB_VISUAL_H = 64; 
 
 export default function ProfileManagement() {
   const navigation = useNavigation();
   const route = useRoute();
   const user: any = route.params;
   const currentUser: User = user.currentUser.cloneUser();
+
+
+  const insets = useSafeAreaInsets();
+  const [bottomH, setBottomH] = useState<number>(TAB_VISUAL_H + insets.bottom);
+  const padBottom = bottomH + 24;
 
   const [showEditName, setShowEditName] = useState(false);
   const [newFirstName, setNewFirstName] = useState('');
@@ -20,20 +41,16 @@ export default function ProfileManagement() {
   const [showEditHeight, setShowEditHeight] = useState(false);
   const [heightInch, setNewHeightInches] = useState('');
   const [heightFt, setNewHeightFeet] = useState('');
-  const [newHeightFeet] = useState([
-    {value: '0'},{value: '1'},{value: '2'},{value: '3'},{value: '4'},{value: '5'},{value: '6'},{value: '7'},{value: '8'}
-  ]);
-  const [newHeightInches] = useState([
-    {value: '0'},{value: '1'},{value: '2'},{value: '3'},{value: '4'},{value: '5'},{value: '6'},{value: '7'},{value: '8'},{value: '9'},{value: '10'},{value: '11'}
-  ]);
+  const [newHeightFeet] = useState(Array.from({ length: 9 }, (_, i) => ({ value: String(i) })));
+  const [newHeightInches] = useState(Array.from({ length: 12 }, (_, i) => ({ value: String(i) })));
 
   const [showEditWeight] = useState(false);
   const [newWeight, setNewWeight] = useState('');
 
   const [genders] = useState([
-    {label: 'Male', value: 'male'},
-    {label: 'Female', value: 'female'},
-    {label: 'Other', value: 'other'}
+    { label: 'Male', value: 'male' },
+    { label: 'Female', value: 'female' },
+    { label: 'Other', value: 'other' },
   ]);
   const [showEditGender, setShowEditGender] = useState(false);
   const [newGender, setNewGender] = useState('');
@@ -45,7 +62,7 @@ export default function ProfileManagement() {
   const [showEditGoalWeight, setShowEditGoalWeight] = useState(false);
   const [newGoalWeight, setNewGoalWeight] = useState('');
 
-  function dataEntered():boolean{
+  function dataEntered(): boolean {
     if (newFirstName !== '' || newLastName !== '') return true;
     if (heightFt.valueOf() !== '' || heightInch.valueOf() !== '') return true;
     if (newWeight.valueOf() !== '') return true;
@@ -58,29 +75,43 @@ export default function ProfileManagement() {
   usePreventRemove(dataEntered(), () => {});
 
   return (
-    <View style={[GlobalStyles.container, { backgroundColor: '#F7F9FF' }]}>
-      <View style={[GlobalStyles.topMenu, { paddingHorizontal: 18 }]}>
+    // ✅ 只吃顶部安全区
+    <SafeAreaView style={[GlobalStyles.container, { backgroundColor: '#F7F9FF' }]} edges={['top']}>
+      {/* 顶部栏 */}
+      <View
+        style={[
+          GlobalStyles.topMenu,
+          {
+            paddingHorizontal: 18,
+            paddingTop: (Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0) + 22,
+            paddingBottom: 10,
+          },
+        ]}
+      >
         <Image source={require('./../../assets/images/clipboardgator.jpg')} style={{ width: 55, height: 55 }} />
         <View style={{ alignItems: 'center' }}>
           <Text style={{ fontSize: 24, fontWeight: '700' }}>Hey, {currentUser.firstName}!</Text>
           <Text style={{ color: '#667085', marginTop: 2 }}>Manage your profile & goals</Text>
         </View>
-        <TouchableOpacity style={GlobalStyles.topIcons} activeOpacity={0.5}
-          onPress={() => NavigateToNotifications(currentUser, navigation)}>
+        <TouchableOpacity
+          style={GlobalStyles.topIcons}
+          activeOpacity={0.5}
+          onPress={() => NavigateToNotifications(currentUser, navigation)}
+        >
           <Image source={require('./../../assets/images/bell.png')} style={{ width: 40, height: 40, objectFit: 'contain' }} />
         </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.subContainer}>
-          <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-
+          {/* ✅ 关键：为底栏预留“真实高度 + 24” */}
+          <ScrollView contentContainerStyle={{ paddingBottom: padBottom }}>
+            {/* -------- Personal Details -------- */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Personal Details</Text>
               <View style={styles.orangeBar} />
 
-              <TouchableOpacity style={styles.row} activeOpacity={0.5}
-                onPress={() => setShowEditName(!showEditName)}>
+              <TouchableOpacity style={styles.row} activeOpacity={0.5} onPress={() => setShowEditName(!showEditName)}>
                 <Text style={styles.rowTextLabel}>Name</Text>
                 <Text style={[styles.rowTextValue, styles.valueCenter]}>
                   {currentUser.firstName} {currentUser.lastName}
@@ -90,23 +121,12 @@ export default function ProfileManagement() {
 
               {showEditName && (
                 <>
-                  <TextInput
-                    style={styles.editBox}
-                    placeholder="First Name"
-                    value={newFirstName}
-                    onChangeText={setNewFirstName}
-                  />
-                  <TextInput
-                    style={styles.editBox}
-                    placeholder="Last Name"
-                    value={newLastName}
-                    onChangeText={setNewLastName}
-                  />
+                  <TextInput style={styles.editBox} placeholder="First Name" value={newFirstName} onChangeText={setNewFirstName} />
+                  <TextInput style={styles.editBox} placeholder="Last Name" value={newLastName} onChangeText={setNewLastName} />
                 </>
               )}
 
-              <TouchableOpacity style={styles.row} activeOpacity={0.5}
-                onPress={() => setShowEditHeight(!showEditHeight)}>
+              <TouchableOpacity style={styles.row} activeOpacity={0.5} onPress={() => setShowEditHeight(!showEditHeight)}>
                 <Text style={styles.rowTextLabel}>Height</Text>
                 <Text style={[styles.rowTextValue, styles.valueCenter]}>
                   {currentUser.heightFeet}'{currentUser.heightInches}"
@@ -147,8 +167,7 @@ export default function ProfileManagement() {
                 </View>
               )}
 
-              <TouchableOpacity style={styles.row} activeOpacity={0.5}
-                onPress={() => setShowEditGender(!showEditGender)}>
+              <TouchableOpacity style={styles.row} activeOpacity={0.5} onPress={() => setShowEditGender(!showEditGender)}>
                 <Text style={styles.rowTextLabel}>Gender</Text>
                 <Text style={[styles.rowTextValue, styles.valueCenter]}>{currentUser.gender}</Text>
                 <Image source={require('../../assets/images/editPencil.png')} style={styles.pencil} />
@@ -171,12 +190,12 @@ export default function ProfileManagement() {
               )}
             </View>
 
+            {/* -------- Goals -------- */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Goals</Text>
               <View style={styles.orangeBar} />
 
-              <TouchableOpacity style={styles.row} activeOpacity={0.5}
-                onPress={() => setShowEditGoals(!showEditGoals)}>
+              <TouchableOpacity style={styles.row} activeOpacity={0.5} onPress={() => setShowEditGoals(!showEditGoals)}>
                 <Text style={styles.rowTextLabel}>Goal(s)</Text>
                 <Text style={[styles.rowTextValue, styles.valueCenter]}>{GetGoalsText(currentUser)}</Text>
                 <Image source={require('../../assets/images/editPencil.png')} style={styles.pencil} />
@@ -191,8 +210,7 @@ export default function ProfileManagement() {
                 </View>
               )}
 
-              <TouchableOpacity style={styles.row} activeOpacity={0.5}
-                onPress={() => setShowEditGoalWeight(!showEditGoalWeight)}>
+              <TouchableOpacity style={styles.row} activeOpacity={0.5} onPress={() => setShowEditGoalWeight(!showEditGoalWeight)}>
                 <Text style={styles.rowTextLabel}>Goal Weight</Text>
                 <Text style={[styles.rowTextValue, styles.valueCenter]}>{GetGoalWeightStr(currentUser)}</Text>
                 <Image source={require('../../assets/images/editPencil.png')} style={styles.pencil} />
@@ -210,130 +228,233 @@ export default function ProfileManagement() {
               )}
             </View>
 
-            <TouchableOpacity style={styles.confirmBtn} activeOpacity={0.85}
-              onPress={() => ConfirmChanges(
-                currentUser, newFirstName, newLastName, heightFt, heightInch,
-                newWeight, newGender, newFeelBetter, newLoseWeight, newGoalWeight, navigation
-              )}>
+            <TouchableOpacity
+              style={styles.confirmBtn}
+              activeOpacity={0.85}
+              onPress={() =>
+                ConfirmChanges(
+                  currentUser,
+                  newFirstName,
+                  newLastName,
+                  heightFt,
+                  heightInch,
+                  newWeight,
+                  newGender,
+                  newFeelBetter,
+                  newLoseWeight,
+                  newGoalWeight,
+                  navigation
+                )
+              }
+            >
               <Text style={styles.confirmText}>Confirm Changes</Text>
             </TouchableOpacity>
-
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
 
-      <View style={GlobalStyles.bottomMenu}>
-        <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
-          onPress={() => NavigateToHomePage(currentUser, navigation)}>
-          <Image source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
-                 style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }} />
+      {/* ✅ 底部导航：绝对定位 + 只在底栏吃安全区 + 实测高度 */}
+      <View
+        onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
+        style={[GlobalStyles.bottomMenu, { paddingBottom: insets.bottom }]}
+      >
+        <TouchableOpacity
+          style={GlobalStyles.bottomIcons}
+          activeOpacity={0.5}
+          onPress={() => NavigateToHomePage(currentUser, navigation)}
+        >
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
+            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+          />
         </TouchableOpacity>
-        <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
-          onPress={() => NavigateToGameSchedule(currentUser, navigation)}>
-          <Image source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
-                 style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }} />
+        <TouchableOpacity
+          style={GlobalStyles.bottomIcons}
+          activeOpacity={0.5}
+          onPress={() => NavigateToGameSchedule(currentUser, navigation)}
+        >
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
+            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+          />
         </TouchableOpacity>
-        <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
-          onPress={() => NavigateToProgressLogging(currentUser, navigation)}>
-          <Image source={require('../../assets/images/bottomHomeMenu/plus.png')}
-                 style={{ width: 45, height: 45, alignSelf: 'center', objectFit: 'contain' }} />
+        <TouchableOpacity
+          style={GlobalStyles.bottomIcons}
+          activeOpacity={0.5}
+          onPress={() => NavigateToProgressLogging(currentUser, navigation)}
+        >
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/plus.png')}
+            style={{ width: 45, height: 45, alignSelf: 'center', objectFit: 'contain' }}
+          />
         </TouchableOpacity>
         <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}>
-          <Image source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
-                 style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }} />
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
+            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+          />
         </TouchableOpacity>
-        <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
-          onPress={() => LogoutPopup(navigation)}>
-          <Image source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
-                 style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }} />
+        <TouchableOpacity
+          style={GlobalStyles.bottomIcons}
+          activeOpacity={0.5}
+          onPress={() => LogoutPopup(navigation)}
+        >
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
+            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+          />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
-function ConfirmChanges(currentUser:User, newFirstName:any, newLastName:any, newFt:any, newInch:any, newWeight:any, newGender:any, newFeelBetter:any, newLoseWeight:any, newGoalWeight:any, navigation:any){
-  console.log("currentUser when 'Confirm Changes' is pressed: ", currentUser);
-  if(newFeelBetter === false && newLoseWeight === false){
-    Alert.alert("Goals missing","Make sure to select a goal!",[{ text: "Cancel", style: "cancel"}]);
-  }
-  else if(newLoseWeight === true && (newGoalWeight === 0 || newGoalWeight === "0" || newGoalWeight === '' || newGoalWeight === 'N/A' ) && currentUser.goalWeight === 0){
-    Alert.alert("Goal weight missing","Please set your goal weight, or remove the lose-weight goal from your goal selection",[ { text: "Cancel", style: "cancel"} ]);
-  }
-  else if(newGoalWeight != 0 && newGoalWeight != '' && !currentUser.loseWeight && newLoseWeight == false){
-    Alert.alert("Goal weight is set, but the lose-weight goal is not selected","You can't have a goal weight if your goal is not to lose weight!",[{ text: "Cancel", style: "cancel"}]);
-  }
-  else if (newGoalWeight >= Math.floor(currentUser.currentWeight)){
-    Alert.alert("Goal weight invalid","Goal weight must be less than your current weight: " + Math.floor(currentUser.currentWeight) + "lbs",[ { text: "Cancel", style: "cancel"} ]);
-    return;
-  }
-  else {
-    if(newFirstName === '') newFirstName = currentUser.firstName;
-    if(newLastName === '') newLastName = currentUser.lastName;
-    if(newFt === '') newFt = currentUser.heightFeet;
-    if(newInch === '') newInch = currentUser.heightInches;
-    if(newGender === '') newGender = currentUser.gender;
-    if(newGoalWeight === '' && newLoseWeight === false) newGoalWeight = 0;
-    if(newGoalWeight === '' && newLoseWeight === true) newGoalWeight = currentUser.goalWeight;
+/* ---------- helpers ---------- */
 
-    Alert.alert("Confirmation","Are you sure you want to make these changes?",[
-      { text: "Cancel", style: "cancel"},
-      { text: "Confirm Changes", style: "destructive",
-        onPress: async () => { await updateUser(currentUser, newFirstName, newLastName, newGender, newFt, newInch, newFeelBetter, newLoseWeight, newGoalWeight, navigation); }
-      }
-    ]);
-  }
+function GetGoalWeightStr(currentUser: User): String {
+  if (currentUser.loseWeight) return String(currentUser.goalWeight);
+  return 'N/A';
 }
-function GetGoalWeightStr(currentUser: User): String{
-  if(currentUser.loseWeight){ return String(currentUser.goalWeight); }
-  else return "N/A";
-}
-function GetGoalsText(currentUser: User):String{
-  let goalStr: String = "";
-  if (currentUser.loseWeight){
-    goalStr += "Lose Weight";
-    if (currentUser.feelBetter){ goalStr +=" & Feel Better"; }
+function GetGoalsText(currentUser: User): String {
+  let goalStr: String = '';
+  if (currentUser.loseWeight) {
+    goalStr += 'Lose Weight';
+    if (currentUser.feelBetter) goalStr += ' & Feel Better';
   } else {
-    if(currentUser.feelBetter) { goalStr = "Feel Better"; }
-    else goalStr = "None";
+    goalStr = currentUser.feelBetter ? 'Feel Better' : 'None';
   }
   return goalStr;
 }
-function NavigateToGameSchedule(currentUser:any, navigation:any){
-  Alert.alert("Confirmation","Are you sure you want to abandon your changes?",[
-    { text: "No", style: "cancel" },
-    { text: "Yes", style: "destructive", onPress: () => { navigation.navigate('GameSchedule', {currentUser} as never) } }
+
+function NavigateToGameSchedule(currentUser: any, navigation: any) {
+  Alert.alert('Confirmation', 'Are you sure you want to abandon your changes?', [
+    { text: 'No', style: 'cancel' },
+    { text: 'Yes', style: 'destructive', onPress: () => navigation.navigate('GameSchedule', { currentUser } as never) },
   ]);
 }
-function NavigateToHomePage(currentUser:any, navigation:any){
-  Alert.alert("Confirmation","Are you sure you want to abandon your changes?",[
-    { text: "No", style: "cancel" },
-    { text: "Yes", style: "destructive", onPress: () => { navigation.navigate('HomePage', {currentUser} as never) } }
+function NavigateToHomePage(currentUser: any, navigation: any) {
+  Alert.alert('Confirmation', 'Are you sure you want to abandon your changes?', [
+    { text: 'No', style: 'cancel' },
+    { text: 'Yes', style: 'destructive', onPress: () => navigation.navigate('HomePage', { currentUser } as never) },
   ]);
 }
-function NavigateToNotifications(currentUser:any, navigation:any){
-  Alert.alert("Confirmation","Are you sure you want to abandon your changes?",[
-    { text: "No", style: "cancel" },
-    { text: "Yes", style: "destructive", onPress: () => { navigation.navigate('NotificationsPage', {currentUser} as never) } }
+function NavigateToNotifications(currentUser: any, navigation: any) {
+  Alert.alert('Confirmation', 'Are you sure you want to abandon your changes?', [
+    { text: 'No', style: 'cancel' },
+    { text: 'Yes', style: 'destructive', onPress: () => navigation.navigate('NotificationsPage', { currentUser } as never) },
   ]);
 }
-function NavigateToProgressLogging(currentUser:any, navigation:any){
-  Alert.alert("Confirmation","Are you sure you want to abandon your changes?",[
-    { text: "No", style: "cancel" },
-    { text: "Yes", style: "destructive", onPress: () => { navigation.navigate('ProcessLogging', {currentUser} as never) } }
+function NavigateToProgressLogging(currentUser: any, navigation: any) {
+  Alert.alert('Confirmation', 'Are you sure you want to abandon your changes?', [
+    { text: 'No', style: 'cancel' },
+    { text: 'Yes', style: 'destructive', onPress: () => navigation.navigate('ProcessLogging', { currentUser } as never) },
   ]);
 }
-function LogoutPopup(navigation: any){
-  Alert.alert("Confirmation","Are you sure you want logout?",[
-    { text: "Cancel", style: "cancel" },
-    { text: "Logout", style: "destructive", onPress: () => { navigation.navigate('CreateOrSignIn' as never); } }
+function LogoutPopup(navigation: any) {
+  Alert.alert('Confirmation', 'Are you sure you want logout?', [
+    { text: 'Cancel', style: 'cancel' },
+    { text: 'Logout', style: 'destructive', onPress: () => navigation.navigate('CreateOrSignIn' as never) },
   ]);
 }
-const updateUser = async (currentUser: any, newFirstName: string, newLastName: string, newGender: string, newFt: number, newInch: number, newFeelBetter: boolean, newLoseWeight: boolean, newGoalWeight: number, navigation: any) => {
-  const updatedData = { first_name: newFirstName, last_name: newLastName, gender: newGender, height_feet: newFt, height_inches: newInch, goal_to_feel_better: newFeelBetter, goal_to_lose_weight: newLoseWeight, goal_weight: newGoalWeight };
+
+function ConfirmChanges(
+  currentUser: User,
+  newFirstName: any,
+  newLastName: any,
+  newFt: any,
+  newInch: any,
+  newWeight: any,
+  newGender: any,
+  newFeelBetter: any,
+  newLoseWeight: any,
+  newGoalWeight: any,
+  navigation: any
+) {
+  if (newFeelBetter === false && newLoseWeight === false) {
+    Alert.alert('Goals missing', 'Make sure to select a goal!', [{ text: 'Cancel', style: 'cancel' }]);
+  } else if (
+    newLoseWeight === true &&
+    (newGoalWeight === 0 || newGoalWeight === '0' || newGoalWeight === '' || newGoalWeight === 'N/A') &&
+    currentUser.goalWeight === 0
+  ) {
+    Alert.alert(
+      'Goal weight missing',
+      'Please set your goal weight, or remove the lose-weight goal from your goal selection',
+      [{ text: 'Cancel', style: 'cancel' }]
+    );
+  } else if (newGoalWeight != 0 && newGoalWeight != '' && !currentUser.loseWeight && newLoseWeight == false) {
+    Alert.alert(
+      'Goal weight is set, but the lose-weight goal is not selected',
+      "You can't have a goal weight if your goal is not to lose weight!",
+      [{ text: 'Cancel', style: 'cancel' }]
+    );
+  } else if (newGoalWeight >= Math.floor(currentUser.currentWeight)) {
+    Alert.alert(
+      'Goal weight invalid',
+      'Goal weight must be less than your current weight: ' + Math.floor(currentUser.currentWeight) + 'lbs',
+      [{ text: 'Cancel', style: 'cancel' }]
+    );
+    return;
+  } else {
+    if (newFirstName === '') newFirstName = currentUser.firstName;
+    if (newLastName === '') newLastName = currentUser.lastName;
+    if (newFt === '') newFt = currentUser.heightFeet;
+    if (newInch === '') newInch = currentUser.heightInches;
+    if (newGender === '') newGender = currentUser.gender;
+    if (newGoalWeight === '' && newLoseWeight === false) newGoalWeight = 0;
+    if (newGoalWeight === '' && newLoseWeight === true) newGoalWeight = currentUser.goalWeight;
+
+    Alert.alert('Confirmation', 'Are you sure you want to make these changes?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Confirm Changes',
+        style: 'destructive',
+        onPress: async () => {
+          await updateUser(
+            currentUser,
+            newFirstName,
+            newLastName,
+            newGender,
+            newFt,
+            newInch,
+            newFeelBetter,
+            newLoseWeight,
+            newGoalWeight,
+            navigation
+          );
+        },
+      },
+    ]);
+  }
+}
+
+const updateUser = async (
+  currentUser: any,
+  newFirstName: string,
+  newLastName: string,
+  newGender: string,
+  newFt: number,
+  newInch: number,
+  newFeelBetter: boolean,
+  newLoseWeight: boolean,
+  newGoalWeight: number,
+  navigation: any
+) => {
+  const updatedData = {
+    first_name: newFirstName,
+    last_name: newLastName,
+    gender: newGender,
+    height_feet: newFt,
+    height_inches: newInch,
+    goal_to_feel_better: newFeelBetter,
+    goal_to_lose_weight: newLoseWeight,
+    goal_weight: newGoalWeight,
+  };
   try {
     const response = await fetch(`${AppUrls.url}/user/${currentUser.userId}/`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData),
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData),
     });
     if (response.ok) {
       Alert.alert('Profile updated successfully!');
@@ -346,45 +467,49 @@ const updateUser = async (currentUser: any, newFirstName: string, newLastName: s
       currentUser.goal_to_lose_weight = newLoseWeight;
       currentUser.feelBetter = newFeelBetter;
       currentUser.goal_to_feel_better = newFeelBetter;
-      if(newFeelBetter && newLoseWeight) currentUser.goalType = "both";
-      if(newFeelBetter && !newLoseWeight) currentUser.goalType = "feelBetter";
-      if(!newFeelBetter && newLoseWeight) currentUser.goalType = "loseWeight";
+      if (newFeelBetter && newLoseWeight) currentUser.goalType = 'both';
+      if (newFeelBetter && !newLoseWeight) currentUser.goalType = 'feelBetter';
+      if (!newFeelBetter && newLoseWeight) currentUser.goalType = 'loseWeight';
       currentUser.goalWeight = newGoalWeight;
       // @ts-ignore
-      navigation.navigate('HomePage', {currentUser});
+      navigation.navigate('HomePage', { currentUser });
     } else {
       const errorData = await response.json();
       Alert.alert('Error updating profile', JSON.stringify(errorData));
     }
   } catch (error) {
     console.error('Network error: ', error);
-    Alert.alert("Network error");
+    Alert.alert('Network error');
   }
 };
 
+/* ---------- styles ---------- */
+
 const styles = StyleSheet.create({
   subContainer: {
-    height: '75%',
+    flex: 1,
     borderRadius: 10,
     alignContent: 'center',
-    marginTop: 10,
+    marginTop: 16,
   },
-  section:{
-    marginTop: 14,
-  },
-  sectionTitle:{
+  section: { marginTop: 14 },
+  sectionTitle: {
     fontSize: 20,
     fontWeight: '800',
     color: '#0021A5',
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
-  orangeBar:{
-    width: 64, height: 4, borderRadius: 2,
+  orangeBar: {
+    width: 64,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: '#FA4616',
-    alignSelf: 'center', marginTop: 6, marginBottom: 10
+    alignSelf: 'center',
+    marginTop: 6,
+    marginBottom: 10,
   },
 
-  row:{
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'center',
@@ -401,31 +526,30 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  rowTextLabel:{
+  rowTextLabel: {
     fontSize: 18,
     minWidth: 100,
-    color: '#222'
+    color: '#222',
   },
-  rowTextValue:{
+  rowTextValue: {
     fontSize: 18,
     color: '#333',
     paddingHorizontal: 8,
   },
-  valueCenter:{ flex: 1, textAlign: 'center' },
-
-  pencil:{ width: 20, height: 20, position: 'absolute', right: 12 },
+  valueCenter: { flex: 1, textAlign: 'center' },
+  pencil: { width: 20, height: 20, position: 'absolute', right: 12 },
 
   rowHeight: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: "space-evenly",
+    justifyContent: 'space-evenly',
     margin: 5,
     width: '92%',
     alignSelf: 'center',
   },
-  smallLabel:{ marginBottom: 6, color: '#666' },
+  smallLabel: { marginBottom: 6, color: '#666' },
 
-  editBox:{
+  editBox: {
     borderWidth: 1,
     borderColor: '#E3E5EB',
     width: '86%',
@@ -436,7 +560,7 @@ const styles = StyleSheet.create({
     height: 40,
     backgroundColor: '#fff',
   },
-  dropdown:{
+  dropdown: {
     borderColor: '#E3E5EB',
     borderWidth: 1,
     borderRadius: 10,
@@ -444,10 +568,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 10,
   },
-  inlineLabel:{ fontSize: 14, color: '#666' },
-  checkbox:{ margin: 8, alignSelf: 'center' },
+  inlineLabel: { fontSize: 14, color: '#666' },
+  checkbox: { margin: 8, alignSelf: 'center' },
 
-  confirmBtn:{
+  confirmBtn: {
     alignSelf: 'center',
     marginTop: 18,
     width: '70%',
@@ -462,5 +586,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
-  confirmText:{ color: '#fff', fontWeight: '800', fontSize: 16, letterSpacing: 0.2 },
+  confirmText: { color: '#fff', fontWeight: '800', fontSize: 16, letterSpacing: 0.2 },
 });

@@ -1,16 +1,35 @@
-import { StyleSheet, View, Text, TouchableOpacity, Image, Alert } from 'react-native';
-import { useNavigation, usePreventRemove, useRoute } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Alert,
+  ScrollView,
+  StatusBar,
+  Platform,
+} from 'react-native';
+import { useNavigation, usePreventRemove, useRoute } from '@react-navigation/native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TeamLogo } from '@/components/getTeamImages';
 import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
 import GlobalStyles from '../styles/GlobalStyles';
 
+
+const TAB_VISUAL_H = 64;
+
 export default function HomePage() {
   const navigation = useNavigation();
   const route = useRoute();
   const { currentUser } = route.params as { currentUser: any };
+
+
+  const insets = useSafeAreaInsets();
+  const [bottomH, setBottomH] = useState<number>(TAB_VISUAL_H + insets.bottom);
+  const padBottom = bottomH + 24; 
 
   const [loading, setLoading] = useState(false);
 
@@ -18,10 +37,10 @@ export default function HomePage() {
   const [gameData, setGameData] = useState({
     home_team: '',
     away_team: '',
-    date: '', //backend format: "MM-DD-YYYY HH:MM AM/PM" or "MM-DD-YYYY HH:MM:SS AM/PM"
+    date: '', // backend format: "MM-DD-YYYY HH:MM AM/PM" or "MM-DD-YYYY HH:MM:SS AM/PM"
   });
 
-  // to make it update every second
+  // countdown
   const [countdownText, setCountdownText] = useState<string | null>(null);
 
   useEffect(() => {
@@ -50,21 +69,15 @@ export default function HomePage() {
       setCountdownText(null);
       return;
     }
-
     setCountdownText(getCountdown(gameData.date));
-
-    // update every second
     const timer = setInterval(() => {
       setCountdownText(getCountdown(gameData.date));
     }, 1000);
-
     return () => clearInterval(timer);
   }, [gameData.date]);
 
   // convert team name -> abbr -> logo
-  const getAbbreviation = (teamName: string): string | null => {
-    return Abbreviations[teamName] || null;
-  };
+  const getAbbreviation = (teamName: string): string | null => Abbreviations[teamName] || null;
   const HomeLogo = TeamLogo.GetImage(getAbbreviation(gameData.home_team)?.toLowerCase() || '');
   const AwayLogo = TeamLogo.GetImage(getAbbreviation(gameData.away_team)?.toLowerCase() || '');
 
@@ -80,12 +93,23 @@ export default function HomePage() {
 
   // ---------- UI ----------
   return (
-    <View style={GlobalStyles.container}>
-      {/* Top bar */}
-      <View style={GlobalStyles.topMenu}>
+
+    <SafeAreaView style={GlobalStyles.container} edges={['top']}>
+      {/* top bar keep same */}
+      <View
+        style={[
+          GlobalStyles.topMenu,
+          {
+            paddingHorizontal: 20,
+            paddingTop: (Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0) + 22,
+            paddingBottom: 10,
+          },
+        ]}
+      >
         <Image
           source={require('./../../assets/images/clipboardgator.jpg')}
           style={{ width: 55, height: 55 }}
+          resizeMode="cover"
         />
         <Text style={{ fontSize: 26, fontWeight: '800', color: '#003DA5' }}>
           Hey, {currentUser.firstName}!
@@ -97,138 +121,144 @@ export default function HomePage() {
         >
           <Image
             source={require('./../../assets/images/bell.png')}
-            style={{ width: 40, height: 40, alignSelf: 'center', objectFit: 'contain' }}
+            style={{ width: 40, height: 40, alignSelf: 'center' }}
+            resizeMode="contain"
           />
         </TouchableOpacity>
       </View>
 
-      {/* Content stack */}
-      <View style={styles.centerStack}>
-        {/* Next game card */}
-        <View style={[styles.card, styles.gameCard]}>
-          <Text style={styles.sectionTitle}>Next Game</Text>
-          <View style={styles.underline} />
+      {/* paddingBottom = bottomH + 24 */}
+      <ScrollView contentContainerStyle={{ paddingBottom: padBottom }} showsVerticalScrollIndicator={false}>
+        <View style={styles.centerStack}>
+          {/* Next game card */}
+          <View style={[styles.card, styles.gameCard]}>
+            <Text style={styles.sectionTitle}>Next Game</Text>
+            <View style={styles.underline} />
 
-          {/* Countdown chip */}
-          {!!gameData.date && (
-            <View style={styles.chipsRow}>
-              <View style={styles.chip}>
-                <Text style={styles.chipText}>{countdownText ?? '—'}</Text>
+            {!!gameData.date && (
+              <View style={styles.chipsRow}>
+                <View style={styles.chip}>
+                  <Text style={styles.chipText}>{countdownText ?? '—'}</Text>
+                </View>
               </View>
-            </View>
-          )}
+            )}
 
-          <View style={styles.teamsRow}>
-            <View style={styles.teamSide}>
-              {loading ? (
-                <Text>Loading…</Text>
-              ) : HomeLogo ? (
-                <Image source={HomeLogo} style={styles.teamLogo} resizeMode="contain" />
-              ) : (
-                <Text>No Logo</Text>
-              )}
-            </View>
+            <View style={styles.teamsRow}>
+              <View style={styles.teamSide}>
+                {loading ? (
+                  <Text>Loading…</Text>
+                ) : HomeLogo ? (
+                  <Image source={HomeLogo} style={styles.teamLogo} resizeMode="contain" />
+                ) : (
+                  <Text>No Logo</Text>
+                )}
+              </View>
 
-            <View style={styles.vsBlock}>
-              <Text style={styles.matchupText}>
-                {gameData.home_team || '—'} <Text style={{ color: '#FA4616', fontWeight: '800' }}>vs</Text>{' '}
-                {gameData.away_team || '—'}
-              </Text>
-              <Text style={styles.dateText}>{gameData.date || ''}</Text>
-            </View>
+              <View style={styles.vsBlock}>
+                <Text style={styles.matchupText}>
+                  {gameData.home_team || '—'} <Text style={{ color: '#FA4616', fontWeight: '800' }}>vs</Text>{' '}
+                  {gameData.away_team || '—'}
+                </Text>
+                <Text style={styles.dateText}>{gameData.date || ''}</Text>
+              </View>
 
-            <View style={styles.teamSide}>
-              {loading ? (
-                <Text>Loading…</Text>
-              ) : AwayLogo ? (
-                <Image source={AwayLogo} style={styles.teamLogo} resizeMode="contain" />
-              ) : (
-                <Text>No Logo</Text>
-              )}
+              <View style={styles.teamSide}>
+                {loading ? (
+                  <Text>Loading…</Text>
+                ) : AwayLogo ? (
+                  <Image source={AwayLogo} style={styles.teamLogo} resizeMode="contain" />
+                ) : (
+                  <Text>No Logo</Text>
+                )}
+              </View>
             </View>
           </View>
-        </View>
 
-        {/* Quick actions row */}
-        <View style={styles.quickRow}>
-          <TouchableOpacity
-            style={[styles.quickBtn, { backgroundColor: '#003DA5' }]}
-            onPress={() => NavigateToProcessLogging(currentUser, navigation)}
-          >
-            <Text style={styles.quickText}>Log Progress</Text>
-          </TouchableOpacity>
+          {/* Quick actions row */}
+          <View style={styles.quickRow}>
+            <TouchableOpacity
+              style={[styles.quickBtn, { backgroundColor: '#003DA5' }]}
+              onPress={() => NavigateToProcessLogging(currentUser, navigation)}
+            >
+              <Text style={styles.quickText}>Log Progress</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.quickBtn, { backgroundColor: '#FA4616' }]}
-            onPress={() => NavigateToGameSchedule(currentUser, navigation)}
-          >
-            <Text style={styles.quickText}>Game Schedule</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={[styles.quickBtn, { backgroundColor: '#FA4616' }]}
+              onPress={() => NavigateToGameSchedule(currentUser, navigation)}
+            >
+              <Text style={styles.quickText}>Game Schedule</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Goal card */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Your Goal</Text>
-          <View style={styles.underline} />
+          {/* Goal card */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Your Goal</Text>
+            <View style={styles.underline} />
 
-          <Text style={styles.line}>
-            <Text style={styles.strong}>Current Goal: </Text>
-            {GetGoals()}
-          </Text>
-
-          {currentUser.loseWeight && (
-            <>
-              <Text style={styles.line}>
-                <Text style={styles.strong}>Current Weight: </Text>
-                {Math.floor(currentUser.currentWeight)} lbs
-              </Text>
-              <Text style={styles.line}>
-                <Text style={styles.strong}>Weight left to lose: </Text>
-                {Math.max(0, Math.floor(currentUser.currentWeight - currentUser.goalWeight))} lbs
-              </Text>
-
-              {/* Linear progress */}
-              <View style={styles.progressWrap}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    {
-                      width: `${computeProgress(
-                        currentUser.currentWeight,
-                        currentUser.goalWeight
-                      )}%`,
-                    },
-                  ]}
-                />
-              </View>
-            </>
-          )}
-
-          {currentUser.feelBetter && currentUser.lastRating !== 0 && (
             <Text style={styles.line}>
-              <Text style={styles.strong}>Latest Feeling: </Text>
-              {currentUser.lastRating} / 5 ⭐
+              <Text style={styles.strong}>Current Goal: </Text>
+              {GetGoals()}
             </Text>
-          )}
-          {currentUser.feelBetter && currentUser.lastRating === 0 && (
-            <Text style={styles.line}>
-              <Text style={styles.strong}>Latest Feeling: </Text>
-              Once you check in, your latest rating will show up here!
-            </Text>
-          )}
 
-          <TouchableOpacity style={styles.cta} onPress={demoGameNotifications}>
-            <Text style={styles.ctaText}>Demo Notifications</Text>
-          </TouchableOpacity>
+            {currentUser.loseWeight && (
+              <>
+                <Text style={styles.line}>
+                  <Text style={styles.strong}>Current Weight: </Text>
+                  {Math.floor(currentUser.currentWeight)} lbs
+                </Text>
+                <Text style={styles.line}>
+                  <Text style={styles.strong}>Weight left to lose: </Text>
+                  {Math.max(0, Math.floor(currentUser.currentWeight - currentUser.goalWeight))} lbs
+                </Text>
+
+                {/* Linear progress */}
+                <View style={styles.progressWrap}>
+                  <View
+                    style={[
+                      styles.progressBar,
+                      {
+                        width: `${computeProgress(
+                          currentUser.currentWeight,
+                          currentUser.goalWeight
+                        )}%`,
+                      },
+                    ]}
+                  />
+                </View>
+              </>
+            )}
+
+            {currentUser.feelBetter && currentUser.lastRating !== 0 && (
+              <Text style={styles.line}>
+                <Text style={styles.strong}>Latest Feeling: </Text>
+                {currentUser.lastRating} / 5 ⭐
+              </Text>
+            )}
+            {currentUser.feelBetter && currentUser.lastRating === 0 && (
+              <Text style={styles.line}>
+                <Text style={styles.strong}>Latest Feeling: </Text>
+                Once you check in, your latest rating will show up here!
+              </Text>
+            )}
+
+            <TouchableOpacity style={styles.cta} onPress={demoGameNotifications}>
+              <Text style={styles.ctaText}>Demo Notifications</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </ScrollView>
 
-      {/* Bottom bar */}
-      <View style={GlobalStyles.bottomMenu}>
+      {/* bottom bar */}
+      <View
+        onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
+        style={[GlobalStyles.bottomMenu, { paddingBottom: insets.bottom }]}
+      >
         <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}>
           <Image
             source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
-            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+            style={{ width: 30, height: 30, alignSelf: 'center' }}
+            resizeMode="contain"
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -238,7 +268,8 @@ export default function HomePage() {
         >
           <Image
             source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
-            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+            style={{ width: 30, height: 30, alignSelf: 'center' }}
+            resizeMode="contain"
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -248,7 +279,8 @@ export default function HomePage() {
         >
           <Image
             source={require('../../assets/images/bottomHomeMenu/plus.png')}
-            style={{ width: 45, height: 45, alignSelf: 'center', objectFit: 'contain' }}
+            style={{ width: 45, height: 45, alignSelf: 'center' }}
+            resizeMode="contain"
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -258,7 +290,8 @@ export default function HomePage() {
         >
           <Image
             source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
-            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+            style={{ width: 30, height: 30, alignSelf: 'center' }}
+            resizeMode="contain"
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -268,11 +301,12 @@ export default function HomePage() {
         >
           <Image
             source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
-            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+            style={{ width: 30, height: 30, alignSelf: 'center' }}
+            resizeMode="contain"
           />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -320,8 +354,7 @@ const demoGameNotifications = async () => {
   // TODO: mock scoreboard & dummy polling if needed
 };
 
-/* ----- countdown utils （will update automatically ----- */
-// date string format: "MM-DD-YYYY HH:MM AM/PM" 或 "MM-DD-YYYY HH:MM:SS AM/PM"
+/* ----- countdown utils ----- */
 const toDate = (s: string) => {
   if (!s) return null;
   const parts = s.trim().split(' ');
@@ -367,7 +400,7 @@ const getCountdown = (dateStr: string) => {
 /* rough progress: how far from start weight to goal */
 const computeProgress = (current: number, goal: number) => {
   const remaining = Math.max(0, current - goal);
-  const start = current + remaining; 
+  const start = current + remaining;
   if (start <= 0) return 0;
   const done = start - current;
   return Math.max(0, Math.min(100, Math.round((done / start) * 100)));

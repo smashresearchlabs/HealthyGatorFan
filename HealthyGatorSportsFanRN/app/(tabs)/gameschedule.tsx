@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context"; // ✅ 用这个 SafeAreaView
 import {
   StyleSheet,
   View,
@@ -29,6 +30,8 @@ type Game = {
 };
 
 export default function GameSchedule() {
+  const insets = useSafeAreaInsets();
+  const [bottomH, setBottomH] = useState(0);
   const navigation = useNavigation();
   const route = useRoute();
   const user: any = route.params;
@@ -54,172 +57,127 @@ export default function GameSchedule() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* Top */}
-      <View style={GlobalStyles.topMenu}>
-        <Image
-          source={require("./../../assets/images/clipboardgator.jpg")}
-          style={{ width: 55, height: 55 }}
-        />
-        <Text
-          style={{
-            fontSize: 25,
-            fontFamily: "System",
-            color: colors.ufBlue,
-            fontWeight: "700",
+
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.container}>
+        {/* top bar */}
+        <View style={GlobalStyles.topMenu}>
+          <Image source={require("./../../assets/images/clipboardgator.jpg")} style={{ width: 55, height: 55 }} />
+          <Text style={{ fontSize: 25, fontFamily: "System", color: colors.ufBlue, fontWeight: "700" }}>
+            Game Schedule
+          </Text>
+          <TouchableOpacity
+            style={GlobalStyles.topIcons}
+            activeOpacity={0.5}
+            onPress={() => NavigateToNotifications(currentUser, navigation)}
+          >
+            <Image source={require("./../../assets/images/bell.png")} style={{ width: 40, height: 40, alignSelf: "center", objectFit: "contain" }} />
+          </TouchableOpacity>
+        </View>
+
+        {/* content */}
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            paddingHorizontal: 18,
+            paddingTop: 6,
+            paddingBottom: bottomH + 24,   
           }}
+          showsVerticalScrollIndicator={false}
         >
-          Game Schedule
-        </Text>
-        <TouchableOpacity
-          style={GlobalStyles.topIcons}
-          activeOpacity={0.5}
-          onPress={() => NavigateToNotifications(currentUser, navigation)}
+          {loading && (
+            <View style={styles.stateBox}>
+              <ActivityIndicator size="small" />
+              <Text style={styles.stateText}>Loading schedule…</Text>
+            </View>
+          )}
+          {!loading && error && (
+            <View style={styles.stateBox}>
+              <Text style={styles.stateText}>{error}</Text>
+            </View>
+          )}
+          {!loading && !error && data.length === 0 && (
+            <View style={styles.stateBox}>
+              <Text style={styles.stateText}>No games found.</Text>
+            </View>
+          )}
+
+          {data.map((g, idx) => (
+            <View key={`${g.week}-${idx}`} style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardHeaderText}>Week {g.week}</Text>
+                <View style={styles.underline} />
+                <Text style={styles.dateText}>{formatDateTime(g.startDate)}</Text>
+              </View>
+
+              <View style={styles.row}>
+                <View style={[styles.teamCol, { alignItems: "flex-start" }]}>
+                  <Image source={TeamLogo.GetImage(getAbbr(g.awayTeam)?.toLowerCase() || "")} style={styles.teamLogo} resizeMode="contain" />
+                  <Text style={styles.teamName} numberOfLines={1}>{getAbbr(g.awayTeam)}</Text>
+                  <Text style={styles.confText}>{getConfAbbr(g.awayConference)}</Text>
+                </View>
+
+                <View style={styles.centerCol}>
+                  <Text style={styles.vsText}>{isFuture(g.startDate) ? "at" : "vs"}</Text>
+                  <ResultPill game={g} />
+                </View>
+
+                <View style={[styles.teamCol, { alignItems: "flex-end" }]}>
+                  <Image source={TeamLogo.GetImage(getAbbr(g.homeTeam)?.toLowerCase() || "")} style={styles.teamLogo} resizeMode="contain" />
+                  <Text style={styles.teamName} numberOfLines={1}>{getAbbr(g.homeTeam)}</Text>
+                  <Text style={styles.confText}>{getConfAbbr(g.homeConference)}</Text>
+                </View>
+              </View>
+
+              <View style={styles.footerWrap}>
+                <Text style={styles.scoreText}>{scoreText(g)}</Text>
+                <Text style={styles.venueText}>{g.venue}</Text>
+              </View>
+            </View>
+          ))}
+          <View style={{ height: 12 }} />
+        </ScrollView>
+
+        {/* bottom navi bar */}
+        <View
+          onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
+          style={[
+            GlobalStyles.bottomMenu,
+            {
+              bottom: 0,
+              left: 0,
+              right: 0,
+              paddingBottom: insets.bottom,
+              backgroundColor: "#FFFFFF",
+            },
+          ]}
         >
-          <Image
-            source={require("./../../assets/images/bell.png")}
-            style={{ width: 40, height: 40, alignSelf: "center", objectFit: "contain" }}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
+            onPress={() => NavigateToHomePage(currentUser, navigation)}>
+            <Image source={require("../../assets/images/bottomHomeMenu/homeIcon.png")} style={styles.tabIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}>
+            <Image source={require("../../assets/images/bottomHomeMenu/calendarIcon.png")} style={styles.tabIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
+            onPress={() => NavigateToHomePage(currentUser, navigation)}>
+            <Image source={require("../../assets/images/bottomHomeMenu/plus.png")} style={{ width: 45, height: 45, alignSelf: "center", objectFit: "contain" }} />
+          </TouchableOpacity>
+          <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
+            onPress={() => NavigateToProfileManagement(currentUser, navigation)}>
+            <Image source={require("../../assets/images/bottomHomeMenu/defaultprofile.png")} style={styles.tabIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
+            onPress={() => LogoutPopup(navigation)}>
+            <Image source={require("../../assets/images/bottomHomeMenu/logoutIcon.png")} style={styles.tabIcon} />
+          </TouchableOpacity>
+        </View>
       </View>
-
-      {/* Content */}
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 110, paddingTop: 6 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Loading / Error / Empty */}
-        {loading && (
-          <View style={styles.stateBox}>
-            <ActivityIndicator size="small" />
-            <Text style={styles.stateText}>Loading schedule…</Text>
-          </View>
-        )}
-        {!loading && error && (
-          <View style={styles.stateBox}>
-            <Text style={styles.stateText}>{error}</Text>
-          </View>
-        )}
-        {!loading && !error && data.length === 0 && (
-          <View style={styles.stateBox}>
-            <Text style={styles.stateText}>No games found.</Text>
-          </View>
-        )}
-
-        {/* List */}
-        {data.map((g, idx) => (
-          <View key={`${g.week}-${idx}`} style={styles.card}>
-            {/* Header */}
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardHeaderText}>Week {g.week}</Text>
-              <View style={styles.underline} />
-              <Text style={styles.dateText}>{formatDateTime(g.startDate)}</Text>
-            </View>
-
-            {/* Teams row */}
-            <View style={styles.row}>
-              {/* Away */}
-              <View style={[styles.teamCol, { alignItems: "flex-start" }]}>
-                <Image
-                  source={TeamLogo.GetImage(getAbbr(g.awayTeam)?.toLowerCase() || "")}
-                  style={styles.teamLogo}
-                  resizeMode="contain"
-                />
-                <Text style={styles.teamName} numberOfLines={1}>
-                  {getAbbr(g.awayTeam)}
-                </Text>
-                <Text style={styles.confText}>{getConfAbbr(g.awayConference)}</Text>
-              </View>
-
-              {/* vs / at + result */}
-              <View style={styles.centerCol}>
-                <Text style={styles.vsText}>{isFuture(g.startDate) ? "at" : "vs"}</Text>
-                <ResultPill game={g} />
-              </View>
-
-              {/* Home */}
-              <View style={[styles.teamCol, { alignItems: "flex-end" }]}>
-                <Image
-                  source={TeamLogo.GetImage(getAbbr(g.homeTeam)?.toLowerCase() || "")}
-                  style={styles.teamLogo}
-                  resizeMode="contain"
-                />
-                <Text style={styles.teamName} numberOfLines={1}>
-                  {getAbbr(g.homeTeam)}
-                </Text>
-                <Text style={styles.confText}>{getConfAbbr(g.homeConference)}</Text>
-              </View>
-            </View>
-
-            {/* Score & Stadium (centered, two lines) */}
-            <View style={styles.footerWrap}>
-              <Text style={styles.scoreText} numberOfLines={1} adjustsFontSizeToFit>
-                {scoreText(g)}
-              </Text>
-              <Text style={styles.venueText} numberOfLines={1} ellipsizeMode="tail">
-                {g.venue}
-              </Text>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Bottom */}
-      <View style={GlobalStyles.bottomMenu}>
-        <TouchableOpacity
-          style={GlobalStyles.bottomIcons}
-          activeOpacity={0.5}
-          onPress={() => NavigateToHomePage(currentUser, navigation)}
-        >
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/homeIcon.png")}
-            style={styles.tabIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}>
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/calendarIcon.png")}
-            style={styles.tabIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={GlobalStyles.bottomIcons}
-          activeOpacity={0.5}
-          onPress={() => NavigateToHomePage(currentUser, navigation)}
-        >
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/plus.png")}
-            style={{ width: 45, height: 45, alignSelf: "center", objectFit: "contain" }}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={GlobalStyles.bottomIcons}
-          activeOpacity={0.5}
-          onPress={() => NavigateToProfileManagement(currentUser, navigation)}
-        >
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/defaultprofile.png")}
-            style={styles.tabIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={GlobalStyles.bottomIcons}
-          activeOpacity={0.5}
-          onPress={() => LogoutPopup(navigation)}
-        >
-          <Image
-            source={require("../../assets/images/bottomHomeMenu/logoutIcon.png")}
-            style={styles.tabIcon}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 /* ---------- helpers ---------- */
-
 function LogoutPopup(navigation: any) {
   Alert.alert("Confirmation", "Are you sure you want logout?", [
     { text: "Cancel", style: "cancel" },
@@ -257,32 +215,9 @@ const getConfAbbr = (conf: string): string => {
     "American Athletic": "AAC",
     "Atlantic Coast Conference": "ACC",
     "Big Ten": "B10",
-    "Big Ten Conference": "B10",
     "Big 12": "B12",
-    "Big 12 Conference": "B12",
     "Conference USA": "CUSA",
-    "Division I FBS independents": "IND.",
-    "Mid-American Conference": "MAC",
-    "Mountain West Conference": "MW",
-    "Pac-12": "P12",
-    "Pac-12 Conference": "P12",
     "Southeastern Conference": "SEC",
-    "Sun Belt Conference": "SBC",
-    "Big Sky Conference": "BSC",
-    "Big South Conference": "Big South",
-    "Coastal Athletic Association Football Conference": "CAA",
-    "Division I FCS Independents": "IND.",
-    "Ivy League": "Ivy",
-    "Mid-Eastern Athletic Conference": "MEAC",
-    "Missouri Valley Football Conference": "MVFC",
-    "Northeast Conference": "NEC",
-    "Ohio Valley Conference": "OVC",
-    "Patriot League": "Patriot",
-    "Pioneer Football League": "PFL",
-    "Southern Conference": "SoCon",
-    "Southland Conference": "SLC",
-    "Southwestern Athletic Conference": "SWAC",
-    "United Athletic Conference": "UAC",
   };
   return map[conf] || conf;
 };
@@ -328,7 +263,6 @@ const ResultPill = ({ game }: { game: Game }) => {
 };
 
 /* ---------- styles ---------- */
-
 const colors = {
   ufBlue: "#0B3D91",
   ufOrange: "#F24E1E",
@@ -337,12 +271,9 @@ const colors = {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F7F7FB" },
-
   tabIcon: { width: 30, height: 30, alignSelf: "center", objectFit: "contain" },
-
   stateBox: { paddingTop: 40, alignItems: "center" },
   stateText: { color: "#6B7280", marginTop: 8 },
-
   card: {
     backgroundColor: "white",
     borderRadius: 18,
@@ -366,41 +297,22 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   dateText: { fontSize: 13, color: "#6B7280" },
-
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 4,
-  },
+  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 4 },
   teamCol: { width: "40%" },
   teamLogo: { width: 68, height: 68, marginBottom: 6 },
   teamName: { fontSize: 16, fontWeight: "700", color: "#111827" },
   confText: { color: "#6B7280", marginTop: 2 },
-
   centerCol: { width: "20%", alignItems: "center", gap: 8 },
   vsText: { fontSize: 16, fontWeight: "700", color: "#111827" },
-
-  pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  pillText: { fontSize: 12, fontWeight: "800" },
-
-  // NEW: centered score + venue, two lines
-  footerWrap: {
-    marginTop: 12,
+  pill: {
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+    borderRadius: 999,
+    minWidth: 80,
     alignItems: "center",
   },
-  scoreText: {
-    fontWeight: "700",
-    color: "#111827",
-    textAlign: "center",
-    width: "100%",
-  },
-  venueText: {
-    color: "#6B7280",
-    fontStyle: "italic",
-    marginTop: 4,
-    textAlign: "center",
-    width: "100%",
-  },
+  pillText: { fontSize: 12, fontWeight: "800", textAlign: "center" },
+  footerWrap: { marginTop: 12, alignItems: "center" },
+  scoreText: { fontWeight: "700", color: "#111827", textAlign: "center", width: "100%" },
+  venueText: { color: "#6B7280", fontStyle: "italic", marginTop: 4, textAlign: "center", width: "100%" },
 });
-
