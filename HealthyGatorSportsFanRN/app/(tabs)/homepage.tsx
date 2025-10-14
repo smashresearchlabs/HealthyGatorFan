@@ -1,333 +1,493 @@
-import {StyleSheet, View, Text, TouchableOpacity, TextInput, Image, Alert} from 'react-native';
-import {useNavigation, usePreventRemove, useRoute, useFocusEffect} from "@react-navigation/native";
-import React, {useState, useEffect} from "react";
-import {TeamLogo} from "@/components/getTeamImages";
-import User from "@/components/user";
+import { StyleSheet, View, Text, TouchableOpacity, Image, Alert } from 'react-native';
+import { useNavigation, usePreventRemove, useRoute } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { TeamLogo } from '@/components/getTeamImages';
+import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
 import GlobalStyles from '../styles/GlobalStyles';
 
-// TODO: Update game tile on home page to show live score & quarter based on a new CFBD API call
-
 export default function HomePage() {
-    const navigation = useNavigation();
-    const route = useRoute();
-    const { currentUser } = route.params as { currentUser: any };
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { currentUser } = route.params as { currentUser: any };
 
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    // State to store the fetched game data
-    const [gameData, setGameData] = useState({
-        home_team: '',
-        away_team: '',
-        date: ''
-    });
+  // next game data
+  const [gameData, setGameData] = useState({
+    home_team: '',
+    away_team: '',
+    date: '', //backend format: "MM-DD-YYYY HH:MM AM/PM" or "MM-DD-YYYY HH:MM:SS AM/PM"
+  });
 
-    // Fetch game data when the component is mounted
-    useEffect(() => {
-        const fetchGameData = async () => {
-            setLoading(true);
-            try {
-                const data = await getNextGame();
-                if (data) {
-                    setGameData({
-                        home_team: data.home_team,
-                        away_team: data.away_team,
-                        date: data.date
-                    });
-                }
-            } catch (error) {
-                console.error('Error fetching game data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+  // to make it update every second
+  const [countdownText, setCountdownText] = useState<string | null>(null);
 
-        fetchGameData();
-    }, []);  // Empty dependency array to fetch only on mount
-
-     // Convert team names to abbreviations
-     const getAbbreviation = (teamName: string): string | null => {
-        return Abbreviations[teamName] || null;
+  useEffect(() => {
+    const fetchGameData = async () => {
+      setLoading(true);
+      try {
+        const data = await getNextGame();
+        if (data) {
+          setGameData({
+            home_team: data.home_team,
+            away_team: data.away_team,
+            date: data.date,
+          });
+        }
+      } catch (e) {
+        console.error('Error fetching game data:', e);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchGameData();
+  }, []);
 
-     // Fetch team logos based on the fetched game data
-     const HomeLogo = TeamLogo.GetImage(getAbbreviation(gameData.home_team)?.toLowerCase() || "");
-     const AwayLogo = TeamLogo.GetImage(getAbbreviation(gameData.away_team)?.toLowerCase() || "");
-
-    //The following function prevents the user from going backwards a screen.
-    usePreventRemove(true, ({ data }) => {
-        //console.log("Back button prevented.");
-    });
-
-    //Gets text to display in goals box depending on goal progress
-    function GetGoalsText(): string{
-        if(currentUser.goal_to_lose_weight){
-            // @ts-ignore
-            return "Weight left to lose: " + Math.floor(currentUser.currentWeight - currentUser.goalWeight) + " lbs";
-        }
-        else
-            return "Keep at it!";
+  useEffect(() => {
+    if (!gameData.date) {
+      setCountdownText(null);
+      return;
     }
 
-    //Gets text to display for goal type
-    function GetGoals(): string{
-        if(currentUser.feelBetter && currentUser.loseWeight){
-            return "Lose weight and feel better";
-        }
-        else if(currentUser.feelBetter && !currentUser.loseWeight){
-            return "Feel better";
-        }
-        else { //(!currentUser.feelBetter && currentUser.loseWeight)
-            return "Lose weight";
-        }
-    }
+    setCountdownText(getCountdown(gameData.date));
 
-    return (
-        <View style={GlobalStyles.container}>
-            <View style={GlobalStyles.topMenu}>
-                <Image
-                    source={require('./../../assets/images/clipboardgator.jpg')}
-                    style={{ width: 55, height: 55 }}
-                />
-                <Text style={{ fontSize: 25, fontFamily: 'System' }}>
-                    Hey, {currentUser.firstName}!
-                </Text>
-                <TouchableOpacity
-                    style={GlobalStyles.topIcons}
-                    activeOpacity={0.5}
-                    onPress={() => NavigateToNotifications(currentUser, navigation)}
-                >
-                    <Image
-                        source={require('./../../assets/images/bell.png')}
-                        style={{ width: 40, height: 40, alignSelf: 'center', objectFit: 'contain' }}
-                    />
-                </TouchableOpacity>
+    // update every second
+    const timer = setInterval(() => {
+      setCountdownText(getCountdown(gameData.date));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameData.date]);
+
+  // convert team name -> abbr -> logo
+  const getAbbreviation = (teamName: string): string | null => {
+    return Abbreviations[teamName] || null;
+  };
+  const HomeLogo = TeamLogo.GetImage(getAbbreviation(gameData.home_team)?.toLowerCase() || '');
+  const AwayLogo = TeamLogo.GetImage(getAbbreviation(gameData.away_team)?.toLowerCase() || '');
+
+  // block back gesture
+  usePreventRemove(true, () => {});
+
+  // goal helpers
+  function GetGoals(): string {
+    if (currentUser.feelBetter && currentUser.loseWeight) return 'Lose weight and feel better';
+    if (currentUser.feelBetter && !currentUser.loseWeight) return 'Feel better';
+    return 'Lose weight';
+  }
+
+  // ---------- UI ----------
+  return (
+    <View style={GlobalStyles.container}>
+      {/* Top bar */}
+      <View style={GlobalStyles.topMenu}>
+        <Image
+          source={require('./../../assets/images/clipboardgator.jpg')}
+          style={{ width: 55, height: 55 }}
+        />
+        <Text style={{ fontSize: 26, fontWeight: '800', color: '#003DA5' }}>
+          Hey, {currentUser.firstName}!
+        </Text>
+        <TouchableOpacity
+          style={GlobalStyles.topIcons}
+          activeOpacity={0.5}
+          onPress={() => NavigateToNotifications(currentUser, navigation)}
+        >
+          <Image
+            source={require('./../../assets/images/bell.png')}
+            style={{ width: 40, height: 40, alignSelf: 'center', objectFit: 'contain' }}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Content stack */}
+      <View style={styles.centerStack}>
+        {/* Next game card */}
+        <View style={[styles.card, styles.gameCard]}>
+          <Text style={styles.sectionTitle}>Next Game</Text>
+          <View style={styles.underline} />
+
+          {/* Countdown chip */}
+          {!!gameData.date && (
+            <View style={styles.chipsRow}>
+              <View style={styles.chip}>
+                <Text style={styles.chipText}>{countdownText ?? '—'}</Text>
+              </View>
             </View>
-            <View style={GlobalStyles.middleContent}>
+          )}
 
-                <View style={styles.scoreBox}>
-                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-evenly', flexBasis: '30%' }}>
-                        {loading ? (
-                            <Text style={{textAlign:'center', alignSelf: 'center'}}>Loading...</Text>
-                        ) : HomeLogo ? (
-                            <Image source={HomeLogo} style={{ width: 100, height: 100 }} resizeMode="contain" />
-                        ) : (
-                            <Text>No Logo Found</Text>
-                        )}
-                    </View>
-                    <View style={{flexBasis: '40%', alignSelf: 'center'}}>
-                        <Text style={{ fontSize: 18, textAlign:'center', marginBottom: 5 }}>{gameData.home_team} vs {gameData.away_team}</Text>
-                        <Text style={{ fontSize: 15, textAlign:'center' }}>{gameData.date}</Text>
-                    </View>
-                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-evenly', flexBasis: '30%' }}>
-                        {loading ? (
-                            <Text>Loading...</Text>
-                        ) : AwayLogo ? (
-                            <Image source={AwayLogo} style={{ width: 100, height: 100 }} resizeMode="contain" />
-                        ) : (
-                            <Text>No Logo Found</Text>
-                        )}
-                    </View>
-                </View>
-            </View>
-
-            <View style={styles.weightBox}>
-                <Text style={{fontSize: 18, textAlign: 'center', marginTop: 10}}>
-                    <Text style={{fontWeight:'600' }}>Current Goal:</Text> {GetGoals()}
-                </Text>
-                {currentUser.loseWeight && 
-                    <View>
-                        <Text style={{fontSize: 18, textAlign: 'center', marginTop: 10}}>
-                            <Text style={{fontWeight:'600' }}>Current Weight:</Text> {Math.floor(currentUser.currentWeight)} lbs
-                        </Text>
-                        <Text style={{fontSize: 18, textAlign: 'center', marginTop: 10}}>
-                            <Text style={{fontWeight:'600' }}>Weight left to lose: </Text> {Math.floor(currentUser.currentWeight - currentUser.goalWeight)} lbs
-                        </Text>
-                    </View>
-                }
-                {currentUser.feelBetter && currentUser.lastRating != 0 &&  
-                    <Text style={{fontSize: 18, textAlign: 'center', marginTop: 10}}>
-                        <Text style={{fontWeight:'600' }}>Latest Feeling: </Text> Last time you checked in, you were feeling {currentUser.lastRating} / 5 stars
-                    </Text>
-                }
-                {currentUser.feelBetter && currentUser.lastRating === 0 && 
-                    <Text style={{fontSize: 18, textAlign: 'center', marginTop: 10}}>
-                        <Text style={{fontWeight:'600' }}>Latest Feeling:</Text> Looks like you recently added "feel better" as a goal. Once you add progress, your latest rating will show up here!
-                    </Text>
-                }
+          <View style={styles.teamsRow}>
+            <View style={styles.teamSide}>
+              {loading ? (
+                <Text>Loading…</Text>
+              ) : HomeLogo ? (
+                <Image source={HomeLogo} style={styles.teamLogo} resizeMode="contain" />
+              ) : (
+                <Text>No Logo</Text>
+              )}
             </View>
 
-            <View style={styles.weightBox}>
-                <TouchableOpacity style={styles.button} onPress={demoGameNotifications}>
-                    <Text style={styles.buttonText}>Demo Notifications</Text>
-                </TouchableOpacity>
-                <View>
-                    <Text style={{padding: 3, marginTop: 3}}>UF Score: </Text>
-                    <Text style={{padding: 3}}>Opponent Score: </Text>
-                </View>
+            <View style={styles.vsBlock}>
+              <Text style={styles.matchupText}>
+                {gameData.home_team || '—'} <Text style={{ color: '#FA4616', fontWeight: '800' }}>vs</Text>{' '}
+                {gameData.away_team || '—'}
+              </Text>
+              <Text style={styles.dateText}>{gameData.date || ''}</Text>
             </View>
 
-            <View style={GlobalStyles.bottomMenu}>
-                <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}>
-                    <Image
-                        source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
-                        style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={GlobalStyles.bottomIcons}
-                    activeOpacity={0.5}
-                    onPress={() => NavigateToGameSchedule(currentUser, navigation)}
-                >
-                    <Image
-                        source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
-                        style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={GlobalStyles.bottomIcons}
-                    activeOpacity={0.5}
-                    onPress={() => NavigateToProcessLogging(currentUser, navigation)}
-                >
-                    <Image
-                        source={require('../../assets/images/bottomHomeMenu/plus.png')}
-                        style={{ width: 45, height: 45, alignSelf: 'center', objectFit: 'contain' }}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={GlobalStyles.bottomIcons}
-                    activeOpacity={0.5}
-                    onPress={() => NavigateToProfileManagement(currentUser, navigation)}
-                >
-                    <Image
-                        source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
-                        style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={GlobalStyles.bottomIcons}
-                    activeOpacity={0.5}
-                    onPress={() => LogoutPopup(navigation)}
-                >
-                    <Image
-                        source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
-                        style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
-                    />
-                </TouchableOpacity>
+            <View style={styles.teamSide}>
+              {loading ? (
+                <Text>Loading…</Text>
+              ) : AwayLogo ? (
+                <Image source={AwayLogo} style={styles.teamLogo} resizeMode="contain" />
+              ) : (
+                <Text>No Logo</Text>
+              )}
             </View>
+          </View>
         </View>
-    );
+
+        {/* Quick actions row */}
+        <View style={styles.quickRow}>
+          <TouchableOpacity
+            style={[styles.quickBtn, { backgroundColor: '#003DA5' }]}
+            onPress={() => NavigateToProcessLogging(currentUser, navigation)}
+          >
+            <Text style={styles.quickText}>Log Progress</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.quickBtn, { backgroundColor: '#FA4616' }]}
+            onPress={() => NavigateToGameSchedule(currentUser, navigation)}
+          >
+            <Text style={styles.quickText}>Game Schedule</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Goal card */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Your Goal</Text>
+          <View style={styles.underline} />
+
+          <Text style={styles.line}>
+            <Text style={styles.strong}>Current Goal: </Text>
+            {GetGoals()}
+          </Text>
+
+          {currentUser.loseWeight && (
+            <>
+              <Text style={styles.line}>
+                <Text style={styles.strong}>Current Weight: </Text>
+                {Math.floor(currentUser.currentWeight)} lbs
+              </Text>
+              <Text style={styles.line}>
+                <Text style={styles.strong}>Weight left to lose: </Text>
+                {Math.max(0, Math.floor(currentUser.currentWeight - currentUser.goalWeight))} lbs
+              </Text>
+
+              {/* Linear progress */}
+              <View style={styles.progressWrap}>
+                <View
+                  style={[
+                    styles.progressBar,
+                    {
+                      width: `${computeProgress(
+                        currentUser.currentWeight,
+                        currentUser.goalWeight
+                      )}%`,
+                    },
+                  ]}
+                />
+              </View>
+            </>
+          )}
+
+          {currentUser.feelBetter && currentUser.lastRating !== 0 && (
+            <Text style={styles.line}>
+              <Text style={styles.strong}>Latest Feeling: </Text>
+              {currentUser.lastRating} / 5 ⭐
+            </Text>
+          )}
+          {currentUser.feelBetter && currentUser.lastRating === 0 && (
+            <Text style={styles.line}>
+              <Text style={styles.strong}>Latest Feeling: </Text>
+              Once you check in, your latest rating will show up here!
+            </Text>
+          )}
+
+          <TouchableOpacity style={styles.cta} onPress={demoGameNotifications}>
+            <Text style={styles.ctaText}>Demo Notifications</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Bottom bar */}
+      <View style={GlobalStyles.bottomMenu}>
+        <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}>
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/homeIcon.png')}
+            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={GlobalStyles.bottomIcons}
+          activeOpacity={0.5}
+          onPress={() => NavigateToGameSchedule(currentUser, navigation)}
+        >
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/calendarIcon.png')}
+            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={GlobalStyles.bottomIcons}
+          activeOpacity={0.5}
+          onPress={() => NavigateToProcessLogging(currentUser, navigation)}
+        >
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/plus.png')}
+            style={{ width: 45, height: 45, alignSelf: 'center', objectFit: 'contain' }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={GlobalStyles.bottomIcons}
+          activeOpacity={0.5}
+          onPress={() => NavigateToProfileManagement(currentUser, navigation)}
+        >
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/defaultprofile.png')}
+            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={GlobalStyles.bottomIcons}
+          activeOpacity={0.5}
+          onPress={() => LogoutPopup(navigation)}
+        >
+          <Image
+            source={require('../../assets/images/bottomHomeMenu/logoutIcon.png')}
+            style={{ width: 30, height: 30, alignSelf: 'center', objectFit: 'contain' }}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
 
-function NavigateToGameSchedule(currentUser:any, navigation:any){
-    navigation.navigate('GameSchedule', {currentUser} as never)
-}
-function NavigateToNotifications(currentUser:any, navigation:any){
-    navigation.navigate('NotificationsPage', {currentUser} as never)
-}
-function NavigateToProfileManagement(currentUser:any, navigation:any){
-    navigation.navigate('ProfileManagement', {currentUser} as never)
-}
-function NavigateToProcessLogging(currentUser:any, navigation:any){
-    navigation.navigate('ProcessLogging', {currentUser} as never)
-}
-function LogoutPopup(navigation: any){
-    Alert.alert(
-        "Confirmation",
-        "Are you sure you want logout?",
-        [
-            {
-                text: "Cancel",
-                style: "cancel"
-            },
-            {
-                text: "Logout",
-                style: "destructive",
-                onPress: () => {
-                    console.log("Logging out.");
-                    navigation.navigate('CreateOrSignIn' as never);
-                }
-            }
-        ]
-    );
-}
-export const getNextGame = async () => {
-    try {
-        const response = await fetch(`${AppUrls.url}/home-tile/`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        });
-        const data = await response.json();
-        if (response.ok) {
-            //let home = Abbreviations[data.home_team] || 'Unknown';
-            //let away = Abbreviations[data.away_team] || 'Unknown';
-            // Sample data format: {"away_team": "Florida", "date": "11-30-2024 07:00 PM", "home_team": "Florida State"}
-            return data; // Expected format: {home_team, away_team, date}   
-        } 
-        //return data;
-    } 
-    catch (error) {
-        console.error('Error getting next game:', error);
-    }
-};
-const demoGameNotifications = async () => {
+/* -------- helpers & nav -------- */
 
-   // TODO: Hook up mock scoreboard & dummy polling scenario to generate notifications when a game is not live
-
-};
-const styles = StyleSheet.create({
-    scoreBox:{
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        borderWidth: 1.5,
-        borderRadius: 10,
-        borderColor: 'white',
-        width: '90%',
-        alignSelf: 'center',
-        backgroundColor: 'white',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 5,
-        overflow: 'hidden',
-    },
-    scoreBoxText:{
-        flexDirection: 'column',
-    },
-    weightBox:{
-        flexDirection:'column',
-        width: '80%',
-        padding: 10,
-        borderRadius: 10,
-        backgroundColor: 'white',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 5,
-        marginTop: '5%',
-        alignSelf: 'center',
-        justifyContent:'space-around',
-    },
-    button: {
-        backgroundColor: '#2196F3',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        borderRadius: 4,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
+function NavigateToGameSchedule(currentUser: any, navigation: any) {
+  navigation.navigate('GameSchedule', { currentUser } as never);
+}
+function NavigateToNotifications(currentUser: any, navigation: any) {
+  navigation.navigate('NotificationsPage', { currentUser } as never);
+}
+function NavigateToProfileManagement(currentUser: any, navigation: any) {
+  navigation.navigate('ProfileManagement', { currentUser } as never);
+}
+function NavigateToProcessLogging(currentUser: any, navigation: any) {
+  navigation.navigate('ProcessLogging', { currentUser } as never);
+}
+function LogoutPopup(navigation: any) {
+  Alert.alert('Confirmation', 'Are you sure you want logout?', [
+    { text: 'Cancel', style: 'cancel' },
+    {
+      text: 'Logout',
+      style: 'destructive',
+      onPress: () => {
+        navigation.navigate('CreateOrSignIn' as never);
       },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
-        textAlign: 'center',
     },
+  ]);
+}
+
+export const getNextGame = async () => {
+  try {
+    const response = await fetch(`${AppUrls.url}/home-tile/`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    });
+    const data = await response.json();
+    if (response.ok) return data; // {home_team, away_team, date}
+  } catch (error) {
+    console.error('Error getting next game:', error);
+  }
+};
+
+const demoGameNotifications = async () => {
+  // TODO: mock scoreboard & dummy polling if needed
+};
+
+/* ----- countdown utils （will update automatically ----- */
+// date string format: "MM-DD-YYYY HH:MM AM/PM" 或 "MM-DD-YYYY HH:MM:SS AM/PM"
+const toDate = (s: string) => {
+  if (!s) return null;
+  const parts = s.trim().split(' ');
+  if (parts.length < 3) return null;
+
+  const [mdy, time, ampmRaw] = parts;
+  const ampm = ampmRaw.toUpperCase();
+  const [m, d, y] = mdy.split('-').map((n) => parseInt(n, 10));
+
+  const timeBits = time.split(':').map((n) => parseInt(n, 10));
+  let hh = timeBits[0] ?? 0;
+  const mm = timeBits[1] ?? 0;
+  const ss = timeBits[2] ?? 0;
+
+  const isPM = ampm.includes('PM');
+  const isAM = ampm.includes('AM');
+  if (isPM && hh !== 12) hh += 12;
+  if (isAM && hh === 12) hh = 0;
+
+  return new Date(y, m - 1, d, hh, mm, ss || 0);
+};
+
+const getCountdown = (dateStr: string) => {
+  const dt = toDate(dateStr);
+  if (!dt) return null;
+
+  const diff = dt.getTime() - Date.now();
+  if (diff <= 0) return 'LIVE';
+
+  const totalSeconds = Math.floor(diff / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (days === 0) {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  }
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+};
+
+/* rough progress: how far from start weight to goal */
+const computeProgress = (current: number, goal: number) => {
+  const remaining = Math.max(0, current - goal);
+  const start = current + remaining; 
+  if (start <= 0) return 0;
+  const done = start - current;
+  return Math.max(0, Math.min(100, Math.round((done / start) * 100)));
+};
+
+/* -------- styles -------- */
+
+const styles = StyleSheet.create({
+  centerStack: {
+    flex: 1,
+    width: '92%',
+    alignSelf: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 6,
+  },
+
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+    marginTop: 10,
+  },
+
+  gameCard: { paddingBottom: 18 },
+
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#003DA5',
+    textAlign: 'center',
+  },
+  underline: {
+    alignSelf: 'center',
+    marginTop: 6,
+    marginBottom: 8,
+    width: 58,
+    height: 5,
+    borderRadius: 99,
+    backgroundColor: '#FA4616',
+  },
+
+  chipsRow: { alignItems: 'center', marginBottom: 4 },
+  chip: {
+    backgroundColor: '#E6EEF9',
+    borderColor: '#B8D0FF',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  chipText: { color: '#003DA5', fontWeight: '800' },
+
+  teamsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  teamSide: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  teamLogo: { width: 96, height: 96 },
+
+  vsBlock: { flex: 1.6, alignItems: 'center' },
+  matchupText: { fontSize: 18, fontWeight: '800', textAlign: 'center' },
+  dateText: { fontSize: 14, color: '#667085', marginTop: 6 },
+
+  quickRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+    alignSelf: 'center',
+    marginTop: 8,
+  },
+  quickBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 14,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 3,
+    alignItems: 'center',
+  },
+  quickText: { color: '#fff', fontWeight: '900', letterSpacing: 0.2 },
+
+  line: {
+    fontSize: 16,
+    color: '#111827',
+    marginTop: 8,
+  },
+  strong: { fontWeight: '700' },
+
+  progressWrap: {
+    height: 10,
+    borderRadius: 999,
+    backgroundColor: '#F1F5F9',
+    overflow: 'hidden',
+    marginTop: 10,
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#FA4616',
+  },
+
+  cta: {
+    backgroundColor: '#FA4616',
+    paddingVertical: 12,
+    borderRadius: 16,
+    marginTop: 14,
+    alignItems: 'center',
+  },
+  ctaText: {
+    color: 'white',
+    fontWeight: '900',
+    fontSize: 16,
+  },
 });
