@@ -75,9 +75,7 @@ export default function ProfileManagement() {
   usePreventRemove(dataEntered(), () => {});
 
   return (
-    // ✅ 只吃顶部安全区
     <SafeAreaView style={[GlobalStyles.container, { backgroundColor: '#F7F9FF' }]} edges={['top']}>
-      {/* 顶部栏 */}
       <View
         style={[
           GlobalStyles.topMenu,
@@ -104,9 +102,7 @@ export default function ProfileManagement() {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={styles.subContainer}>
-          {/* ✅ 关键：为底栏预留“真实高度 + 24” */}
           <ScrollView contentContainerStyle={{ paddingBottom: padBottom }}>
-            {/* -------- Personal Details -------- */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Personal Details</Text>
               <View style={styles.orangeBar} />
@@ -190,7 +186,6 @@ export default function ProfileManagement() {
               )}
             </View>
 
-            {/* -------- Goals -------- */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Goals</Text>
               <View style={styles.orangeBar} />
@@ -253,7 +248,6 @@ export default function ProfileManagement() {
         </View>
       </KeyboardAvoidingView>
 
-      {/* ✅ 底部导航：绝对定位 + 只在底栏吃安全区 + 实测高度 */}
       <View
         onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
         style={[GlobalStyles.bottomMenu, { paddingBottom: insets.bottom }]}
@@ -308,8 +302,6 @@ export default function ProfileManagement() {
     </SafeAreaView>
   );
 }
-
-/* ---------- helpers ---------- */
 
 function GetGoalWeightStr(currentUser: User): String {
   if (currentUser.loseWeight) return String(currentUser.goalWeight);
@@ -482,8 +474,6 @@ const updateUser = async (
     Alert.alert('Network error');
   }
 };
-
-/* ---------- styles ---------- */
 
 const styles = StyleSheet.create({
   subContainer: {

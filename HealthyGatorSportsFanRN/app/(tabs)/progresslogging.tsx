@@ -18,7 +18,6 @@ import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 import GlobalStyles from '../styles/GlobalStyles';
 
-// 与其它页面保持一致：视觉高度（不含安全区）
 const TAB_VISUAL_H = 64;
 
 export default function ProgressLogging() {
@@ -26,7 +25,6 @@ export default function ProgressLogging() {
   const route = useRoute();
   const { currentUser } = route.params as { currentUser: any };
 
-  // ✅ 底栏高度：安全区 + 实测高度
   const insets = useSafeAreaInsets();
   const [bottomH, setBottomH] = useState<number>(TAB_VISUAL_H + insets.bottom);
   const padBottom = bottomH + 24;
@@ -44,9 +42,7 @@ export default function ProgressLogging() {
   usePreventRemove(dataEntered(), () => {});
 
   return (
-    // ✅ 只吃顶部安全区；bottom 交给底栏自己处理
     <SafeAreaView style={[GlobalStyles.container, { backgroundColor: '#F7F9FF' }]} edges={['top']}>
-      {/* 顶部栏 */}
       <View
         style={[
           GlobalStyles.topMenu,
@@ -72,7 +68,6 @@ export default function ProgressLogging() {
         </TouchableOpacity>
       </View>
 
-      {/* ✅ 内容区为底栏让路 */}
       <ScrollView contentContainerStyle={{ paddingBottom: padBottom }} showsVerticalScrollIndicator={false}>
         {isGoalToLoseWeight && (
           <View style={styles.card}>
@@ -127,7 +122,6 @@ export default function ProgressLogging() {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* ✅ 底部栏：绝对定位 + 只在底栏吃安全区 + 实测高度 */}
       <View
         onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
         style={[GlobalStyles.bottomMenu, { paddingBottom: insets.bottom }]}
@@ -187,8 +181,6 @@ export default function ProgressLogging() {
     </SafeAreaView>
   );
 }
-
-/* -------- helpers & nav -------- */
 
 function ConfirmChanges(navigation: any, rating: number, newWeight: any, currentUser: User) {
   if (currentUser.feelBetter && currentUser.loseWeight) {
@@ -336,8 +328,6 @@ const updateUserGoals = async (
     Alert.alert('Network error');
   }
 };
-
-/* -------- styles -------- */
 
 const UF_BLUE = '#0021A5';
 const UF_ORANGE = '#FA4616';

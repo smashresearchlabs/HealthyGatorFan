@@ -22,9 +22,6 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { AppUrls } from "@/constants/AppUrls";
 import GlobalStyles from "../styles/GlobalStyles";
 
-/* ---------------- Top-level component ---------------- */
-
-
 const TAB_VISUAL_H = 64;
 
 export default function NotificationsPage() {
@@ -73,7 +70,6 @@ export default function NotificationsPage() {
     loadNotifications();
   }, []);
 
-  // --- Expo notification wiring (保留你的逻辑) ---
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState<Notifications.Notification | undefined>(undefined);
   const notificationListener = useRef<Notifications.Subscription>();
@@ -96,7 +92,6 @@ export default function NotificationsPage() {
   return (
 
     <SafeAreaView style={GlobalStyles.container} edges={["top"]}>
-      {/*top bar */}
       <View
         style={[
           GlobalStyles.topMenu,
@@ -126,7 +121,6 @@ export default function NotificationsPage() {
         behavior="padding"
         keyboardVerticalOffset={Platform.select({ ios: 60, android: 80 })}
       >
-        {/* list */}
         {loading ? (
           <View style={styles.stateBox}>
             <ActivityIndicator size="small" />
@@ -145,10 +139,7 @@ export default function NotificationsPage() {
             ) : (
               notificationDatas.map((obj, index) => (
                 <View key={`${obj.notification_id}-${index}`} style={styles.card}>
-                  {/* time */}
                   <Text style={styles.timeText}>{formatTimestamp(obj.timestamp)}</Text>
-
-                  {/* title */}
                   <View style={styles.cardHeader}>
                     <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
                       <View style={styles.unreadDot} />
@@ -166,10 +157,8 @@ export default function NotificationsPage() {
                     </TouchableOpacity>
                   </View>
 
-                  {/* content */}
                   <Text style={styles.cardText}>{obj.notification_message}</Text>
 
-                  {/* spliting line */}
                   <View style={styles.separator} />
                 </View>
               ))
@@ -178,7 +167,6 @@ export default function NotificationsPage() {
         )}
       </KeyboardAvoidingView>
 
-      {/* absolute height */}
       <View
         onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
         style={[GlobalStyles.bottomMenu, { paddingBottom: insets.bottom }]}
@@ -220,8 +208,6 @@ export default function NotificationsPage() {
       </View>
     </SafeAreaView>
   );
-
-  /* ---------------- Handlers ---------------- */
 
   async function handleCreateNotificationPress() {
     if (!newTitle || !newMessage) {
@@ -269,8 +255,6 @@ export default function NotificationsPage() {
   }
 }
 
-/* ---------------- Navigation helpers ---------------- */
-
 function LogoutPopup(navigation: any) {
   Alert.alert("Confirmation", "Are you sure you want logout?", [
     { text: "Cancel", style: "cancel" },
@@ -289,8 +273,6 @@ function NavigateToProfileManagement(currentUser: any, navigation: any) {
 function NavigateToProcessLogging(currentUser: any, navigation: any) {
   navigation.navigate("ProcessLogging", { currentUser } as never);
 }
-
-/* ---------------- Expo push setup / utils ---------------- */
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -356,8 +338,6 @@ const formatTimestamp = (timestamp: string): string => {
   return `${dateString}, ${timeString}`;
 };
 
-/* ---------------- API calls ---------------- */
-
 const createNotification = async (expoPushToken: string, userID: number, title: string, message: string) => {
   try {
     const response = await fetch(`${AppUrls.url}/notificationdata/`, {
@@ -396,8 +376,6 @@ export const deleteAllNotifications = async (userId: number) => {
   const res = await fetch(`${AppUrls.url}/notificationdata/deleteall/${userId}/`, { method: "DELETE" });
   if (!res.ok && res.status !== 204) throw new Error("Failed to delete all");
 };
-
-/* ---------------- styles ---------------- */
 
 const colors = {
   ufBlue: "#0B3D91",

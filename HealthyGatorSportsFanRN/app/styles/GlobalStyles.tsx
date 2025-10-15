@@ -1,9 +1,12 @@
 import { StyleSheet, Platform, StatusBar } from 'react-native';
 
-export const TAB_VISUAL_H = 64; // 视觉高度（不含安全区）
+export const TAB_VISUAL_H = 64;
 
 const GlobalStyles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7F7FB' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#F7F7FB' 
+  },
 
   topMenu: {
     flexDirection: 'row',
@@ -33,7 +36,6 @@ const GlobalStyles = StyleSheet.create({
     justifyContent: 'space-around',
   },
 
-  // 自绘 bottom bar：高度在页面里按 safe area 动态加
   bottomMenu: {
     position: 'absolute',
     left: 0, right: 0, bottom: 0,
@@ -43,8 +45,6 @@ const GlobalStyles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: '#fff',
     paddingTop: 8,
-
-    // 视觉&层级（新增）
     borderTopWidth: 0.5,
     borderTopColor: 'rgba(0,0,0,0.08)',
     shadowColor: '#000',
@@ -61,7 +61,7 @@ const GlobalStyles = StyleSheet.create({
     height: 40,
     width: 40,
   },
-
+  
   confirmButton: {
     borderWidth: 1,
     borderColor: 'orange',

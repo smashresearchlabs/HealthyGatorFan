@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context"; // ✅ 用这个 SafeAreaView
+import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context";
 import {
   StyleSheet,
   View,
@@ -60,7 +60,6 @@ export default function GameSchedule() {
 
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.container}>
-        {/* top bar */}
         <View style={GlobalStyles.topMenu}>
           <Image source={require("./../../assets/images/clipboardgator.jpg")} style={{ width: 55, height: 55 }} />
           <Text style={{ fontSize: 25, fontFamily: "System", color: colors.ufBlue, fontWeight: "700" }}>
@@ -75,7 +74,6 @@ export default function GameSchedule() {
           </TouchableOpacity>
         </View>
 
-        {/* content */}
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{
@@ -138,7 +136,6 @@ export default function GameSchedule() {
           <View style={{ height: 12 }} />
         </ScrollView>
 
-        {/* bottom navi bar */}
         <View
           onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
           style={[
@@ -177,7 +174,6 @@ export default function GameSchedule() {
   );
 }
 
-/* ---------- helpers ---------- */
 function LogoutPopup(navigation: any) {
   Alert.alert("Confirmation", "Are you sure you want logout?", [
     { text: "Cancel", style: "cancel" },
@@ -262,7 +258,6 @@ const ResultPill = ({ game }: { game: Game }) => {
   );
 };
 
-/* ---------- styles ---------- */
 const colors = {
   ufBlue: "#0B3D91",
   ufOrange: "#F24E1E",

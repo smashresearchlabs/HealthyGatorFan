@@ -91,11 +91,10 @@ export default function HomePage() {
     return 'Lose weight';
   }
 
-  // ---------- UI ----------
+
   return (
 
     <SafeAreaView style={GlobalStyles.container} edges={['top']}>
-      {/* top bar keep same */}
       <View
         style={[
           GlobalStyles.topMenu,
@@ -127,10 +126,8 @@ export default function HomePage() {
         </TouchableOpacity>
       </View>
 
-      {/* paddingBottom = bottomH + 24 */}
       <ScrollView contentContainerStyle={{ paddingBottom: padBottom }} showsVerticalScrollIndicator={false}>
         <View style={styles.centerStack}>
-          {/* Next game card */}
           <View style={[styles.card, styles.gameCard]}>
             <Text style={styles.sectionTitle}>Next Game</Text>
             <View style={styles.underline} />
@@ -174,7 +171,6 @@ export default function HomePage() {
             </View>
           </View>
 
-          {/* Quick actions row */}
           <View style={styles.quickRow}>
             <TouchableOpacity
               style={[styles.quickBtn, { backgroundColor: '#003DA5' }]}
@@ -191,7 +187,6 @@ export default function HomePage() {
             </TouchableOpacity>
           </View>
 
-          {/* Goal card */}
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Your Goal</Text>
             <View style={styles.underline} />
@@ -212,7 +207,6 @@ export default function HomePage() {
                   {Math.max(0, Math.floor(currentUser.currentWeight - currentUser.goalWeight))} lbs
                 </Text>
 
-                {/* Linear progress */}
                 <View style={styles.progressWrap}>
                   <View
                     style={[
@@ -249,7 +243,6 @@ export default function HomePage() {
         </View>
       </ScrollView>
 
-      {/* bottom bar */}
       <View
         onLayout={(e) => setBottomH(e.nativeEvent.layout.height)}
         style={[GlobalStyles.bottomMenu, { paddingBottom: insets.bottom }]}
@@ -309,9 +302,6 @@ export default function HomePage() {
     </SafeAreaView>
   );
 }
-
-/* -------- helpers & nav -------- */
-
 function NavigateToGameSchedule(currentUser: any, navigation: any) {
   navigation.navigate('GameSchedule', { currentUser } as never);
 }
@@ -354,7 +344,6 @@ const demoGameNotifications = async () => {
   // TODO: mock scoreboard & dummy polling if needed
 };
 
-/* ----- countdown utils ----- */
 const toDate = (s: string) => {
   if (!s) return null;
   const parts = s.trim().split(' ');
@@ -405,8 +394,6 @@ const computeProgress = (current: number, goal: number) => {
   const done = start - current;
   return Math.max(0, Math.min(100, Math.round((done / start) * 100)));
 };
-
-/* -------- styles -------- */
 
 const styles = StyleSheet.create({
   centerStack: {
