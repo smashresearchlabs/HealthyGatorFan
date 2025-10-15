@@ -17,7 +17,6 @@ export default function CreateOrSignIn() {
 
   return (
     <View style={[styles.container, { backgroundColor: c.background }]}>
-      {/* Disclaimer Modal */}
       <Modal visible={disclaimerVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: c.background, borderColor: c.border }]}>
@@ -34,7 +33,7 @@ export default function CreateOrSignIn() {
               activeOpacity={0.85}
               style={[
                 styles.primaryBtn,
-                { backgroundColor: c.ufOrange, alignSelf: 'center' }, // 居中按钮
+                { backgroundColor: c.ufOrange, alignSelf: 'center' },
               ]}
               accessibilityRole="button"
               accessibilityLabel="Acknowledge disclaimer"
@@ -54,7 +53,7 @@ export default function CreateOrSignIn() {
       />
 
       <View style={styles.headerWrap}>
-        <Text style={[styles.title, { color: c.ufBlue }]}>Gator Goals</Text>
+        <Text style={[styles.title, { color: c.ufBlue }]}>Healthy Gator Fan</Text>
         <Text style={[styles.subtitle, { color: c.muted }]}>Track games, mood & weight like a true Gator</Text>
       </View>
 
