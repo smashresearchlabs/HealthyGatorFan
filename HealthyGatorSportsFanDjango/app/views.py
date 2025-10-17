@@ -8,7 +8,7 @@ import os
 import cfbd
 import pytz
 from django.http import JsonResponse
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 from .utils import send_push_notification_next_game, check_game_status, send_notification
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
@@ -390,9 +390,24 @@ class DeleteNotificationView(APIView):
 @csrf_exempt
 def poll_cfbd_view(request):
     games = get_cached_uf_games()
+    configuration = cfbd.Configuration(
+        host="https://apinext.collegefootballdata.com",
+        access_token=os.getenv('COLLEGE_FOOTBALL_API_KEY')
+    )
+    apiInstance = cfbd.GamesApi(cfbd.ApiClient(configuration))
 
-    #to do: add logic to only check if there is a game on
-    #compare live scoreboard to games' schedules
+    for game in games:
+        start_date = game['startDate']
+
+        if start_date <= datetime.now(timezone.utc) <= start_date + timedelta(hours=3, minutes=30):
+            print(f"Game {game} is within the 3.5 hour window")
+            
+            game_status, home_team, home_score, away_team, away_score = check_game_status(apiInstance)
+            send_notification(game_status, home_team, home_score, away_team, away_score)
+
+            return
+    
+    print("No games are inside window")
 
 @csrf_exempt
 def home_tile_view(request):

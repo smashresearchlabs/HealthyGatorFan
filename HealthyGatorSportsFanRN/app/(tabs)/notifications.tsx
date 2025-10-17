@@ -293,10 +293,9 @@ async function sendPushNotification(expoPushToken: string, title: string, body: 
 
 function handleRegistrationError(errorMessage: string) {
   alert(errorMessage);
-  throw new Error(errorMessage);
 }
 
-async function registerForPushNotificationsAsync() {
+export async function registerForPushNotificationsAsync() {
   if (Platform.OS === "android") {
     Notifications.setNotificationChannelAsync("default", {
       name: "default",
@@ -313,11 +312,11 @@ async function registerForPushNotificationsAsync() {
       finalStatus = status;
     }
     if (finalStatus !== "granted") {
-      handleRegistrationError("Permission not granted to get push token!");
+      handleRegistrationError("Notifications are turned off. Turn on notifications in device settings to receive gametime updates!");
       return;
     }
     const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-    if (!projectId) handleRegistrationError("Project ID not found");
+    if (!projectId) handleRegistrationError("Error while trying to register device for notifications: Project ID not found.");
     try {
       const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
       return token;
