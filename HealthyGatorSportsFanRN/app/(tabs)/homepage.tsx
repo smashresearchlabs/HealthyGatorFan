@@ -17,6 +17,7 @@ import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
 import GlobalStyles from '../styles/GlobalStyles';
+import { registerForPushNotificationsAsync } from './notifications';
 
 
 const TAB_VISUAL_H = 64;
@@ -62,6 +63,7 @@ export default function HomePage() {
       }
     };
     fetchGameData();
+    confirmNotifications(currentUser)
   }, []);
 
   useEffect(() => {
@@ -394,6 +396,26 @@ const computeProgress = (current: number, goal: number) => {
   const done = start - current;
   return Math.max(0, Math.min(100, Math.round((done / start) * 100)));
 };
+
+async function confirmNotifications(currentUser: any) {
+    //method used to check if notifications are ready to be sent to user
+    //ask for permission to send notifications | make sure ExpoPushToken is the same as User.push_token
+
+    const pushTokenString = await registerForPushNotificationsAsync();
+    if(pushTokenString && pushTokenString !== currentUser.push_token) {
+        try {
+            const updatedUser = {
+                push_token: pushTokenString
+            };
+            await fetch(`${AppUrls.url}/user/${currentUser.userId}/`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedUser),
+            });
+        } catch {
+            Alert.alert("Failure", "Failed to set notification settings");
+        }
+    }
+}
+
 
 const styles = StyleSheet.create({
   centerStack: {

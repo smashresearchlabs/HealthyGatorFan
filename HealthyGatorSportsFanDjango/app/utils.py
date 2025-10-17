@@ -3,16 +3,24 @@ from exponent_server_sdk import PushClient, PushMessage
 import os
 import cfbd
 import redis
+from .models import User
+from .serializers import UserSerializer
 
 redis_client = redis.StrictRedis.from_url('redis://localhost:6379/0')
-def send_push_notification_next_game(header, push_token, message):
-    response = PushClient().publish(
-        PushMessage(
-            to=push_token,
-            title=header,
-            body=message,
-        )
-    )
+def send_push_notification_next_game(header, users, message):
+    for user in users:
+        try:
+            PushClient().publish(
+                PushMessage(
+                    to=user['push_token'],
+                    title=header,
+                    body=message,
+                )
+            )
+        except Exception:
+            errorMessage = "Couldn't send push notification to {}".format(user['email'])
+            print(errorMessage)
+
 def check_game_status(apiInstance):
     scoreboard = apiInstance.get_scoreboard()
     curr_team = 'Florida Gators'
@@ -56,8 +64,11 @@ def check_game_status(apiInstance):
         return 'Game not started', curr_game.home_team.name, 0, curr_game.away_team.name, 0
 
 def send_notification(game_status: str, home_team: str, home_score: int, away_team: str, away_score: int):
-    push_token = os.getenv('EXPO_PUSH_TOKEN')
-    if push_token:
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    allUsers = serializer.data
+    usersWithPushToken = list(filter(lambda user: user['push_token'], allUsers))
+    if usersWithPushToken:
         message = {
             'predicted_win': "The Gators are predicted to win, and so are you! Plan wisely to meet your health goals this game day.",
             'predicted_lose': "Defeat the odds this game day by working hard to meet your health goals!",
@@ -84,5 +95,5 @@ def send_notification(game_status: str, home_team: str, home_score: int, away_te
             else:
                 last_score = ""
             if last_score != current_score:
-                send_push_notification_next_game("Health Notification", push_token, message)
+                send_push_notification_next_game("Health Notification", usersWithPushToken, message)
                 redis_client.set('last_score', current_score)

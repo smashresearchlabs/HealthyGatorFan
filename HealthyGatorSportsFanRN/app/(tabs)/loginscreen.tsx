@@ -105,7 +105,7 @@ export default function LogInScreen() {
 
 
 async function ConfirmData(email: any, password: any, navigation: any) {
-  const currentUser = new User(1, '', '', '', '', '', '', 0, 0, 0, false, true, 0, 'both', 0);
+  const currentUser = new User(1, '', '', '', '', '', '', 0, 0, 0, false, true, 0, 'both', 0, '');
     //Connect to DB and ensure that the provided username and password are correct and exist
     console.log(email);
     console.log("password");
@@ -158,6 +158,7 @@ const handleLogin = async (currentUser: any, email: any, password: any, navigati
             currentUser.loseWeight = data.goal_to_lose_weight;
             currentUser.goal_to_lose_weight = data.goal_to_lose_weight;
             currentUser.goalWeight = data.goal_weight;
+            currentUser.push_token = data.push_token;
             if (!currentUser.loseWeight){ currentUser.goalWeight = 0}
             await getLatestUserData(currentUser, navigation); 
         } else {
