@@ -9,7 +9,7 @@ import cfbd
 import pytz
 from django.http import JsonResponse
 from datetime import date, datetime, timezone, timedelta
-from .utils import send_push_notification_next_game, check_game_status, send_notification
+from .utils import send_push_notification_next_game, check_game_status, send_notification, get_users_with_push_token
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 from .management.commands import poll_cfbd
@@ -395,18 +395,28 @@ def poll_cfbd_view(request):
         access_token=os.getenv('COLLEGE_FOOTBALL_API_KEY')
     )
     apiInstance = cfbd.GamesApi(cfbd.ApiClient(configuration))
+    CACHE_KEY = "completed_game"
+    CACHE_TTL = 60 * 60 * 4 #4 hours -> there won't be more than 1 game/day or /week so this should be fine
 
     for game in games:
         start_date = game['startDate']
 
-        if start_date <= datetime.now(timezone.utc) <= start_date + timedelta(hours=3, minutes=30):
-            print(f"Game {game} is within the 3.5 hour window")
+        if start_date - timedelta(hours=0, minutes=30) <= datetime.now(timezone.utc) <= start_date + timedelta(hours=4, minutes=0): #30 minutes before game start -> 4 hours after game end
+            print(f"Game {game} is within the 4 hour window")
             
-            game_status, home_team, home_score, away_team, away_score = check_game_status(apiInstance)
+            game_status, home_team, home_score, away_team, away_score, game_completion_status = check_game_status(apiInstance)
             send_notification(game_status, home_team, home_score, away_team, away_score)
 
+            if game_completion_status == "completed":
+                existingGame = cache.get(CACHE_KEY)
+                if existingGame is None:
+                    pushTokens = get_users_with_push_token()
+                    message = "Finished the game? Help the HealthyGator community by taking a quick post-game survey!"
+                    send_push_notification_next_game('Post-Game Survey', pushTokens, message)
+                    cache.set(CACHE_KEY, "", CACHE_TTL)
+
             return
-    
+
     print("No games are inside window")
 
 @csrf_exempt

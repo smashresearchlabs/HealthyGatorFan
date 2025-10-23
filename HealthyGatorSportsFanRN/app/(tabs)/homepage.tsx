@@ -9,6 +9,7 @@ import {
   ScrollView,
   StatusBar,
   Platform,
+  Linking
 } from 'react-native';
 import { useNavigation, usePreventRemove, useRoute } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -239,7 +240,7 @@ export default function HomePage() {
             )}
 
             <TouchableOpacity style={styles.cta} onPress={demoGameNotifications}>
-              <Text style={styles.ctaText}>Demo Notifications</Text>
+              <Text onPress={() => {Linking.openURL('https://ufl.qualtrics.com/jfe/form/SV_3V4CndUea1oyhXE')}} style={styles.ctaText}>Take Post-Game Survey</Text>
             </TouchableOpacity>
           </View>
         </View>
