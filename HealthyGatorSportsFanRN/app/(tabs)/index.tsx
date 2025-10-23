@@ -1,19 +1,46 @@
 /* This is the login or create account screen that will launch at the application's start */
 
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, Modal } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from "expo-router";
+import { StyleSheet, View, Text, Image, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { useNavigation, usePreventRemove } from '@react-navigation/native';
 import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { loadUser } from "@/components/authStorage";
 
 export default function CreateOrSignIn() {
   const [disclaimerVisible, setDisclaimerVisible] = useState(true);
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
   const c = Colors[colorScheme ?? 'light'];
 
   // Prevent back navigation
   usePreventRemove(true, () => {});
+  
+  useEffect(() => {
+    (async () => {
+      try {
+        const saved = await loadUser();
+        if (saved) {
+          router.replace('/(tabs)/homepage');
+          return;
+        }
+      } catch {
+      } finally {
+        setChecking(false);
+      }
+    })();
+  }, [router]);
+
+  if (checking) {
+    return (
+      <View style={[styles.container, { alignItems: 'center', justifyContent: 'center' }]}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: c.background }]}>

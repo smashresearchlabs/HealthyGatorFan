@@ -18,7 +18,7 @@ import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
 import GlobalStyles from '../styles/GlobalStyles';
 import { registerForPushNotificationsAsync } from './notifications';
-
+import { clearUser } from '@/components/authStorage';
 
 const TAB_VISUAL_H = 64;
 
@@ -322,7 +322,8 @@ function LogoutPopup(navigation: any) {
     {
       text: 'Logout',
       style: 'destructive',
-      onPress: () => {
+      onPress: async () => {
+        await clearUser();
         navigation.navigate('CreateOrSignIn' as never);
       },
     },

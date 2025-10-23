@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
+import { saveUser,loadUser } from '@/components/authStorage';
 
 const UF_BLUE = '#0021A5';
 const UF_ORANGE = '#FA4616';
@@ -184,6 +185,9 @@ const getLatestUserData = async (currentUser: any, navigation: any) => {
       currentUser.currentWeight = data.weight_value;
       currentUser.goalType = data.goal_type;
       currentUser.lastRating = data.feel_better_value;
+      await saveUser(currentUser);
+      const roundTrip = await loadUser();
+      console.log("[auth] saved?", !!roundTrip, roundTrip && roundTrip.email);
       navigation.navigate('HomePage', { currentUser } as never);
     } else {
       const errorData = await response.json();
