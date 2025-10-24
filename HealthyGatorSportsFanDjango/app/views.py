@@ -1,9 +1,10 @@
+from django.contrib.auth.models import User as AuthUser
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import render
 from .models import User, UserData, NotificationData
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer, UserDataSerializer, NotificationDataSerializer
 import os
 import cfbd
@@ -48,6 +49,10 @@ from rest_framework.decorators import api_view, permission_classes
             #serializer.save() # Save the validated data to the database
             #return Response(serializer.data, status=status.HTTP_201_CREATED)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+auth_user, _ = AuthUser.objects.get_or_create(
+    username=User.email,
+    defaults={"email": User.email}
+)
 
 #  for testing with Django's web interface
 def index(request):
@@ -272,9 +277,16 @@ class UserLoginView(APIView):
         if not user.check_password(password):
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        refresh = RefreshToken.for_user(user)
-        access = refresh.access_token
+        auth_user, _ = AuthUser.objects.get_or_create(
+            username=user.email,
+            defaults={"email": user.email}
+        )
 
+        refresh = RefreshToken.for_user(auth_user)
+        access = refresh.access_token
+        refresh["app_user_id"] = user.user_id
+        access["app_user_id"] = user.user_id
+        
         serializer = UserSerializer(user)
         return Response({
             "access": str(access),

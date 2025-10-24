@@ -23,6 +23,7 @@ import dj_database_url
 from pathlib import Path
 
 from celery.schedules import crontab, schedule
+from datetime import timedelta
 
 # for pushing to Heroku
 #from kombu import Connection
@@ -97,6 +98,15 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+
+    # "USER_ID_FIELD": "user_id",
+    # "USER_ID_CLAIM": "user_id",
 }
 
 PASSWORD_HASHERS = [

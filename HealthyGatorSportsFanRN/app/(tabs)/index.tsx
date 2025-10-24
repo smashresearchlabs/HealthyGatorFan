@@ -47,7 +47,7 @@ export default function CreateOrSignIn() {
                 const user = await me.json();
                 setSavedUser(user);
                 setHasSavedUser(true);
-                console.log('[gate] auto-login ✓', user.email || user.user_id);
+                console.log('[gate] auto-login', user.email || user.user_id);
               } else {
                 console.log('[gate] /auth/me failed → stay on index');
               }
