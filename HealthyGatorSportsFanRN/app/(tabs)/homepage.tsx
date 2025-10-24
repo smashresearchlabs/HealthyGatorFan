@@ -108,7 +108,7 @@ export default function HomePage() {
         ]}
       >
         <Image
-          source={require('./../../assets/images/clipboardgator.jpg')}
+          source={require('./../../assets/images/clipboardgator.png')}
           style={{ width: 55, height: 55 }}
           resizeMode="cover"
         />

@@ -102,7 +102,7 @@ export default function NotificationsPage() {
           },
         ]}
       >
-        <Image source={require("./../../assets/images/clipboardgator.jpg")} style={{ width: 55, height: 55 }} />
+        <Image source={require("./../../assets/images/clipboardgator.png")} style={{ width: 55, height: 55 }} />
         <View style={{ alignItems: "center", flex: 1 }}>
           <Text style={{ fontSize: 25, fontWeight: "800", color: colors.ufBlue }}>Notifications</Text>
           <Text style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{numNotifications} total</Text>
