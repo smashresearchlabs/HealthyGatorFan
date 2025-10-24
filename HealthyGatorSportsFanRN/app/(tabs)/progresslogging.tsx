@@ -53,7 +53,7 @@ export default function ProgressLogging() {
           },
         ]}
       >
-        <Image source={require('./../../assets/images/clipboardgator.jpg')} style={{ width: 55, height: 55 }} />
+        <Image source={require('./../../assets/images/clipboardgator.png')} style={{ width: 55, height: 55 }} />
         <Text style={{ fontSize: 25, fontFamily: 'System', color: '#0021A5' }}>Enter Progress</Text>
         <TouchableOpacity
           style={GlobalStyles.topIcons}
