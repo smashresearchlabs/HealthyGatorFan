@@ -1,19 +1,81 @@
 /* This is the login or create account screen that will launch at the application's start */
 
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, Modal } from 'react-native';
+import React, {useEffect, useState } from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { useNavigation, usePreventRemove } from '@react-navigation/native';
 import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { useRouter } from "expo-router";
+import { AppUrls } from "@/constants/AppUrls";
+import { getRefresh, setAccess } from "@/components/tokenStorage";
 
 export default function CreateOrSignIn() {
   const [disclaimerVisible, setDisclaimerVisible] = useState(true);
+  const [checking, setChecking] = useState(true);
+  const [hasSavedUser, setHasSavedUser] = useState(false);
+  const [savedUser, setSavedUser] = useState<any>(null);
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
   const c = Colors[colorScheme ?? 'light'];
 
   // Prevent back navigation
   usePreventRemove(true, () => {});
+  useEffect(() => {
+      (async () => {
+        try {
+          const refresh = await getRefresh();
+          if (refresh) {
+            const r = await fetch(`${AppUrls.url}/auth/refresh/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ refresh }),
+            });
+
+            if (r.ok) {
+              const { access } = await r.json();
+              if (typeof access !== "string") {
+                console.error("[gate] refresh returned non-string access:", access);
+              } else {
+                await setAccess(access);
+              }
+              const me = await fetch(`${AppUrls.url}/auth/me/`, {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${access}` },
+              });
+
+              if (me.ok) {
+                const user = await me.json();
+                setSavedUser(user);
+                setHasSavedUser(true);
+                console.log('[gate] auto-login ✓', user.email || user.user_id);
+              } else {
+                console.log('[gate] /auth/me failed → stay on index');
+              }
+            } else {
+              console.log('[gate] refresh failed → stay on index');
+            }
+          } else {
+            console.log('[gate] no refresh token → stay on index');
+          }
+        } catch (e) {
+          console.warn('[gate] auto-login error:', e);
+        } finally {
+          setChecking(false);
+        }
+      })();
+    }, []);
+
+    useEffect(() => {
+      if (!checking && hasSavedUser && !disclaimerVisible && savedUser) {
+        console.log('[gate] navigating → HomePage with saved user');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'HomePage' as never, params: { currentUser: savedUser } as never }],
+        });
+      }
+    }, [checking, hasSavedUser, disclaimerVisible, savedUser, navigation]);
+
+    const showSpinner = checking;
 
   return (
     <View style={[styles.container, { backgroundColor: c.background }]}>

@@ -3,6 +3,7 @@ from .models import User, UserData, NotificationData
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
+from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer, UserDataSerializer, NotificationDataSerializer
 import os
 import cfbd
@@ -17,6 +18,8 @@ from .management.commands.poll_cfbd import Command
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -223,7 +226,7 @@ class LatestUserDataView(APIView):
 #                 }, status=status.HTTP_200_OK)
 #             return Response(user_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+@method_decorator(csrf_exempt, name="dispatch")
 class UserLoginView(APIView):
     permission_classes = (AllowAny,)
     @swagger_auto_schema(
@@ -269,8 +272,15 @@ class UserLoginView(APIView):
         if not user.check_password(password):
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
+        refresh = RefreshToken.for_user(user)
+        access = refresh.access_token
+
         serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({
+            "access": str(access),
+            "refresh": str(refresh),
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
     
     # def get(self, request):
     #     email = request.query_params.get('email')
