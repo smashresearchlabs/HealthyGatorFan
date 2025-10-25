@@ -18,6 +18,7 @@ import { AppUrls } from '@/constants/AppUrls';
 import { Abbreviations } from '@/constants/Abbreviations';
 import GlobalStyles from '../styles/GlobalStyles';
 import { registerForPushNotificationsAsync } from './notifications';
+import { clearTokens } from "@/components/tokenStorage";
 
 
 const TAB_VISUAL_H = 64;
@@ -327,6 +328,7 @@ function LogoutPopup(navigation: any) {
       },
     },
   ]);
+  clearTokens();
 }
 
 export const getNextGame = async () => {
