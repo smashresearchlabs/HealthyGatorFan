@@ -27,7 +27,7 @@ export default function ProfileManagement() {
   const navigation = useNavigation();
   const route = useRoute();
   const user: any = route.params;
-  const currentUser: User = user.currentUser.cloneUser();
+  const currentUser: User = user.currentUser;
 
 
   const insets = useSafeAreaInsets();

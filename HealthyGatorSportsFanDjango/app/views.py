@@ -490,8 +490,15 @@ def me_view(request):
     if not email:
         return Response({"detail": "No email on auth user"}, status=400)
 
-    app_user = AuthUser.objects.filter(email=email).first()
-    if not app_user:
+    try:
+        app_user = User.objects.get(email=email)
+        if not app_user:
+            return Response({"detail": "App user not found"}, status=404)
+    except User.DoesNotExist:
         return Response({"detail": "App user not found"}, status=404)
+
+
+    print('hell yeah brother')
+    print(UserSerializer(app_user).data)
 
     return Response(UserSerializer(app_user).data, status=200)

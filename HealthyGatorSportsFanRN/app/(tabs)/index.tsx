@@ -3,7 +3,7 @@
 import React, {useEffect, useState } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { useNavigation, usePreventRemove } from '@react-navigation/native';
-import { useColorScheme } from 'react-native';
+import { Alert, useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useRouter } from "expo-router";
 import { AppUrls } from "@/constants/AppUrls";
@@ -45,8 +45,24 @@ export default function CreateOrSignIn() {
 
               if (me.ok) {
                 const user = await me.json();
-                setSavedUser(user);
-                setHasSavedUser(true);
+                const userData = {
+                  userId: user.user_id,
+                  email: user.email,
+                  firstName: user.first_name,
+                  lastName: user.last_name,
+                  birthDate: user.birthdate,
+                  gender: user.gender,
+                  heightInches: user.height_inches,
+                  heightFeet: user.height_feet,
+                  feelBetter: user.goal_to_feel_better,
+                  loseWeight: user.goal_to_lose_weight,
+                  goalWeight: user.goal_weight,
+                  push_token: user.push_token,
+                };
+                //logic for appending the UserData goals as well before the 2 lines below
+
+                await getLatestUserData(userData, setSavedUser, setHasSavedUser);
+
                 console.log('[gate] auto-login', user.email || user.user_id);
               } else {
                 console.log('[gate] /auth/me failed → stay on index');
@@ -68,6 +84,7 @@ export default function CreateOrSignIn() {
     useEffect(() => {
       if (!checking && hasSavedUser && !disclaimerVisible && savedUser) {
         console.log('[gate] navigating → HomePage with saved user');
+        console.log('saved user: ', savedUser);
         setTimeout(() => {
           navigation.reset({
             index: 0,
@@ -237,3 +254,31 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
 });
+
+const getLatestUserData = async (currentUser: any, setUserData: any, setHasSavedUser: any) => {
+  try {
+    const response = await fetch(`${AppUrls.url}/userdata/latest/${currentUser.userId}/`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      currentUser.currentWeight = data.weight_value;
+      currentUser.goalType = data.goal_type;
+      currentUser.lastRating = data.feel_better_value;
+      setUserData(currentUser);
+      setHasSavedUser(true);
+    } else {
+      const errorData = await response.json();
+      setUserData({});
+      setHasSavedUser(false);
+      Alert.alert('Error', errorData.detail || 'Something went wrong getting latest userData', [{ text: 'OK' }]);
+    }
+  } catch (err) {
+    console.error('Error during login:', err);
+      setUserData({});
+      setHasSavedUser(false);
+    Alert.alert('Error', 'Network error', [{ text: 'OK' }]);
+  }
+};

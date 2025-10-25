@@ -35,7 +35,7 @@ export default function GameSchedule() {
   const navigation = useNavigation();
   const route = useRoute();
   const user: any = route.params;
-  const currentUser: User = user.currentUser.cloneUser();
+  const currentUser: User = user.currentUser;
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Game[]>([]);
