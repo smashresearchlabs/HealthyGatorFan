@@ -25,8 +25,9 @@ from django.views.decorators.csrf import csrf_exempt
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
+
 
 # Create your views here.
 
@@ -49,10 +50,6 @@ from rest_framework.decorators import api_view, permission_classes
             #serializer.save() # Save the validated data to the database
             #return Response(serializer.data, status=status.HTTP_201_CREATED)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-auth_user, _ = AuthUser.objects.get_or_create(
-    username=User.email,
-    defaults={"email": User.email}
-)
 
 #  for testing with Django's web interface
 def index(request):
@@ -483,3 +480,18 @@ def schedule_view(request):
         
     return JsonResponse({"data": games_list})
     
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def me_view(request):
+    """
+    Return the *app.User* profile that matches the authenticated Django user.
+    """
+    email = getattr(request.user, "email", None)
+    if not email:
+        return Response({"detail": "No email on auth user"}, status=400)
+
+    app_user = AuthUser.objects.filter(email=email).first()
+    if not app_user:
+        return Response({"detail": "App user not found"}, status=404)
+
+    return Response(UserSerializer(app_user).data, status=200)

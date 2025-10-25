@@ -19,7 +19,7 @@ export default function CreateOrSignIn() {
   const c = Colors[colorScheme ?? 'light'];
 
   // Prevent back navigation
-  usePreventRemove(true, () => {});
+  usePreventRemove(checking || disclaimerVisible, () => {});
   useEffect(() => {
       (async () => {
         try {
@@ -68,10 +68,12 @@ export default function CreateOrSignIn() {
     useEffect(() => {
       if (!checking && hasSavedUser && !disclaimerVisible && savedUser) {
         console.log('[gate] navigating → HomePage with saved user');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'HomePage' as never, params: { currentUser: savedUser } as never }],
-        });
+        setTimeout(() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'HomePage' as never, params: { currentUser: savedUser } as never }],
+          });
+        },300);
       }
     }, [checking, hasSavedUser, disclaimerVisible, savedUser, navigation]);
 
