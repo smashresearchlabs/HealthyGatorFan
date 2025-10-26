@@ -109,7 +109,7 @@ const BasicInformationCollection = () => {
 
             <Text style={[styles.label, { color: c.text }]}>Select your birthdate:</Text>
             <TouchableOpacity
-              style={styles.input}
+              style={[styles.input, { justifyContent: 'center' }]}
               activeOpacity={0.8}
               onPress={() => setIsVisible(true)}
               accessibilityRole="button"
