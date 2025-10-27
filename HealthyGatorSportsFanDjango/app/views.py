@@ -411,7 +411,7 @@ def poll_cfbd_view(request):
                 existingGame = cache.get(CACHE_KEY)
                 if existingGame is None:
                     pushTokens = get_users_with_push_token()
-                    message = "Finished the game? Help the HealthyGator community by taking a quick post-game survey!"
+                    message = "Finished the game? Help the HealthyGator community by going to the app home page and taking a post-game survey!"
                     send_push_notification_next_game('Post-Game Survey', pushTokens, message)
                     cache.set(CACHE_KEY, "", CACHE_TTL)
 

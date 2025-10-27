@@ -3,23 +3,36 @@ from exponent_server_sdk import PushClient, PushMessage
 import os
 import cfbd
 import redis
-from .models import User
+from .models import User, NotificationData
 from .serializers import UserSerializer
 
 redis_client = redis.StrictRedis.from_url('redis://localhost:6379/0')
-def send_push_notification_next_game(header, tokens, message):
-    for token in tokens:
+def send_push_notification_next_game(header, users, message):
+    sentTokens = set()
+    for user in users:
         try:
-            PushClient().publish(
-                PushMessage(
-                    to=token,
-                    title=header,
-                    body=message,
+            if user['push_token'] not in sentTokens:
+                PushClient().publish(
+                    PushMessage(
+                        to=user['push_token'],
+                        title=header,
+                        body=message,
+                    )
                 )
+                sentTokens.add(user['push_token'])
+
+            user_instance = User.objects.get(user_id=user['user_id'])
+            NotificationData.objects.create(
+                user=user_instance,
+                notification_title=header,
+                notification_message=message,
             )
-        except Exception:
+
+            
+        except Exception as e:
             errorMessage = "Couldn't send push notification"
             print(errorMessage)
+            print(e)
 
 def get_users_with_push_token():
     uniqueTokens = set()
@@ -28,10 +41,7 @@ def get_users_with_push_token():
     allUsers = serializer.data
     usersWithPushToken = list(filter(lambda user: user['push_token'], allUsers))
 
-    for user in usersWithPushToken:
-        uniqueTokens.add(user['push_token'])
-
-    return list(uniqueTokens)
+    return usersWithPushToken
 
 def check_game_status(apiInstance):
     scoreboard = apiInstance.get_scoreboard()
