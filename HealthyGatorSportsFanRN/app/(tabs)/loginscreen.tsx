@@ -9,15 +9,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
+import { Colors } from '@/constants/Colors';
 
-const UF_BLUE = '#0021A5';
-const UF_ORANGE = '#FA4616';
-const BORDER = 'rgba(0,0,0,0.12)';
-const TEXT_MUTED = '#6B7280';
 
 export default function LogInScreen() {
   const navigation = useNavigation<any>();
@@ -30,27 +28,29 @@ export default function LogInScreen() {
   const emailOk = useMemo(() => /\S+@\S+\.\S+/.test(email.trim()), [email]);
   const pwdOk = useMemo(() => password.length >= 1, [password]);
   const canSubmit = emailOk && pwdOk && !loading;
+  const colorScheme = useColorScheme();
+  const c = Colors[colorScheme ?? 'light'];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.background }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.select({ ios: 'padding', android: undefined })}
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Please enter your email and password.</Text>
-          <View style={styles.orangeBar} />
+          <Text style={[styles.title, { color: c.ufBlue }]}>Please enter your email and password.</Text>
+          <View style={[styles.orangeBar, { backgroundColor: c.ufOrange }]} />
 
           <View
             style={[
               styles.inputWrap,
-              { borderColor: email.length ? (emailOk ? UF_BLUE : UF_ORANGE) : BORDER },
+              { backgroundColor: c.bgSoft, borderColor: email.length ? (emailOk ? c.ufBlue : c.ufOrange) : c.border },
             ]}
           >
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: c.text }]}
               placeholder="Email"
-              placeholderTextColor={TEXT_MUTED}
+              placeholderTextColor={c.muted}
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
@@ -62,24 +62,27 @@ export default function LogInScreen() {
             style={[
               styles.inputWrap,
               styles.row,
-              { borderColor: password.length ? UF_BLUE : BORDER },
+              { backgroundColor: c.bgSoft, borderColor: password.length ? c.ufBlue : c.border },
             ]}
           >
             <TextInput
-              style={[styles.input, { flex: 1 }]}
+               style={[styles.input,  { color: c.text, flex: 1}]}
               placeholder="Password"
-              placeholderTextColor={TEXT_MUTED}
+              placeholderTextColor={c.muted}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPwd}
             />
             <TouchableOpacity onPress={() => setShowPwd(v => !v)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Text style={styles.linkBlue}>{showPwd ? 'HIDE' : 'SHOW'}</Text>
+              <Text style={{ color: c.ufBlue, fontWeight: '700' }}>{showPwd ? 'HIDE' : 'SHOW'}</Text>
             </TouchableOpacity>
           </View>
-
+          
           <TouchableOpacity
-            style={[styles.btn, { opacity: canSubmit ? 1 : 0.4 }]}
+           style={[
+                styles.btn,
+                { backgroundColor: c.ufOrange, opacity: canSubmit ? 1 : 0.35 },
+              ]}
             disabled={!canSubmit}
             activeOpacity={0.9}
             onPress={async () => {
@@ -107,7 +110,6 @@ export default function LogInScreen() {
 async function ConfirmData(email: any, password: any, navigation: any) {
   const currentUser = new User(1, '', '', '', '', '', '', 0, 0, 0, false, true, 0, 'both', 0, '');
   await handleLogin(currentUser, email, password, navigation);
-
 }
 
 const handleLogin = async (currentUser: any, email: any, password: any, navigation: any) => {
@@ -180,7 +182,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: UF_BLUE,
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -189,12 +190,10 @@ const styles = StyleSheet.create({
     width: 64,
     height: 4,
     borderRadius: 2,
-    backgroundColor: UF_ORANGE,
     marginBottom: 18,
   },
   inputWrap: {
     borderWidth: 1.5,
-    borderColor: BORDER,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -212,7 +211,6 @@ const styles = StyleSheet.create({
     columnGap: 10,
   },
   linkBlue: {
-    color: UF_BLUE,
     fontWeight: '800',
   },
   btn: {
@@ -221,7 +219,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: UF_ORANGE,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -236,6 +233,5 @@ const styles = StyleSheet.create({
   helper: {
     marginTop: 10,
     textAlign: 'center',
-    color: TEXT_MUTED,
   },
 });
