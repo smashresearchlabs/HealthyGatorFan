@@ -62,7 +62,7 @@ export default function GameSchedule() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.container}>
         <View style={GlobalStyles.topMenu}>
-          <Image source={require("./../../assets/images/clipboardgator.jpg")} style={{ width: 55, height: 55 }} />
+          <Image source={require("./../../assets/images/clipboardgator.png")} style={{ width: 55, height: 55 }} />
           <Text style={{ fontSize: 25, fontFamily: "System", color: colors.ufBlue, fontWeight: "700" }}>
             Game Schedule
           </Text>

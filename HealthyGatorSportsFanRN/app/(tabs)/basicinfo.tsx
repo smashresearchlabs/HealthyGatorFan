@@ -69,7 +69,7 @@ const BasicInformationCollection = () => {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: Math.max(ins.bottom + 84, 120) }, // 给底部按钮留空间
+            { paddingBottom: Math.max(ins.bottom + 84, 120) },
           ]}
         >
           <Text style={[styles.title, { color: c.text }]}>
@@ -78,7 +78,7 @@ const BasicInformationCollection = () => {
           <View style={[styles.orangeBar, { backgroundColor: c.ufOrange }]} />
 
           <Image
-            source={require('./../../assets/images/clipboardgator.jpg')}
+            source={require('./../../assets/images/clipboardgator.png')}
             style={styles.mascot}
             resizeMode="contain"
             accessible
@@ -109,7 +109,7 @@ const BasicInformationCollection = () => {
 
             <Text style={[styles.label, { color: c.text }]}>Select your birthdate:</Text>
             <TouchableOpacity
-              style={styles.input}
+              style={[styles.input, { justifyContent: 'center' }]}
               activeOpacity={0.8}
               onPress={() => setIsVisible(true)}
               accessibilityRole="button"

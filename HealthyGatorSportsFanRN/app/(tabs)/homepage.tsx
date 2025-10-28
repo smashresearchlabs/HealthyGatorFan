@@ -109,7 +109,7 @@ export default function HomePage() {
         ]}
       >
         <Image
-          source={require('./../../assets/images/clipboardgator.jpg')}
+          source={require('./../../assets/images/clipboardgator.png')}
           style={{ width: 55, height: 55 }}
           resizeMode="cover"
         />
@@ -238,10 +238,6 @@ export default function HomePage() {
                 Once you check in, your latest rating will show up here!
               </Text>
             )}
-
-            <TouchableOpacity style={styles.cta} onPress={demoGameNotifications}>
-              <Text style={styles.ctaText}>Demo Notifications</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

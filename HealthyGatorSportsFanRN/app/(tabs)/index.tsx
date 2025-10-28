@@ -134,7 +134,7 @@ export default function CreateOrSignIn() {
       />
 
       <View style={styles.headerWrap}>
-        <Text style={[styles.title, { color: c.ufBlue }]}>Healthy Gator Fan</Text>
+        <Text style={[styles.title, { color: c.ufBlue }]}>HealthyGatorSportsFan</Text>
         <Text style={[styles.subtitle, { color: c.muted }]}>Track games, mood & weight like a true Gator</Text>
       </View>
 

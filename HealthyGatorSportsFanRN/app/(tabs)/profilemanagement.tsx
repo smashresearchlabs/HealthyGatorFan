@@ -87,7 +87,7 @@ export default function ProfileManagement() {
           },
         ]}
       >
-        <Image source={require('./../../assets/images/clipboardgator.jpg')} style={{ width: 55, height: 55 }} />
+        <Image source={require('./../../assets/images/clipboardgator.png')} style={{ width: 55, height: 55 }} />
         <View style={{ alignItems: 'center' }}>
           <Text style={{ fontSize: 24, fontWeight: '700' }}>Hey, {currentUser.firstName}!</Text>
           <Text style={{ color: '#667085', marginTop: 2 }}>Manage your profile & goals</Text>
