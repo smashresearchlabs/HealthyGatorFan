@@ -237,10 +237,6 @@ export default function HomePage() {
                 Once you check in, your latest rating will show up here!
               </Text>
             )}
-
-            <TouchableOpacity style={styles.cta} onPress={demoGameNotifications}>
-              <Text style={styles.ctaText}>Demo Notifications</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
