@@ -106,31 +106,8 @@ export default function LogInScreen() {
 
 async function ConfirmData(email: any, password: any, navigation: any) {
   const currentUser = new User(1, '', '', '', '', '', '', 0, 0, 0, false, true, 0, 'both', 0, '');
-    //Connect to DB and ensure that the provided username and password are correct and exist
-    console.log(email);
-    console.log("password");
-    //Eventually design a backup email verification system for forgotten passwords.
-    //fix-me: delete after test working
+  await handleLogin(currentUser, email, password, navigation);
 
-  // Debug 直达
-  if ((email === 'debug' || email === 'Debug') && (password === 'debug' || password === 'Debug')) {
-    currentUser.userId = 54;
-    currentUser.firstName = 'Lisa';
-    currentUser.lastName = 'Reichelson';
-    currentUser.password = 'Debug';
-    currentUser.gender = 'female';
-    currentUser.heightInches = 1;
-    currentUser.heightFeet = 5;
-    currentUser.currentWeight = 120;
-    currentUser.goalWeight = 115;
-    currentUser.goalType = 'both';
-    currentUser.feelBetter = true;
-    currentUser.loseWeight = true;
-    currentUser.email = email;
-    navigation.navigate('HomePage', { currentUser } as never);
-  } else {
-    await handleLogin(currentUser, email, password, navigation);
-  }
 }
 
 const handleLogin = async (currentUser: any, email: any, password: any, navigation: any) => {
@@ -143,7 +120,6 @@ const handleLogin = async (currentUser: any, email: any, password: any, navigati
 
         if (response.ok) {
             const data = await response.json();
-            console.log('User:', data); //fix-me:to be deleted
             currentUser.userId = data.user_id;
             currentUser.email = data.email;
             //currentUser.password = data.password;
