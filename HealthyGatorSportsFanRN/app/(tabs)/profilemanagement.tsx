@@ -20,6 +20,7 @@ import Checkbox from 'expo-checkbox';
 import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 import GlobalStyles from '../styles/GlobalStyles';
+import { clearTokens } from "@/components/tokenStorage";
 
 const TAB_VISUAL_H = 64; 
 
@@ -27,7 +28,7 @@ export default function ProfileManagement() {
   const navigation = useNavigation();
   const route = useRoute();
   const user: any = route.params;
-  const currentUser: User = user.currentUser.cloneUser();
+  const currentUser: User = user.currentUser;
 
 
   const insets = useSafeAreaInsets();
@@ -347,6 +348,7 @@ function LogoutPopup(navigation: any) {
     { text: 'Cancel', style: 'cancel' },
     { text: 'Logout', style: 'destructive', onPress: () => navigation.navigate('CreateOrSignIn' as never) },
   ]);
+  clearTokens();
 }
 
 function ConfirmChanges(

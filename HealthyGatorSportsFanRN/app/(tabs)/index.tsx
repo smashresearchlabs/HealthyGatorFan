@@ -1,19 +1,100 @@
 /* This is the login or create account screen that will launch at the application's start */
 
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, Modal } from 'react-native';
+import React, {useEffect, useState } from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { useNavigation, usePreventRemove } from '@react-navigation/native';
-import { useColorScheme } from 'react-native';
+import { Alert, useColorScheme } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { useRouter } from "expo-router";
+import { AppUrls } from "@/constants/AppUrls";
+import { getRefresh, setAccess } from "@/components/tokenStorage";
 
 export default function CreateOrSignIn() {
   const [disclaimerVisible, setDisclaimerVisible] = useState(true);
+  const [checking, setChecking] = useState(true);
+  const [hasSavedUser, setHasSavedUser] = useState(false);
+  const [savedUser, setSavedUser] = useState<any>(null);
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
   const c = Colors[colorScheme ?? 'light'];
 
   // Prevent back navigation
-  usePreventRemove(true, () => {});
+  usePreventRemove(checking || disclaimerVisible, () => {});
+  useEffect(() => {
+      (async () => {
+        try {
+          const refresh = await getRefresh();
+          if (refresh) {
+            const r = await fetch(`${AppUrls.url}/auth/refresh/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ refresh }),
+            });
+
+            if (r.ok) {
+              const { access } = await r.json();
+              if (typeof access !== "string") {
+                console.error("[gate] refresh returned non-string access:", access);
+              } else {
+                await setAccess(access);
+              }
+              const me = await fetch(`${AppUrls.url}/auth/me/`, {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${access}` },
+              });
+
+              if (me.ok) {
+                const user = await me.json();
+                const userData = {
+                  userId: user.user_id,
+                  email: user.email,
+                  firstName: user.first_name,
+                  lastName: user.last_name,
+                  birthDate: user.birthdate,
+                  gender: user.gender,
+                  heightInches: user.height_inches,
+                  heightFeet: user.height_feet,
+                  feelBetter: user.goal_to_feel_better,
+                  loseWeight: user.goal_to_lose_weight,
+                  goalWeight: user.goal_weight,
+                  push_token: user.push_token,
+                };
+                //logic for appending the UserData goals as well before the 2 lines below
+
+                await getLatestUserData(userData, setSavedUser, setHasSavedUser);
+
+                console.log('[gate] auto-login', user.email || user.user_id);
+              } else {
+                console.log('[gate] /auth/me failed → stay on index');
+              }
+            } else {
+              console.log('[gate] refresh failed → stay on index');
+            }
+          } else {
+            console.log('[gate] no refresh token → stay on index');
+          }
+        } catch (e) {
+          console.warn('[gate] auto-login error:', e);
+        } finally {
+          setChecking(false);
+        }
+      })();
+    }, []);
+
+    useEffect(() => {
+      if (!checking && hasSavedUser && !disclaimerVisible && savedUser) {
+        console.log('[gate] navigating → HomePage with saved user');
+        console.log('saved user: ', savedUser);
+        setTimeout(() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'HomePage' as never, params: { currentUser: savedUser } as never }],
+          });
+        },300);
+      }
+    }, [checking, hasSavedUser, disclaimerVisible, savedUser, navigation]);
+
+    const showSpinner = checking;
 
   return (
     <View style={[styles.container, { backgroundColor: c.background }]}>
@@ -173,3 +254,31 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
 });
+
+const getLatestUserData = async (currentUser: any, setUserData: any, setHasSavedUser: any) => {
+  try {
+    const response = await fetch(`${AppUrls.url}/userdata/latest/${currentUser.userId}/`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      currentUser.currentWeight = data.weight_value;
+      currentUser.goalType = data.goal_type;
+      currentUser.lastRating = data.feel_better_value;
+      setUserData(currentUser);
+      setHasSavedUser(true);
+    } else {
+      const errorData = await response.json();
+      setUserData({});
+      setHasSavedUser(false);
+      Alert.alert('Error', errorData.detail || 'Something went wrong getting latest userData', [{ text: 'OK' }]);
+    }
+  } catch (err) {
+    console.error('Error during login:', err);
+      setUserData({});
+      setHasSavedUser(false);
+    Alert.alert('Error', 'Network error', [{ text: 'OK' }]);
+  }
+};

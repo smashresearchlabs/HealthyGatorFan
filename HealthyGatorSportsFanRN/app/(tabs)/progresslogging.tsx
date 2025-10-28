@@ -17,6 +17,7 @@ import StarRating from 'react-native-star-rating-widget';
 import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
 import GlobalStyles from '../styles/GlobalStyles';
+import { clearTokens } from "@/components/tokenStorage";
 
 const TAB_VISUAL_H = 64;
 
@@ -254,6 +255,7 @@ function LogoutPopup(navigation: any) {
     { text: 'Cancel', style: 'cancel' },
     { text: 'Logout', style: 'destructive', onPress: () => navigation.navigate('CreateOrSignIn' as never) },
   ]);
+  clearTokens();
 }
 function NavigateToGameSchedule(currentUser: any, navigation: any) {
   Alert.alert('Confirmation', 'Are you sure you want to abandon your changes?', [

@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
+import { saveTokens, getAccess } from "@/components/tokenStorage";
 
 const UF_BLUE = '#0021A5';
 const UF_ORANGE = '#FA4616';
@@ -142,7 +143,17 @@ const handleLogin = async (currentUser: any, email: any, password: any, navigati
         });
 
         if (response.ok) {
-            const data = await response.json();
+            const json = await response.json();
+            const access  = json?.access ?? null;
+            const refresh = json?.refresh ?? null;
+            console.log("[login] types:", typeof access, typeof refresh);
+            if (typeof access !== "string" || typeof refresh !== "string") {
+              console.error("[login] backend did not return string tokens:", { access, refresh });
+              Alert.alert("Login error", "Server did not return tokens. Is the JWT login endpoint deployed?");
+              return;
+            }
+            await saveTokens(access, refresh);
+            const data = json.data ?? json; 
             console.log('User:', data); //fix-me:to be deleted
             currentUser.userId = data.user_id;
             currentUser.email = data.email;
@@ -160,7 +171,7 @@ const handleLogin = async (currentUser: any, email: any, password: any, navigati
             currentUser.goalWeight = data.goal_weight;
             currentUser.push_token = data.push_token;
             if (!currentUser.loseWeight){ currentUser.goalWeight = 0}
-            await getLatestUserData(currentUser, navigation); 
+            await getLatestUserData(currentUser, navigation, access); 
         } else {
             const errorData = await response.json();
             Alert.alert('Error', errorData.detail || 'Username or password incorrect', [{ text: 'OK' }]);
@@ -172,11 +183,13 @@ const handleLogin = async (currentUser: any, email: any, password: any, navigati
     }
 };
 
-const getLatestUserData = async (currentUser: any, navigation: any) => {
+const getLatestUserData = async (currentUser: any, navigation: any, accessToken?: string) => {
   try {
+    const token = accessToken || (await getAccess());
     const response = await fetch(`${AppUrls.url}/userdata/latest/${currentUser.userId}/`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     });
 
     if (response.ok) {

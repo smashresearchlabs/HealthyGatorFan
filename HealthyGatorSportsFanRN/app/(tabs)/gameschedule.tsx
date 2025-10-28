@@ -16,6 +16,7 @@ import User from "@/components/user";
 import { AppUrls } from "@/constants/AppUrls";
 import { Abbreviations } from "@/constants/Abbreviations";
 import GlobalStyles from "../styles/GlobalStyles";
+import { clearTokens } from "@/components/tokenStorage";
 
 type Game = {
   week: number;
@@ -35,7 +36,7 @@ export default function GameSchedule() {
   const navigation = useNavigation();
   const route = useRoute();
   const user: any = route.params;
-  const currentUser: User = user.currentUser.cloneUser();
+  const currentUser: User = user.currentUser;
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Game[]>([]);
@@ -179,6 +180,7 @@ function LogoutPopup(navigation: any) {
     { text: "Cancel", style: "cancel" },
     { text: "Logout", style: "destructive", onPress: () => navigation.navigate("CreateOrSignIn" as never) },
   ]);
+  clearTokens();
 }
 function NavigateToHomePage(currentUser: any, navigation: any) {
   navigation.navigate("HomePage", { currentUser } as never);

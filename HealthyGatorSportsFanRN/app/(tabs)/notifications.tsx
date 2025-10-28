@@ -18,6 +18,7 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { clearTokens } from "@/components/tokenStorage";
 
 import { AppUrls } from "@/constants/AppUrls";
 import GlobalStyles from "../styles/GlobalStyles";
@@ -260,6 +261,7 @@ function LogoutPopup(navigation: any) {
     { text: "Cancel", style: "cancel" },
     { text: "Logout", style: "destructive", onPress: () => navigation.navigate("CreateOrSignIn" as never) },
   ]);
+  clearTokens();
 }
 function NavigateToHomePage(currentUser: any, navigation: any) {
   navigation.navigate("HomePage", { currentUser } as never);

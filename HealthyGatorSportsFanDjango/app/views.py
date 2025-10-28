@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User as AuthUser
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import render
 from .models import User, UserData, NotificationData
 from rest_framework.views import APIView
@@ -17,12 +19,15 @@ from .management.commands.poll_cfbd import Command
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
+
 
 # Create your views here.
 
@@ -223,7 +228,7 @@ class LatestUserDataView(APIView):
 #                 }, status=status.HTTP_200_OK)
 #             return Response(user_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+@method_decorator(csrf_exempt, name="dispatch")
 class UserLoginView(APIView):
     permission_classes = (AllowAny,)
     @swagger_auto_schema(
@@ -269,8 +274,22 @@ class UserLoginView(APIView):
         if not user.check_password(password):
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
+        auth_user, _ = AuthUser.objects.get_or_create(
+            username=user.email,
+            defaults={"email": user.email}
+        )
+
+        refresh = RefreshToken.for_user(auth_user)
+        access = refresh.access_token
+        refresh["app_user_id"] = user.user_id
+        access["app_user_id"] = user.user_id
+        
         serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({
+            "access": str(access),
+            "refresh": str(refresh),
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
     
     # def get(self, request):
     #     email = request.query_params.get('email')
@@ -461,3 +480,25 @@ def schedule_view(request):
         
     return JsonResponse({"data": games_list})
     
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def me_view(request):
+    """
+    Return the *app.User* profile that matches the authenticated Django user.
+    """
+    email = getattr(request.user, "email", None)
+    if not email:
+        return Response({"detail": "No email on auth user"}, status=400)
+
+    try:
+        app_user = User.objects.get(email=email)
+        if not app_user:
+            return Response({"detail": "App user not found"}, status=404)
+    except User.DoesNotExist:
+        return Response({"detail": "App user not found"}, status=404)
+
+
+    print('hell yeah brother')
+    print(UserSerializer(app_user).data)
+
+    return Response(UserSerializer(app_user).data, status=200)
