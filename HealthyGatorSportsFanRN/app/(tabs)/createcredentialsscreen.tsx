@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import User from '@/components/user';
@@ -55,7 +56,7 @@ export default function CreateCredentials() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: Math.max(ins.bottom + 20, 24) },
+            { paddingBottom: Math.max(ins.bottom + 100, 124) },
           ]}
         >
           <View style={styles.centerBlock}>
@@ -147,21 +148,27 @@ export default function CreateCredentials() {
             <Text style={[styles.helper, { color: c.muted }]}>
               Passwords must include at least 1 letter and 1 number, and be at least 8 characters long.
             </Text>
-
-            <TouchableOpacity
-              style={[
-                styles.btn,
-                { backgroundColor: c.ufOrange, opacity: canSubmit ? 1 : 0.35 },
-              ]}
-              activeOpacity={0.9}
-              onPress={() => ConfirmData(email, password, passwordConfirmed, navigation)}
-              accessibilityRole="button"
-              accessibilityLabel="Create Account"
-            >
-              <Text style={styles.btnText}>Create Account</Text>
-            </TouchableOpacity>
           </View>
         </ScrollView>
+
+        <TouchableOpacity
+          style={[
+            styles.bottomObject,
+            { opacity: canSubmit ? 1 : 0.35 }
+          ]}
+          activeOpacity={0.85}
+          disabled={!canSubmit}
+          onPress={() => ConfirmData(email, password, passwordConfirmed, navigation)}
+          accessibilityRole="button"
+          accessibilityLabel="Create Account"
+        >
+          <View style={[styles.fab, { backgroundColor: c.ufOrange }]}>
+            <Image
+              source={require('./../../assets/images/forwardarrow.png')}
+              style={{ width: 26, height: 26, tintColor: '#fff' }}
+            />
+          </View>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -304,23 +311,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'center',
   },
-  btn: {
-    marginTop: 18,
-    height: 52,
-    borderRadius: 30,
+  bottomObject: {
+    position: 'absolute',
+    right: 20,
+    bottom: 30,
+  },
+  fab: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 22,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOpacity: 0.14,
+    shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-    alignSelf: 'stretch',
-  },
-  btnText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 16,
+    elevation: 3,
   },
 });
