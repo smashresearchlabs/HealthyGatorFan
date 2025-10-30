@@ -13,12 +13,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Checkbox from 'expo-checkbox';
 import User from '@/components/user';
 import { AppUrls } from '@/constants/AppUrls';
-
-const UF_BLUE = '#0021A5';
-const UF_ORANGE = '#FA4616';
-const BG_SOFT = '#F8FAFF';
-const BORDER = 'rgba(0,0,0,0.12)';
-const MUTED = '#6B7280';
+import { useColorScheme } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 const GoalCollection = () => {
   const navigation = useNavigation();
@@ -34,12 +30,15 @@ const GoalCollection = () => {
   const toggleFeelBetter = () => setFeelBetter((v) => !v);
   const toggleLoseWeight = () => setLoseWeight((v) => !v);
 
+  const scheme = useColorScheme();
+  const c = Colors[scheme ?? 'light'];
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={styles.container}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={[ styles.container, { backgroundColor: c.background }]}>
         <View style={styles.centerWrap}>
-          <Text style={styles.title}>What are your goals?</Text>
-          <View style={styles.orangeBar} />
+          <Text style={[styles.title, { color: c.ufBlue }]}>What are your goals?</Text>
+          <View style={[styles.orangeBar, { backgroundColor: c.ufOrange }]} />
 
           <TouchableOpacity
             activeOpacity={0.9}
@@ -47,20 +46,20 @@ const GoalCollection = () => {
             style={[
               styles.row,
               feelBetter
-                ? { borderColor: UF_ORANGE, backgroundColor: '#FFF6F1', shadowOpacity: 0.08 }
-                : { borderColor: UF_BLUE, backgroundColor: '#fff' },
+                ? { borderColor: c.ufOrange, backgroundColor: '#FFF6F1', shadowOpacity: 0.08 }
+                : { borderColor: c.ufBlue, backgroundColor: '#fff' },
             ]}
           >
             <Checkbox
-              style={[styles.checkbox, { borderColor: UF_BLUE }]}
+              style={[styles.checkbox, { borderColor: c.ufBlue }]}
               value={feelBetter}
               onValueChange={setFeelBetter}
-              color={feelBetter ? UF_ORANGE : undefined}
+              color={feelBetter ? c.ufOrange : undefined}
             />
             <Text
               style={[
                 styles.rowLabel,
-                { color: feelBetter ? UF_ORANGE : UF_BLUE },
+                { color: feelBetter ? c.ufOrange : c.ufBlue },
               ]}
             >
               Feel Better
@@ -80,20 +79,20 @@ const GoalCollection = () => {
             style={[
               styles.row,
               loseWeight
-                ? { borderColor: UF_ORANGE, backgroundColor: '#FFF6F1', shadowOpacity: 0.08 }
-                : { borderColor: UF_BLUE, backgroundColor: '#fff' },
+                ? { borderColor: c.ufOrange, backgroundColor: '#FFF6F1', shadowOpacity: 0.08 }
+                : { borderColor: c.ufBlue, backgroundColor: '#fff' },
             ]}
           >
             <Checkbox
-              style={[styles.checkbox, { borderColor: UF_BLUE }]}
+              style={[styles.checkbox, { borderColor: c.ufBlue }]}
               value={loseWeight}
               onValueChange={setLoseWeight}
-              color={loseWeight ? UF_ORANGE : undefined}
+              color={loseWeight ? c.ufOrange : undefined}
             />
             <Text
               style={[
                 styles.rowLabel,
-                { color: loseWeight ? UF_ORANGE : UF_BLUE },
+                { color: loseWeight ? c.ufOrange : c.ufBlue },
               ]}
             >
               Lose Weight
@@ -113,7 +112,7 @@ const GoalCollection = () => {
               <TextInput
                 style={styles.input}
                 placeholder="Enter a weight…"
-                placeholderTextColor={MUTED}
+                placeholderTextColor={c.muted}
                 keyboardType="numeric"
                 value={goalWeight}
                 onChangeText={setGoalWeight}
@@ -143,8 +142,11 @@ const GoalCollection = () => {
           accessibilityRole="button"
           accessibilityLabel="Continue"
         >
-          <View style={styles.fab}>
-            <Text style={styles.fabIcon}>➜</Text>
+          <View style={[styles.fab, { backgroundColor: c.ufOrange}]}>
+            <Image
+              source={require('./../../assets/images/forwardarrow.png')}
+              style={{ width: 26, height: 26, tintColor: '#fff' }}
+            />
           </View>
         </TouchableOpacity>
       </View>
@@ -335,11 +337,6 @@ async function updateUserGoals(navigation: any, currentUser: any) {
 function addNewUserInitialProgress(navigation: any, currentUser: any){
         // UserData POST API call
         const createUserDataUrl = `${AppUrls.url}/userdata/${currentUser.userId}/`;
-        console.log(JSON.stringify({
-            goal_type: currentUser.goalType,
-            weight_value: currentUser.currentWeight,
-            feel_better_value: 3
-        })) // TO DELETE
     
         fetch(createUserDataUrl, {
             method: 'POST',
@@ -390,7 +387,6 @@ const styles = StyleSheet.create({
   orangeBar: {
     width: 70,
     height: 4,
-    backgroundColor: UF_ORANGE,
     borderRadius: 2,
     marginTop: 8,
     marginBottom: 18,
@@ -430,7 +426,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: BG_SOFT,
   },
   icon: {
     width: 20,
@@ -443,7 +438,6 @@ const styles = StyleSheet.create({
     width: 300,
     marginTop: 12,
     borderWidth: 1.5,
-    borderColor: BORDER,
     borderRadius: 14,
     padding: 12,
     backgroundColor: '#fff',
@@ -457,7 +451,6 @@ const styles = StyleSheet.create({
   input: {
     height: 44,
     borderWidth: 1.5,
-    borderColor: BORDER,
     borderRadius: 10,
     paddingHorizontal: 12,
     backgroundColor: '#fff',
@@ -465,7 +458,6 @@ const styles = StyleSheet.create({
   },
   hint: {
     fontSize: 12,
-    color: MUTED,
   },
 
   bottomObject: {
@@ -477,7 +469,6 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: UF_ORANGE,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

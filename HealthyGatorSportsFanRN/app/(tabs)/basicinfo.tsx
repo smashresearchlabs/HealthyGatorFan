@@ -53,9 +53,18 @@ const BasicInformationCollection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [birthDayStr, setBirthDayStr] = useState('Enter birthdate');
 
+  const [fFirstName, setFFirstName] = useState(false);
+  const [fLastName, setFLastName] = useState(false);
+  const [fWeight, setFWeight] = useState(false);
+  const [fBirthdate, setFBirthdate] = useState(false);
+  const [fGender, setFGender] = useState(false);
+  const [fHeightFt, setFHeightFt] = useState(false);
+  const [fHeightIn, setFHeightIn] = useState(false);
+
   const handleDate = (selectedDate: SetStateAction<Date>) => {
     setBirthdate(selectedDate);
     setIsVisible(false);
+    setFBirthdate(false);
     setBirthDayStr((selectedDate as Date).toLocaleDateString());
   };
 
@@ -69,10 +78,10 @@ const BasicInformationCollection = () => {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: Math.max(ins.bottom + 84, 120) },
+            { paddingBottom: Math.max(ins.bottom + 100, 124) },
           ]}
         >
-          <Text style={[styles.title, { color: c.text }]}>
+          <Text style={[styles.title, { color: c.ufBlue }]}>
             Before we begin, we need some{'\n'}basic information.
           </Text>
           <View style={[styles.orangeBar, { backgroundColor: c.ufOrange }]} />
@@ -85,33 +94,65 @@ const BasicInformationCollection = () => {
             accessibilityLabel="Gator with clipboard"
           />
 
-          <View style={[styles.card, { backgroundColor: c.bgSoft, borderColor: c.border }]}>
-            <Text style={[styles.label, { color: c.text }]}>Enter your name:</Text>
+          <View style={styles.card}>
+            <Text style={[styles.label, { color: c.ufBlue }]}>Enter your name:</Text>
             <View style={styles.row}>
-              <TextInput
-                style={[styles.input, styles.flex]}
-                placeholder="First Name"
-                placeholderTextColor={c.muted}
-                value={firstName}
-                onChangeText={setFirstName}
-                returnKeyType="next"
-              />
+              <View style={[
+                styles.inputWrap, 
+                styles.flex, 
+                { 
+                  backgroundColor: c.bgSoft, 
+                  borderColor: fFirstName ? c.ufOrange : firstName.length ? c.ufBlue : c.border 
+                }
+              ]}>
+                <TextInput
+                  style={[styles.input, { color: c.text }]}
+                  placeholder="First Name"
+                  placeholderTextColor={c.muted}
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  onFocus={() => setFFirstName(true)}
+                  onBlur={() => setFFirstName(false)}
+                  returnKeyType="next"
+                />
+              </View>
               <View style={{ width: 12 }} />
-              <TextInput
-                style={[styles.input, styles.flex]}
-                placeholder="Last Name"
-                placeholderTextColor={c.muted}
-                value={lastName}
-                onChangeText={setLastName}
-                returnKeyType="next"
-              />
+              <View style={[
+                styles.inputWrap, 
+                styles.flex, 
+                { 
+                  backgroundColor: c.bgSoft, 
+                  borderColor: fLastName ? c.ufOrange : lastName.length ? c.ufBlue : c.border 
+                }
+              ]}>
+                <TextInput
+                  style={[styles.input, { color: c.text }]}
+                  placeholder="Last Name"
+                  placeholderTextColor={c.muted}
+                  value={lastName}
+                  onChangeText={setLastName}
+                  onFocus={() => setFLastName(true)}
+                  onBlur={() => setFLastName(false)}
+                  returnKeyType="next"
+                />
+              </View>
             </View>
 
-            <Text style={[styles.label, { color: c.text }]}>Select your birthdate:</Text>
+            <Text style={[styles.label, { color: c.ufBlue }]}>Select your birthdate:</Text>
             <TouchableOpacity
-              style={[styles.input, { justifyContent: 'center' }]}
+              style={[
+                styles.inputWrap, 
+                { 
+                  justifyContent: 'center', 
+                  backgroundColor: c.bgSoft, 
+                  borderColor: fBirthdate ? c.ufOrange : (birthDayStr !== 'Enter birthdate' ? c.ufBlue : c.border)
+                }
+              ]}
               activeOpacity={0.8}
-              onPress={() => setIsVisible(true)}
+              onPress={() => {
+                setFBirthdate(true);
+                setIsVisible(true);
+              }}
               accessibilityRole="button"
               accessibilityLabel="Pick birthdate"
             >
@@ -124,14 +165,23 @@ const BasicInformationCollection = () => {
               mode="date"
               date={birthdate}
               onConfirm={handleDate}
-              onCancel={() => setIsVisible(false)}
+              onCancel={() => {
+                setIsVisible(false);
+                setFBirthdate(false);
+              }}
               minimumDate={new Date(1900, 0, 1)}
               maximumDate={new Date()}
             />
 
-            <Text style={[styles.label, { color: c.text }]}>Select your gender:</Text>
+            <Text style={[styles.label, { color: c.ufBlue }]}>Select your gender:</Text>
             <Dropdown
-              style={styles.dropdown}
+              style={[
+                styles.dropdown, 
+                { 
+                  backgroundColor: c.bgSoft, 
+                  borderColor: fGender ? c.ufOrange : (gender.length ? c.ufBlue : c.border)
+                }
+              ]}
               data={genders}
               labelField="label"
               valueField="value"
@@ -139,73 +189,115 @@ const BasicInformationCollection = () => {
               placeholderStyle={{ color: c.muted }}
               selectedTextStyle={{ color: c.text }}
               iconStyle={{ tintColor: c.icon }}
+              containerStyle={{ backgroundColor: c.bgSoft }}
+              itemTextStyle={{ color: c.text }}
+              activeColor={c.border}
+              onFocus={() => setFGender(true)}
+              onBlur={() => setFGender(false)}
               onChange={(item) => setGender(item.value)}
             />
 
-            <Text style={[styles.label, { color: c.text }]}>Enter your height:</Text>
+            <Text style={[styles.label, { color: c.ufBlue }]}>Enter your height:</Text>
             <View style={styles.row}>
-              <Text style={[styles.inline, { color: c.text }]}>Feet:</Text>
+              <Text style={[styles.inline, { color: c.ufBlue }]}>Feet:</Text>
               <Dropdown
-                style={[styles.dropdown, styles.numDrop]}
+                style={[
+                  styles.dropdown, 
+                  styles.numDrop, 
+                  { 
+                    backgroundColor: c.bgSoft, 
+                    borderColor: fHeightFt ? c.ufOrange : (heightFt.length ? c.ufBlue : c.border)
+                  }
+                ]}
                 data={heightFeet}
                 labelField="value"
                 valueField="value"
                 placeholder="Select item"
                 placeholderStyle={{ color: c.muted, textAlign: 'center' }}
                 selectedTextStyle={{ color: c.text, textAlign: 'center' }}
+                containerStyle={{ backgroundColor: c.bgSoft }}
+                itemTextStyle={{ color: c.text }}
+                activeColor={c.border}
+                onFocus={() => setFHeightFt(true)}
+                onBlur={() => setFHeightFt(false)}
                 onChange={(item) => setHeightFeet(item.value)}
                 maxHeight={180}
               />
-              <Text style={[styles.inline, { color: c.text }]}>Inches:</Text>
+              <Text style={[styles.inline, { color: c.ufBlue }]}>Inches:</Text>
               <Dropdown
-                style={[styles.dropdown, styles.numDrop]}
+                style={[
+                  styles.dropdown, 
+                  styles.numDrop, 
+                  { 
+                    backgroundColor: c.bgSoft, 
+                    borderColor: fHeightIn ? c.ufOrange : (heightInch.length ? c.ufBlue : c.border)
+                  }
+                ]}
                 data={heightInches}
                 labelField="value"
                 valueField="value"
                 placeholder="Select item"
                 placeholderStyle={{ color: c.muted, textAlign: 'center' }}
                 selectedTextStyle={{ color: c.text, textAlign: 'center' }}
+                containerStyle={{ backgroundColor: c.bgSoft }}
+                itemTextStyle={{ color: c.text }}
+                activeColor={c.border}
+                onFocus={() => setFHeightIn(true)}
+                onBlur={() => setFHeightIn(false)}
                 onChange={(item) => setHeightInches(item.value)}
                 maxHeight={180}
               />
             </View>
 
-            <Text style={[styles.label, { color: c.text }]}>Enter your weight in pounds:</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter a weight..."
-              placeholderTextColor={c.muted}
-              keyboardType="numeric"
-              value={weight}
-              onChangeText={setWeight}
-              returnKeyType="done"
-            />
+            <Text style={[styles.label, { color: c.ufBlue }]}>Enter your weight in pounds:</Text>
+            <View style={[
+              styles.inputWrap, 
+              { 
+                backgroundColor: c.bgSoft, 
+                borderColor: fWeight ? c.ufOrange : weight.length ? c.ufBlue : c.border 
+              }
+            ]}>
+              <TextInput
+                style={[styles.input, { color: c.text }]}
+                placeholder="Enter a weight..."
+                placeholderTextColor={c.muted}
+                keyboardType="numeric"
+                value={weight}
+                onChangeText={setWeight}
+                onFocus={() => setFWeight(true)}
+                onBlur={() => setFWeight(false)}
+                returnKeyType="done"
+              />
+            </View>
           </View>
         </ScrollView>
 
-        <View style={[styles.bottomBar, { paddingBottom: Math.max(ins.bottom + 12, 20) }]}>
-          <TouchableOpacity
-            onPress={() =>
-              SaveAndContinue(
-                navigation,
-                currentUser,
-                weight,
-                gender,
-                heightInch,
-                heightFt,
-                firstName,
-                lastName,
-                birthdate
-              )
-            }
-            activeOpacity={0.9}
-            style={[styles.cta, { backgroundColor: c.ufOrange }]}
-            accessibilityRole="button"
-            accessibilityLabel="Continue"
-          >
-            <Text style={styles.ctaIcon}>➜</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.bottomObject}
+          activeOpacity={0.85}
+          onPress={() =>
+            SaveAndContinue(
+              navigation,
+              currentUser,
+              weight,
+              gender,
+              heightInch,
+              heightFt,
+              firstName,
+              lastName,
+              birthdate
+            )
+          }
+          accessibilityRole="button"
+          accessibilityLabel="Continue"
+        >
+          <View style={[styles.fab, { backgroundColor: c.ufOrange }]}>
+            <Image
+              source={require('./../../assets/images/forwardarrow.png')}
+              style={{ width: 26, height: 26, tintColor: '#fff' }}
+            />
+          </View>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -318,8 +410,6 @@ function SetStyles(c: any) {
       marginBottom: 8,
     },
     card: {
-      borderRadius: 14,
-      borderWidth: 1,
       padding: 14,
       shadowColor: '#000',
       shadowOpacity: 0.05,
@@ -338,22 +428,22 @@ function SetStyles(c: any) {
       alignItems: 'center',
       justifyContent: 'space-between',
     },
-    input: {
-      height: 44,
-      borderWidth: 1,
-      borderRadius: 10,
-      paddingHorizontal: 12,
-      borderColor: c.border,
-      backgroundColor: '#fff',
+    inputWrap: {
+      borderWidth: 1.5,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
       marginBottom: 10,
     },
+    input: {
+      fontSize: 16,
+      padding: 0,
+    },
     dropdown: {
-      height: 44,
-      borderWidth: 1,
-      borderRadius: 10,
-      paddingHorizontal: 12,
-      borderColor: c.border,
-      backgroundColor: '#fff',
+      borderWidth: 1.5,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
       marginBottom: 10,
       flex: 1,
     },
@@ -367,32 +457,22 @@ function SetStyles(c: any) {
     },
     flex: { flex: 1 },
 
-    bottomBar: {
+    bottomObject: {
       position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: c.background,
-      alignItems: 'center',
-      paddingTop: 12,
+      right: 20,
+      bottom: 30,
     },
-    cta: {
+    fab: {
       width: 68,
       height: 68,
       borderRadius: 34,
       alignItems: 'center',
       justifyContent: 'center',
       shadowColor: '#000',
-      shadowOpacity: 0.12,
+      shadowOpacity: 0.14,
       shadowRadius: 10,
       shadowOffset: { width: 0, height: 4 },
       elevation: 3,
-    },
-    ctaIcon: {
-      color: '#fff',
-      fontSize: 28,
-      fontWeight: '900',
-      transform: [{ translateX: 1 }],
     },
   });
 }
