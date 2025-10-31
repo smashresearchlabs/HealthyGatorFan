@@ -71,7 +71,11 @@ export default function GameSchedule() {
             activeOpacity={0.5}
             onPress={() => NavigateToNotifications(currentUser, navigation)}
           >
-            <Image source={require("./../../assets/images/bell.png")} style={{ width: 40, height: 40, alignSelf: "center", objectFit: "contain" }} />
+            <Image
+              source={require('./../../assets/images/bell.png')}
+              style={{ width: 40, height: 40, alignSelf: 'center' }}
+              resizeMode="contain"
+          />
           </TouchableOpacity>
         </View>
 
