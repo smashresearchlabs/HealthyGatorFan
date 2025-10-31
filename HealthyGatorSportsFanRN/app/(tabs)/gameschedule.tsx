@@ -158,7 +158,7 @@ export default function GameSchedule() {
             <Image source={require("../../assets/images/bottomHomeMenu/calendarIcon.png")} style={styles.tabIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
-            onPress={() => NavigateToHomePage(currentUser, navigation)}>
+            onPress={() => NavigateToProcessLogging(currentUser, navigation)}>
             <Image source={require("../../assets/images/bottomHomeMenu/plus.png")} style={{ width: 45, height: 45, alignSelf: "center", objectFit: "contain" }} />
           </TouchableOpacity>
           <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
@@ -184,6 +184,9 @@ function LogoutPopup(navigation: any) {
 }
 function NavigateToHomePage(currentUser: any, navigation: any) {
   navigation.navigate("HomePage", { currentUser } as never);
+}
+function NavigateToProcessLogging(currentUser: any, navigation: any) {
+  navigation.navigate('ProcessLogging', { currentUser } as never);
 }
 function NavigateToNotifications(currentUser: any, navigation: any) {
   navigation.navigate("NotificationsPage", { currentUser } as never);
