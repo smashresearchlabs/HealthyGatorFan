@@ -246,7 +246,35 @@ async function confirmGoals(navigation: any, feelBetter: any, loseWeight: any, s
 
         // Convert goalWeight to a float
         currentUser.goalWeight = parseFloat(goalWeight);
-    
+
+        const data = await registerUser(AppUrls.url, currentUser.email, currentUser.password);
+        currentUser.userId = data.user_id;
+
+        const payload = { //JAM: PAYLOAD
+          first_name: currentUser.firstName,
+          last_name: currentUser.lastName,
+          birthdate: currentUser.birthDate,
+          gender: currentUser.gender,
+          height_feet: currentUser.heightFeet,
+          height_inches: currentUser.heightInches,
+        };
+
+        const res = await fetch(`${AppUrls.url}/user/${currentUser.userId}/`, {
+          method: 'PUT', // or 'PUT' if you prefer
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const userUpdateData = await res.json().catch(() => ({} as any));
+        if (!res.ok) {
+          // DRF returns field errors like { field: ["msg"] }
+          const msg =
+            (data && (data.detail || Object.entries(data).map(([k,v]) => `${k}: ${Array.isArray(v)?v.join(', '):v}`).join('\n'))) ||
+            'Failed to save basic info.';
+          Alert.alert('Error', msg);
+          return;
+        }
+
+
         updateUserGoals(navigation, currentUser);
     }
 }
@@ -259,6 +287,7 @@ async function updateUserGoals(navigation: any, currentUser: any) {
   };
 
   try {
+
     const res = await fetch(`${AppUrls.url}/user/${currentUser.userId}/`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -287,50 +316,6 @@ async function updateUserGoals(navigation: any, currentUser: any) {
   }
 }
 
-// function addNewUser(navigation: any, currentUser: any){
-//     // User POST API call
-//     // At this point we have everything we need to make the User POST call to create the account
-//     fetch(`${AppUrls.url}/user/`, {
-//         // send the user credentials to the backend
-//         method: 'POST',
-//         // this is a header to tell the server to parse the request body as JSON
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         // convert the data into JSON format
-//         body: JSON.stringify({
-//             email: currentUser.email,
-//             password: currentUser.password,
-//             first_name: currentUser.firstName,
-//             last_name: currentUser.lastName,
-//             birthdate: currentUser.birthDate, // "2000-01-01", 
-//             gender: currentUser.gender,
-//             height_feet: currentUser.heightFeet,
-//             height_inches: currentUser.heightInches,
-//             goal_weight: currentUser.goalWeight,
-//             goal_to_lose_weight: currentUser.goal_to_lose_weight,
-//             goal_to_feel_better: currentUser.goal_to_feel_better,
-//         }),
-//     })
-//     // check to see what status the server sends back
-//     .then(response => { // this is an arrow function that takes 'response' as an argument, like function(response)
-//         if (!response.ok) {
-//             throw new Error('Failed to save user account');
-//         }
-//         // convert the JSON back into a JavaScript object so it can be passed to the next '.then' to log the data that was saved
-//         return response.json();
-//     })
-//     .then(data => { // 'data' is the JavaScript object that was created after parsing the JSON from the server response
-//         console.log('User account saved successfully:', data);
-//         currentUser.userId = data.user_id;
-//         addNewUserInitialProgress(navigation, currentUser);
-//         navigation.navigate('HomePage', { currentUser }); // TO DELETE! This is here for troubleshooting only. You should only go to the home page upon 2 successful API calls
-//     })
-//     .catch(error => {
-//         console.error('Error saving data:', error);
-//         Alert.alert("Failed to create account, please try again!");
-//     });
-// }
 
 function addNewUserInitialProgress(navigation: any, currentUser: any){
         // UserData POST API call
@@ -364,6 +349,20 @@ function addNewUserInitialProgress(navigation: any, currentUser: any){
             console.error('Error saving goal progress:', error);
             Alert.alert("Failed to save your goals. Please try again!");
         });
+}
+
+
+async function registerUser(baseUrl: string, email: string, password: string) {
+  const res = await fetch(`${baseUrl}/user/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data?.error || data?.detail || 'Registration failed');
+  }
+  return data;
 }
 
 
