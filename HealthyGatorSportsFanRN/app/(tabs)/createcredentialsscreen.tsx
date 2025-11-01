@@ -225,11 +225,12 @@ async function ConfirmData(email: any, password: any, passwordConfirmed: any, na
         // // move to the next screen
         // navigation.navigate('BasicInfo', {currentUser} as never);
         try {
-        const data = await registerUser(AppUrls.url, email, password);
+        // const data = await registerUser(AppUrls.url, email, password);
 
         const currentUser = new User(0,'','','','','','',0,0,0,false,true,0,'', 0, '');
-        currentUser.userId = data.user_id;  // use the server’s id
-        currentUser.email = data.email;
+        // currentUser.userId = data.user_id;  // use the server’s id
+        currentUser.email = email;
+        currentUser.password = password;
 
         navigation.navigate('BasicInfo', { currentUser } as never);
         } catch (e: any) {

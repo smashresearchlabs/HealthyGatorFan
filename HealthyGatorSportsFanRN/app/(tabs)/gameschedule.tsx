@@ -71,7 +71,11 @@ export default function GameSchedule() {
             activeOpacity={0.5}
             onPress={() => NavigateToNotifications(currentUser, navigation)}
           >
-            <Image source={require("./../../assets/images/bell.png")} style={{ width: 40, height: 40, alignSelf: "center", objectFit: "contain" }} />
+            <Image
+              source={require('./../../assets/images/bell.png')}
+              style={{ width: 40, height: 40, alignSelf: 'center' }}
+              resizeMode="contain"
+          />
           </TouchableOpacity>
         </View>
 
@@ -158,7 +162,7 @@ export default function GameSchedule() {
             <Image source={require("../../assets/images/bottomHomeMenu/calendarIcon.png")} style={styles.tabIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
-            onPress={() => NavigateToHomePage(currentUser, navigation)}>
+            onPress={() => NavigateToProcessLogging(currentUser, navigation)}>
             <Image source={require("../../assets/images/bottomHomeMenu/plus.png")} style={{ width: 45, height: 45, alignSelf: "center", objectFit: "contain" }} />
           </TouchableOpacity>
           <TouchableOpacity style={GlobalStyles.bottomIcons} activeOpacity={0.5}
@@ -184,6 +188,9 @@ function LogoutPopup(navigation: any) {
 }
 function NavigateToHomePage(currentUser: any, navigation: any) {
   navigation.navigate("HomePage", { currentUser } as never);
+}
+function NavigateToProcessLogging(currentUser: any, navigation: any) {
+  navigation.navigate('ProcessLogging', { currentUser } as never);
 }
 function NavigateToNotifications(currentUser: any, navigation: any) {
   navigation.navigate("NotificationsPage", { currentUser } as never);
@@ -251,7 +258,7 @@ const ResultPill = ({ game }: { game: Game }) => {
   const oppScore = ufIsHome ? (game.awayPoints as number) : (game.homePoints as number);
   const win = ufScore > oppScore;
   const tie = ufScore === oppScore;
-  const bg = tie ? "#E5E7EB" : win ? colors.ufOrange : "#E11D48";
+  const bg = tie ? "#E5E7EB" : win ? "#1ee738ff" : "#E11D48";
   const fg = tie ? "#111827" : "white";
   return (
     <View style={[styles.pill, { backgroundColor: bg }]}>

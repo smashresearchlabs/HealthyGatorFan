@@ -97,10 +97,6 @@ export default function LogInScreen() {
           >
             <Text style={styles.btnText}>{loading ? 'Logging in…' : 'Login'}</Text>
           </TouchableOpacity>
-
-          {!emailOk && email.length > 0 && (
-            <Text style={styles.helper}>Please enter a valid email address.</Text>
-          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
