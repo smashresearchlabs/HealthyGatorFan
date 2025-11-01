@@ -258,7 +258,7 @@ const ResultPill = ({ game }: { game: Game }) => {
   const oppScore = ufIsHome ? (game.awayPoints as number) : (game.homePoints as number);
   const win = ufScore > oppScore;
   const tie = ufScore === oppScore;
-  const bg = tie ? "#E5E7EB" : win ? colors.ufOrange : "#E11D48";
+  const bg = tie ? "#E5E7EB" : win ? "#1ee738ff" : "#E11D48";
   const fg = tie ? "#111827" : "white";
   return (
     <View style={[styles.pill, { backgroundColor: bg }]}>
