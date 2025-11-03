@@ -216,6 +216,10 @@ export default function ProfileManagement() {
                 <Image source={require('../../assets/images/editPencil.png')} style={styles.pencil} />
               </TouchableOpacity>
 
+              <TouchableOpacity style={styles.deleteBtn} activeOpacity={0.5} onPress={() => deleteAccount(currentUser.userId, navigation)}>
+                <Text style={styles.confirmText}>Delete Account</Text>
+              </TouchableOpacity>
+
               {showEditGoalWeight && (
                 <TextInput
                   style={styles.editBox}
@@ -426,6 +430,36 @@ function ConfirmChanges(
   }
 }
 
+function deleteAccount(user_id: any, navigation: any) {
+  Alert.alert('Account Deletion', 'You are about to delete your account and all associated data with it. Are you absolutely sure that you would like to continue?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Confirm Changes',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteUser(user_id, navigation)
+        }
+      },
+  ]);
+}
+
+const deleteUser = async (
+  user_id: any,
+  navigation: any
+) => {
+
+  const res = await fetch(`${AppUrls.url}/nukeuser/${user_id}/`, {
+    method: 'DELETE'
+  });
+
+  if (res.ok) {
+    navigation.navigate('CreateOrSignIn' as never);
+    clearTokens();
+  } else {
+    Alert.alert("Failed Account Deletion", "Failed to delete user account data");
+  }
+};
+
 const updateUser = async (
   currentUser: any,
   newFirstName: string,
@@ -582,5 +616,22 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
+
+  deleteBtn: {
+    alignSelf: 'center',
+    marginTop: 18,
+    width: '70%',
+    height: 52,
+    borderRadius: 28,
+    backgroundColor: '#FF0000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+
   confirmText: { color: '#fff', fontWeight: '800', fontSize: 16, letterSpacing: 0.2 },
 });

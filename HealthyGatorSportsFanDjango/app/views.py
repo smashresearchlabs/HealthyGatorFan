@@ -128,6 +128,28 @@ class UserUpdateView(APIView):
         else:
             print(serializer.errors)  # Debugging line
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class UserNukeView(APIView): #nukes user and all their associated data from User, UserData, and Notifications
+    @swagger_auto_schema(
+            operation_summary="Nuke user",
+            operation_description="Deletes user data from all databases.",
+            request_body=UserSerializer
+        )
+    def delete(self, request, user_id):
+        print("Entered UserNuke View")
+        try:
+            user = User.objects.get(user_id=user_id)
+            userData = UserData.objects.filter(user_id=user_id)
+            notification = NotificationData.objects.filter(user_id=user_id)
+
+            user.delete()
+            userData.delete()
+            notification.delete()
+
+            return Response({'message': 'Successfully user and associated data.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print("Errors:", e)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class CheckEmailView(APIView):
     @swagger_auto_schema(

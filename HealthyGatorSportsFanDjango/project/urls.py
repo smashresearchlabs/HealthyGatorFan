@@ -20,7 +20,7 @@ from django.urls import path
 #from HealthyGatorSportsFanDjango.app.views import index, CreateUserView, poll_cfbd_view, CreateUserDataView, NotificationListView, CreateNotificationView, DeleteNotificationView, BulkDeleteNotificationsView, UserLoginView, LatestUserDataView, UserUpdateView, CheckEmailView
 # for running locally
 #from app.views import index, CreateUserView, poll_cfbd_view, BasicInfoView, GoalCollectionView, CreateUserDataView (before merge)
-from app.views import index, CreateUserView, poll_cfbd_view, home_tile_view, schedule_view, CreateUserDataView, NotificationListView, CreateNotificationView, DeleteNotificationView, BulkDeleteNotificationsView, UserLoginView, LatestUserDataView, UserUpdateView, CheckEmailView, me_view
+from app.views import index, CreateUserView, poll_cfbd_view, home_tile_view, schedule_view, CreateUserDataView, UserNukeView, NotificationListView, CreateNotificationView, DeleteNotificationView, BulkDeleteNotificationsView, UserLoginView, LatestUserDataView, UserUpdateView, CheckEmailView, me_view
 
 # Import drf-yasg components
 from drf_yasg.views import get_schema_view 
@@ -53,6 +53,7 @@ urlpatterns = [
 
     # API endpoints for app
     path('user/', CreateUserView.as_view(), name='user-create'), # endpoint for user creation screen
+    path('nukeuser/<int:user_id>/', UserNukeView.as_view(), name='nuke-user'),
     path('user/<int:user_id>/', UserUpdateView.as_view(), name='update-user'),
     path('user/login/', UserLoginView.as_view(), name='user-login'),
     path('user/checkemail/', CheckEmailView.as_view(), name='check-user-email'),
