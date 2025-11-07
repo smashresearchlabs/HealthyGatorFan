@@ -1,4 +1,3 @@
-# app/utils.py
 from exponent_server_sdk import PushClient, PushMessage
 import os
 import cfbd

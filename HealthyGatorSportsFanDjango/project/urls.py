@@ -16,10 +16,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-# for pushing to heroku
-#from HealthyGatorSportsFanDjango.app.views import index, CreateUserView, poll_cfbd_view, CreateUserDataView, NotificationListView, CreateNotificationView, DeleteNotificationView, BulkDeleteNotificationsView, UserLoginView, LatestUserDataView, UserUpdateView, CheckEmailView
-# for running locally
-#from app.views import index, CreateUserView, poll_cfbd_view, BasicInfoView, GoalCollectionView, CreateUserDataView (before merge)
 from app.views import index, CreateUserView, poll_cfbd_view, home_tile_view, schedule_view, CreateUserDataView, NotificationListView, CreateNotificationView, DeleteNotificationView, BulkDeleteNotificationsView, UserLoginView, LatestUserDataView, UserUpdateView, CheckEmailView, me_view
 
 # Import drf-yasg components
@@ -41,7 +37,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     # API endpoints for testing
-    #path('api/weights/', WeightView.as_view(), name='weight'),  # endpoint for test with Postman (no fetch on front-end yet)
     path('admin/', admin.site.urls), # Django Admin page (http://127.0.0.1:8000/admin)
     path('', index, name = "index"), # to see database contents for testing (http://127.0.0.1:8000/), see templates -> index.html
     

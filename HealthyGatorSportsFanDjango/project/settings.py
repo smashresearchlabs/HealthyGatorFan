@@ -17,16 +17,10 @@ from dotenv import load_dotenv
 # Load environment variables from the .env file
 load_dotenv()
 
-# Package to handle Heroku database configuration
-import dj_database_url
-
 from pathlib import Path
 
 from celery.schedules import crontab, schedule
 from datetime import timedelta
-
-# for pushing to Heroku
-#from kombu import Connection
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -66,21 +60,6 @@ if os.getenv('K_SERVICE'):
 
 
 # Application definition
-# for pushing to heroku
-#INSTALLED_APPS = [
-#    'django.contrib.admin',
-#    'django.contrib.auth',
-#    'django.contrib.contenttypes',
-#    'django.contrib.sessions',
-#    'django.contrib.messages',
-#    'django.contrib.staticfiles',
-#    'HealthyGatorSportsFanDjango.app',
-#    'rest_framework',
-#    'drf_yasg',
-#    'corsheaders',
-#]
-
-# for running locally
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -130,9 +109,6 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True 
 
-# for pushing to heroku
-#ROOT_URLCONF = 'HealthyGatorSportsFanDjango.project.urls'
-# for running locally
 ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
@@ -150,10 +126,6 @@ TEMPLATES = [
         },
     },
 ]
-
-# for pushing to Heroku
-#WSGI_APPLICATION = 'HealthyGatorSportsFanDjango.project.wsgi.application'
-
 
 # Database configuration
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -183,15 +155,6 @@ else:
             'PORT': os.getenv('DATABASE_PORT', '5432'),
         }
     }
-
-# Database (for pushing to heroku)
-# Configure the database connection using DATABASE_URL environment variable
-# Set a connection max age to reuse database connections (improves performance)
-# Enforce SSL for secure database connections on Heroku
-#DATABASES = {
-#    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-#}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -229,9 +192,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Directory where Django's collectstatic command gathers all static files (CSS, JS, images)
-# Heroku requires this for serving static files in production.
-# All static assets are collected into one location before deployment.
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # HealthyGatorSportsFanDjango/staticfiles
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -251,20 +211,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://tuna-fleet-hamster.ngrok-free.app'
 ]
 
-# for pushing to Heroku
-# configures Celery to handle Redis connections using SSL.
-#BROKER_USE_SSL = {
-#    "ssl_cert_reqs": "CERT_NONE"
-#}
-#CELERY_BROKER_URL = os.environ.get("REDIS_URL") + '?ssl_cert_reqs=CERT_NONE'
-#CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL") + '?ssl_cert_reqs=CERT_NONE'
-#CELERY_BROKER_TRANSPORT_OPTIONS = BROKER_USE_SSL
-#CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = BROKER_USE_SSL
-#CELERY_ACCEPT_CONTENT = ['json']
-#CELERY_TASK_SERIALIZER = 'json'
-#CELERY_RESULT_SERIALIZER = 'json'
-#CELERY_TIMEZONE = 'UTC'
-
 # Celery configuration
 if os.getenv('K_SERVICE'):
     # Production Redis configuration for Cloud Run
@@ -281,15 +227,6 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
-# for pushing to heroku
-#CELERY_BEAT_SCHEDULE = {
-#    'poll-cfbd-every-10-seconds': {
-#        'task': 'HealthyGatorSportsFanDjango.app.tasks.poll_cfbd_task',
-#        'schedule': schedule(10.0),  # 10 seconds
-#    },
-#}
-
-# for running locally
 CELERY_BEAT_SCHEDULE = {
     'poll-cfbd-every-10-seconds': {
         'task': 'app.tasks.poll_cfbd_task',

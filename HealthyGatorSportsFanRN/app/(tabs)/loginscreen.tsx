@@ -129,7 +129,7 @@ const handleLogin = async (currentUser: any, email: any, password: any, navigati
             }
             await saveTokens(access, refresh);
             const data = json.data ?? json; 
-            console.log('User:', data); //fix-me:to be deleted
+            console.log('User:', data);
             currentUser.userId = data.user_id;
             currentUser.email = data.email;
             //currentUser.password = data.password;

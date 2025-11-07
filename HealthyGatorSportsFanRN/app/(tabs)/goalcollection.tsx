@@ -244,13 +244,12 @@ async function confirmGoals(navigation: any, feelBetter: any, loseWeight: any, s
         if (goalWeight === '') {goalWeight = 0;}
         console.log("goalWeight = ", goalWeight);
 
-        // Convert goalWeight to a float
         currentUser.goalWeight = parseFloat(goalWeight);
 
         const data = await registerUser(AppUrls.url, currentUser.email, currentUser.password);
         currentUser.userId = data.user_id;
 
-        const payload = { //JAM: PAYLOAD
+        const payload = {
           first_name: currentUser.firstName,
           last_name: currentUser.lastName,
           birthdate: currentUser.birthDate,
@@ -260,7 +259,7 @@ async function confirmGoals(navigation: any, feelBetter: any, loseWeight: any, s
         };
 
         const res = await fetch(`${AppUrls.url}/user/${currentUser.userId}/`, {
-          method: 'PUT', // or 'PUT' if you prefer
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
@@ -324,7 +323,7 @@ function addNewUserInitialProgress(navigation: any, currentUser: any){
             goal_type: currentUser.goalType,
             weight_value: currentUser.currentWeight,
             feel_better_value: 3
-        })) // TO DELETE
+        }))
     
         fetch(createUserDataUrl, {
             method: 'POST',
