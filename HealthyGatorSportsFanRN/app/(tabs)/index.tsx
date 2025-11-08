@@ -59,8 +59,6 @@ export default function CreateOrSignIn() {
                   goalWeight: user.goal_weight,
                   push_token: user.push_token,
                 };
-                //logic for appending the UserData goals as well before the 2 lines below
-
                 await getLatestUserData(userData, setSavedUser, setHasSavedUser);
 
                 console.log('[gate] auto-login', user.email || user.user_id);

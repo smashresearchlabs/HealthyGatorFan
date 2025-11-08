@@ -224,14 +224,12 @@ async function SaveAndContinue(navigation: any, currentUser: any, weight: any, g
   heightInches = Number(heightInches);
   heightFeet = Number(heightFeet);
 
-  //Save the variables in the user object type
-  // const currentUser: User = { ...userData };
   currentUser.gender = gender;
   currentUser.heightFeet = heightFeet;
   currentUser.heightInches = heightInches;
   currentUser.firstName = firstName;
   currentUser.lastName = lastName;
-  currentUser.birthDate = birthdate.toISOString().split('T')[0]; //JSON.stringify(birthdate.toISOString().split('T')[0]);
+  currentUser.birthDate = birthdate.toISOString().split('T')[0];
   currentUser.currentWeight = weight;
 
   console.log("First name: ", currentUser.firstName);
@@ -242,7 +240,7 @@ async function SaveAndContinue(navigation: any, currentUser: any, weight: any, g
   console.log("Height in inches: ", currentUser.heightInches);
   console.log("Weight: ", currentUser.currentWeight);
   
-  const payload = { //JAM: PAYLOAD
+  const payload = {
     first_name: firstName,
     last_name: lastName,
     birthdate: currentUser.birthDate,
@@ -252,29 +250,6 @@ async function SaveAndContinue(navigation: any, currentUser: any, weight: any, g
   };
 
   try {
-    // const res = await fetch(`${AppUrls.url}/user/${currentUser.userId}/`, {
-    //   method: 'PUT', // or 'PUT' if you prefer
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(payload),
-    // });
-    // const data = await res.json().catch(() => ({} as any));
-    // if (!res.ok) {
-    //   // DRF returns field errors like { field: ["msg"] }
-    //   const msg =
-    //     (data && (data.detail || Object.entries(data).map(([k,v]) => `${k}: ${Array.isArray(v)?v.join(', '):v}`).join('\n'))) ||
-    //     'Failed to save basic info.';
-    //   Alert.alert('Error', msg);
-    //   return;
-    // }
-
-    // currentUser.firstName    = data.first_name ?? currentUser.firstName;
-    // currentUser.lastName     = data.last_name ?? currentUser.lastName;
-    // currentUser.birthDate    = data.birthdate ?? currentUser.birthDate;
-    // currentUser.gender       = data.gender ?? currentUser.gender;
-    // currentUser.heightFeet   = data.height_feet ?? currentUser.heightFeet;
-    // currentUser.heightInches = data.height_inches ?? currentUser.heightInches;
-
-    // Continue to the next screen upon successful data submission
     navigation.navigate('GoalCollection', { currentUser } as never);
   } catch (err: any) {
     Alert.alert('Network Error', String(err?.message ?? err));
